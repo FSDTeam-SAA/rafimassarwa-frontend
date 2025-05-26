@@ -10,6 +10,9 @@ import Image from "next/image";
 import googleImag from "../../../public/images/Authentication/google.png";
 import appleImg from "../../../public/images/Authentication/apple.png";
 import microsoft from "../../../public/images/Authentication/microsoft.png";
+import { registerUser } from "@/app/actions/auth";
+import Router from "next/router";
+import { toast } from "sonner";
 
 // Define the form schema with Zod
 const formSchema = z
@@ -50,9 +53,34 @@ export default function RegistrationForm() {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (data: FormValues) => {
     console.log(data);
     // Handle form submission here
+    try {
+      const result = await registerUser({
+        username: data?.username,
+        email: data?.email,
+        role: "user",
+        password: data?.password,
+        confirmPassword: data?.confirmPassword,
+      });
+
+      console.log("sign up", result);
+
+      if (result.success) {
+        toast("Account Successfully created");
+        toast("Login to continue");
+        Router.push("/login");
+      } else {
+        toast("Registration failed");
+      }
+    } catch (error) {
+      toast("Something went wrong || " + error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -180,7 +208,7 @@ export default function RegistrationForm() {
                 type="submit"
                 className="mt-2 w-full rounded bg-green-500 py-3 font-medium text-white transition-colors hover:bg-green-600"
               >
-                Register
+                {isLoading ? "Registering..." : "Register"}
               </button>
             </form>
           </div>
