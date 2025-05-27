@@ -1,129 +1,175 @@
-"use client";
-import Link from "next/link";
-import PathTracker from "../../_components/PathTracker";
+"use client"
+import type React from "react"
 
-import { useState, useRef } from "react";
-import Image from "next/image";
-import { Upload } from "lucide-react";
+import { useRouter } from "next/navigation"
+import { useState, useRef } from "react"
+import Image from "next/image"
+import { Upload } from "lucide-react"
+import useAxios from "@/hooks/useAxios"
+import { useMutation } from "@tanstack/react-query"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import PathTracker from "../../_components/PathTracker"
+
+interface FormData {
+  userName: string
+  phoneNumber: string
+  email: string
+  address: string
+  imageLink: string
+}
+
+interface InfluencerPayload extends FormData {
+  role: string
+  followers: number
+}
 
 const Page = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-  });
+  const router = useRouter()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+  } = useForm({
+    defaultValues: {
+      userName: "",
+      phoneNumber: "",
+      email: "",
+      address: "",
+      imageLink: "",
+    },
+  })
 
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+    e.preventDefault()
+    setIsDragging(true)
+  }
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
+    e.preventDefault()
+    setIsDragging(false)
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+    e.preventDefault()
+    setIsDragging(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
+      handleFile(e.dataTransfer.files[0])
     }
-  };
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
+      handleFile(e.target.files[0])
     }
-  };
+  }
 
   const handleFile = (file: File) => {
     // Check if file is jpeg or png
     if (!file.type.match("image/jpeg") && !file.type.match("image/png")) {
-      alert("Only JPEG and PNG files are allowed");
-      return;
+      toast.error("Only JPEG and PNG files are allowed")
+      return
     }
 
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = (e) => {
       if (e.target?.result) {
-        setUploadedImage(e.target.result as string);
+        const imageDataUrl = e.target.result as string
+        setUploadedImage(imageDataUrl)
+        setValue("imageLink", imageDataUrl)
       }
-    };
-    reader.readAsDataURL(file);
-  };
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleBrowseClick = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form data:", formData);
-    console.log("Image:", uploadedImage);
-    alert("Form submitted successfully!");
-  };
+  const axiosInstance = useAxios()
+
+  const { mutateAsync } = useMutation({
+    mutationKey: ["add-influencer"],
+    mutationFn: async (data: InfluencerPayload) => {
+      const res = await axiosInstance.post("/admin/influencer/create", data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast.success("Influencer added successfully!")
+      router.push("/dashboard/influencers")
+    },
+    onError: () => {
+      toast.error("Failed to add influencer")
+    },
+  })
+
+  const onSubmit = async (data: FormData) => {
+    console.log("first", data)
+    try {
+      const payload: InfluencerPayload = {
+        ...data,
+        role: "influencer",
+        followers: 0,
+      }
+      await mutateAsync(payload)
+    } catch (error) {
+      console.error("Submission error:", error)
+    }
+  }
 
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
         <PathTracker />
 
-        <Link href={"/dashboard/influencers/add-influencers"}>
-          <button className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold">
-            + Add Influencers
-          </button>
-        </Link>
+        <button
+          onClick={() => formRef.current?.requestSubmit()}
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-[#28a745] text-white rounded-md hover:bg-[#218838] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Adding..." : "Add Influencer"}
+        </button>
       </div>
 
       <div>
         <div className="border border-[#b0b0b0] rounded-lg p-4">
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
+          <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-5">
               <div>
-                <label htmlFor="name" className="block text-gray-700 mb-2">
+                <label htmlFor="userName" className="block text-gray-700 mb-2">
                   Influencers Name
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
+                  id="userName"
+                  {...register("userName", { required: "Name is required" })}
                   className="w-full p-3 outline-none rounded-md bg-inherit border border-[#b0b0b0]"
                   placeholder="Enter Influencer Name"
-                  required
                 />
+                {errors.userName && <p className="text-red-500 text-sm mt-1">{errors.userName.message}</p>}
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-gray-700 mb-2">
+                <label htmlFor="phoneNumber" className="block text-gray-700 mb-2">
                   Phone Number
                 </label>
                 <input
                   type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
+                  id="phoneNumber"
+                  {...register("phoneNumber", {
+                    required: "Phone number is required",
+                  })}
                   className="w-full p-3 outline-none rounded-md bg-inherit border border-[#b0b0b0]"
                   placeholder="Enter Phone Number"
-                  required
                 />
+                {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message}</p>}
               </div>
 
               <div>
@@ -133,13 +179,17 @@ const Page = () => {
                 <input
                   type="email"
                   id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: "Invalid email address",
+                    },
+                  })}
                   className="w-full p-3 outline-none rounded-md bg-inherit border border-[#b0b0b0]"
                   placeholder="Enter Email Address"
-                  required
                 />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
               </div>
 
               <div>
@@ -149,13 +199,11 @@ const Page = () => {
                 <input
                   type="text"
                   id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
+                  {...register("address", { required: "Address is required" })}
                   className="w-full p-3 outline-none rounded-md bg-inherit border border-[#b0b0b0]"
                   placeholder="Address"
-                  required
                 />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
               </div>
             </div>
 
@@ -182,12 +230,8 @@ const Page = () => {
                 ) : (
                   <>
                     <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                    <p className="text-gray-500 text-center">
-                      Drop your imager here, or browse
-                    </p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      Jpeg, png are allowed
-                    </p>
+                    <p className="text-gray-500 text-center">Drop your imager here, or browse</p>
+                    <p className="text-gray-400 text-sm mt-1">Jpeg, png are allowed</p>
                   </>
                 )}
                 <input
@@ -203,7 +247,7 @@ const Page = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page
