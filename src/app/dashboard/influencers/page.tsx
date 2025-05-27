@@ -1,141 +1,155 @@
-"use client";
-import Link from "next/link";
-import PathTracker from "../_components/PathTracker";
+"use client"
+import Link from "next/link"
+import PathTracker from "../_components/PathTracker"
 
-import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useState } from "react"
+import { Pencil, Trash2 } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import useAxios from "@/hooks/useAxios"
 
-interface User {
-  id: number;
-  name: string;
-  avatar: string;
-  phone: string;
-  email: string;
-  followers: number;
+interface Influencer {
+  _id: string
+  userName: string
+  email: string
+  phoneNumber: string
+  role: string
+  address: string
+  followers: number
+  createdAt: string
+  updatedAt: string
+  __v: number
+}
+
+interface ApiResponse {
+  status: boolean
+  message: string
+  data: Influencer[]
+  meta: {
+    total: number
+    limit: number
+    page: number
+    pages: number
+  }
 }
 
 const Page = () => {
-  // Mock data for the table
-  const [users] = useState<User[]>([
-    {
-      id: 1,
-      name: "Ronald Richards",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(916) 555-0116",
-      email: "xeno@yandex.ru",
-      followers: 2450,
+  const [currentPage, setCurrentPage] = useState(1)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedInfluencer, setSelectedInfluencer] = useState<Influencer | null>(null)
+  const [editForm, setEditForm] = useState({
+    userName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    followers: 0,
+  })
+
+  const axiosInstance = useAxios()
+  const queryClient = useQueryClient()
+
+  const {
+    data: apiResponse,
+    isLoading,
+    error,
+  } = useQuery<ApiResponse>({
+    queryKey: ["influencers", currentPage],
+    queryFn: async () => {
+      const response = await axiosInstance(`/admin/influencer/get-all-influencer?page=${currentPage}&limit=10`)
+      return response.data
     },
-    {
-      id: 2,
-      name: "Bessie Cooper",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(225) 555-0118",
-      email: "cadence@gmail.com",
-      followers: 2450,
+  })
+
+  // Update influencer mutation
+  const updateInfluencerMutation = useMutation({
+    mutationFn: async (data: { id: string; updateData: Partial<Influencer> }) => {
+      const response = await axiosInstance.put(`/admin/influencer/update/${data.id}`, data.updateData)
+      return response.data
     },
-    {
-      id: 3,
-      name: "Marvin McKinney",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(217) 555-0113",
-      email: "fzaaaaa@gmail.com",
-      followers: 2450,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["influencers"] })
+      setEditModalOpen(false)
+      setSelectedInfluencer(null)
     },
-    {
-      id: 4,
-      name: "Eleanor Pena",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(702) 555-0122",
-      email: "osgoodwy@gmail.com",
-      followers: 2450,
+  })
+
+  // Delete influencer mutation
+  const deleteInfluencerMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await axiosInstance.delete(`/admin/influencer/delete/${id}`)
+      return response.data
     },
-    {
-      id: 5,
-      name: "Cameron Williamson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(406) 555-0128",
-      email: "rrian@yandex.ru",
-      followers: 2450,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["influencers"] })
+      setDeleteModalOpen(false)
+      setSelectedInfluencer(null)
     },
-    {
-      id: 6,
-      name: "Robert Fox",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(303) 555-0105",
-      email: "qamrho@mail.ru",
-      followers: 2450,
-    },
-    {
-      id: 7,
-      name: "Albert Flores",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(270) 555-0117",
-      email: "redoniel@gmail.com",
-      followers: 2450,
-    },
-    {
-      id: 8,
-      name: "Ralph Edwards",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(252) 555-0126",
-      email: "seannand@gmail.ru",
-      followers: 2450,
-    },
-    {
-      id: 9,
-      name: "Guy Hawkins",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(302) 555-0107",
-      email: "ulfaha@mail.ru",
-      followers: 2450,
-    },
-    {
-      id: 10,
-      name: "Wade Warren",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(208) 555-0112",
-      email: "hamil@gmail.com",
-      followers: 2450,
-    },
-    {
-      id: 11,
-      name: "Wade Warren",
-      avatar: "/placeholder.svg?height=40&width=40",
-      phone: "(208) 555-0112",
-      email: "hamil@gmail.com",
-      followers: 2450,
+  })
+
+  const handleEdit = (influencer: Influencer) => {
+    setSelectedInfluencer(influencer)
+    setEditForm({
+      userName: influencer.userName,
+      email: influencer.email,
+      phoneNumber: influencer.phoneNumber,
+      address: influencer.address,
+      followers: influencer.followers,
+    })
+    setEditModalOpen(true)
+  }
+
+  const handleDelete = (influencer: Influencer) => {
+    setSelectedInfluencer(influencer)
+    setDeleteModalOpen(true)
+  }
+
+  const handleEditSubmit = () => {
+    if (selectedInfluencer) {
+      updateInfluencerMutation.mutate({
+        id: selectedInfluencer._id,
+        updateData: editForm,
+      })
     }
-  ]);
+  }
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 10;
-  const totalPages = Math.ceil(users.length / usersPerPage);
+  const handleDeleteConfirm = () => {
+    if (selectedInfluencer) {
+      deleteInfluencerMutation.mutate(selectedInfluencer._id)
+    }
+  }
 
-  // Get current users
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+  const influencers = apiResponse?.data || []
+  const meta = apiResponse?.meta
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading influencers...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-500">Error loading influencers</div>
+      </div>
+    )
+  }
 
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
         <PathTracker />
-
         <Link href={"/dashboard/influencers/add-influencers"}>
-          <button className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold">
-            + Add Influencers
-          </button>
+          <button className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold">+ Add Influencers</button>
         </Link>
       </div>
 
@@ -144,45 +158,33 @@ const Page = () => {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[#b0b0b0]">
-                <TableHead className=" text-center font-medium">Name</TableHead>
-                <TableHead className=" text-center font-medium">
-                  Phone
-                </TableHead>
-                <TableHead className=" text-center font-medium">
-                  Email
-                </TableHead>
-                <TableHead className=" text-center font-medium">
-                  Followers
-                </TableHead>
-                <TableHead className="text-right font-medium">
-                  Actions
-                </TableHead>
+                <TableHead className="text-center font-medium">Name</TableHead>
+                <TableHead className="text-center font-medium">Phone</TableHead>
+                <TableHead className="text-center font-medium">Email</TableHead>
+                <TableHead className="text-center font-medium">Followers</TableHead>
+                <TableHead className="text-right font-medium">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentUsers.map((user) => (
-                <TableRow key={user.id} className="border-b border-[#b0b0b0]">
+              {influencers.map((influencer) => (
+                <TableRow key={influencer._id} className="border-b border-[#b0b0b0]">
                   <TableCell className="flex items-center gap-3 py-4 border-none">
                     <Avatar className="h-12 w-12 border border-gray-200">
-                      <AvatarImage
-                        src={user.avatar || "/placeholder.svg"}
-                        alt={user.name}
-                      />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src="/placeholder.svg?height=40&width=40" alt={influencer.userName} />
+                      <AvatarFallback>{influencer.userName.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">{user.name}</span>
+                    <span className="font-medium">{influencer.userName}</span>
                   </TableCell>
-                  <TableCell className="border-none">{user.phone}</TableCell>
-                  <TableCell className="border-none">{user.email}</TableCell>
-                  <TableCell className="border-none">
-                    {user.followers}
-                  </TableCell>
+                  <TableCell className="border-none">{influencer.phoneNumber}</TableCell>
+                  <TableCell className="border-none">{influencer.email}</TableCell>
+                  <TableCell className="border-none">{influencer.followers}</TableCell>
                   <TableCell className="border-none">
                     <div className="flex justify-end space-x-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-gray-500"
+                        onClick={() => handleEdit(influencer)}
                       >
                         <Pencil className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
@@ -191,6 +193,7 @@ const Page = () => {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-gray-500"
+                        onClick={() => handleDelete(influencer)}
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>
@@ -204,55 +207,143 @@ const Page = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between mt-4 text-sm">
-          <div>
-            Showing {indexOfFirstUser + 1}-
-            {Math.min(indexOfLastUser, users.length)} from {users.length}
-          </div>
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              &lt;
-            </Button>
+        {meta && (
+          <div className="flex items-center justify-between mt-4 text-sm">
+            <div>
+              Showing {(meta.page - 1) * meta.limit + 1}-{Math.min(meta.page * meta.limit, meta.total)} from{" "}
+              {meta.total}
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                &lt;
+              </Button>
 
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNumber = i + 1;
-              return (
-                <Button
-                  key={i}
-                  variant={currentPage === pageNumber ? "default" : "outline"}
-                  size="icon"
-                  className={`h-8 w-8 ${
-                    currentPage === pageNumber
-                      ? "bg-green-500 border-green-500 hover:bg-green-600"
-                      : ""
-                  }`}
-                  onClick={() => setCurrentPage(pageNumber)}
-                >
-                  {pageNumber}
-                </Button>
-              );
-            })}
+              {Array.from({ length: Math.min(5, meta.pages) }, (_, i) => {
+                const pageNumber = i + 1
+                return (
+                  <Button
+                    key={i}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="icon"
+                    className={`h-8 w-8 ${
+                      currentPage === pageNumber ? "bg-green-500 border-green-500 hover:bg-green-600" : ""
+                    }`}
+                    onClick={() => setCurrentPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                )
+              })}
 
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              &gt;
-            </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === meta.pages}
+              >
+                &gt;
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
-    </div>
-  );
-};
 
-export default Page;
+      {/* Edit Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Influencer</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="userName">Username</Label>
+              <Input
+                id="userName"
+                value={editForm.userName}
+                onChange={(e) => setEditForm({ ...editForm, userName: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                value={editForm.phoneNumber}
+                onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={editForm.address}
+                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="followers">Followers</Label>
+              <Input
+                id="followers"
+                type="number"
+                value={editForm.followers}
+                onChange={(e) => setEditForm({ ...editForm, followers: Number.parseInt(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditSubmit}
+              disabled={updateInfluencerMutation.isPending}
+              className="bg-[#28a745] hover:bg-[#218838]"
+            >
+              {updateInfluencerMutation.isPending ? "Updating..." : "Update"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Influencer</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              Are you sure you want to delete <strong>{selectedInfluencer?.userName}</strong>? This action cannot be
+              undone.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteInfluencerMutation.isPending}>
+              {deleteInfluencerMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+export default Page
