@@ -43,6 +43,12 @@ const items = [
     icon: Newspaper,
   },
   {
+    title: "Deep Research",
+    url: "/dashboard/deep-research",
+    addUrl: "/dashboard/news/add-news",
+    icon: Newspaper,
+  },
+  {
     title: "Ads",
     url: "/dashboard/ads",
     addUrl: "/dashboard/ads/add-ads",
