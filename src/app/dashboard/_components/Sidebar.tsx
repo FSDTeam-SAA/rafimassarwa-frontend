@@ -5,6 +5,7 @@ import {
   LogOut,
   MicVocal,
   Newspaper,
+  Search,
   Settings,
   TableRowsSplit,
   UserRoundPlus,
@@ -30,6 +31,12 @@ import Link from "next/link";
 // Menu items.
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  {
+    title: "Set Search Result",
+    url: "/dashboard/set-search-result",
+    addUrl: "/dashboard/youtube-video/add-video",
+    icon: Search,
+  },
   {
     title: "Youtube Video",
     url: "/dashboard/youtube-video",
@@ -75,7 +82,7 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar className="border-none">
       <SidebarContent className="bg-white pb-8 pt-5 flex flex-col justify-between">
         <SidebarGroup>
           <Link href={"/"}>
