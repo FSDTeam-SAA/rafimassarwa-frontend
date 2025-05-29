@@ -5,7 +5,7 @@ import EarningsHistoryChart from './earnings-history-chart'
 import EarningsHistoryTable from './earnings-history-table'
 import PriceChangesTable from './price-changes'
 import OverviewFAQ from '../overview-faq'
-import MarketNewsCard from '@/app/(website)/stock/[stockName]/news-insights/_components/MarketNewsCard'
+import MarketNewsCard from '@/app/(website)/stock/[stockName]/news/_components/MarketNewsCard'
 import StockPremiumBanner from '@/components/Portfolio/chart/chart-bottom'
 
 
