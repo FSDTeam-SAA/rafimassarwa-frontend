@@ -2,9 +2,8 @@
 
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { MdAltRoute, MdStackedLineChart } from "react-icons/md";
+import { MdAltRoute } from "react-icons/md";
 import { SiRedbull } from "react-icons/si";
-import { FaBookReader } from "react-icons/fa";
 import {
     Sidebar,
     SidebarContent,
@@ -15,16 +14,25 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ChartBar } from "lucide-react";
-import { CiMicrochip } from "react-icons/ci";
+import { ChartBar, ChevronDown } from "lucide-react";
 import { HiOutlineNewspaper } from "react-icons/hi";
 import { LiaCoinsSolid } from "react-icons/lia";
 import { GiChart } from "react-icons/gi";
-import { RiPieChartFill } from "react-icons/ri";
-import { TbChartBubble, TbUserDollar } from "react-icons/tb";
+import { TbChartBubble } from "react-icons/tb";
 import { TiWaves } from "react-icons/ti";
 
 
@@ -52,20 +60,20 @@ export function OverviewSidebar({ params: { stockName } }: { params: { stockName
             label: "Overview",
             href: `/stock/aapl`,
         },
-        {
-            icon: <FaBookReader />,
-            label: "Analyst Forecasts",
-            href: "/stock/aapl/analyst-forecasts",
-        },
-        {
-            icon: <CiMicrochip />,
-            label: "AI Stock Analysis",
-            href: "/stock/aapl/stock-analysis",
-        },
+        // {
+        //     icon: <FaBookReader />,
+        //     label: "Analyst Forecasts",
+        //     href: "/stock/aapl/analyst-forecasts",
+        // },
+        // {
+        //     icon: <CiMicrochip />,
+        //     label: "AI Stock Analysis",
+        //     href: "/stock/aapl/stock-analysis",
+        // },
         {
             icon: <SiRedbull />,
-            label: "News & Insights",
-            href: "/stock/aapl/news-insights",
+            label: "News",
+            href: "/stock/aapl/news",
         },
         {
             icon: <HiOutlineNewspaper />,
@@ -77,11 +85,11 @@ export function OverviewSidebar({ params: { stockName } }: { params: { stockName
             label: "Dividends",
             href: "/stock/aapl/dividends",
         },
-        {
-            icon: <MdStackedLineChart />,
-            label: "Technical Analysis",
-            href: "/stock/aapl/technical-analysis",
-        },
+        // {
+        //     icon: <MdStackedLineChart />,
+        //     label: "Technical Analysis",
+        //     href: "/stock/aapl/technical-analysis",
+        // },
         {
             icon: <MdAltRoute />,
             label: "Options",
@@ -92,21 +100,21 @@ export function OverviewSidebar({ params: { stockName } }: { params: { stockName
             label: "Chart",
             href: "/stock/aapl/chart",
         },
-        {
-            icon: <RiPieChartFill />,
-            label: "Earnings",
-            href: "/stock/aapl/earnings",
-        },
+        // {
+        //     icon: <RiPieChartFill />,
+        //     label: "Earnings",
+        //     href: "/stock/aapl/earnings",
+        // },
         {
             icon: <TbChartBubble />,
             label: "Ownership",
             href: "/stock/aapl/ownership",
         },
-        {
-            icon: <TbUserDollar />,
-            label: "Stock Buybacks",
-            href: "/stock/aapl/stock-buybacks",
-        },
+        // {
+        //     icon: <TbUserDollar />,
+        //     label: "Stock Buybacks",
+        //     href: "/stock/aapl/stock-buybacks",
+        // },
         {
             icon: <TiWaves />,
             label: "Similar Stocks",
@@ -151,6 +159,24 @@ export function OverviewSidebar({ params: { stockName } }: { params: { stockName
                                     </SidebarMenuItem>
                                 )
                             })}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <SidebarMenuButton className="flex items-center justify-between px-7 py-5 text-xl rounded-none text-[#4E4E4E] hover:text-gray-900">
+                                        <span className="text-xs font-semibold">More</span>
+                                        <ChevronDown className="h-5 w-5" />
+                                    </SidebarMenuButton>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-full bg-transparent shadow-none border-none" >
+                                    <DropdownMenuLabel className="bg-[#E0E0E0]">Research Tools</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/research/top-olive-stocks">Top Olive Stocks</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/research/stock-screener">Stock Screener</Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
