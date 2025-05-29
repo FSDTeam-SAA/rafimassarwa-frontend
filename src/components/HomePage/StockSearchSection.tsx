@@ -39,43 +39,10 @@ export default function StockSearchSection() {
 
         {/* Stock Grid */}
         <div className="mt-10">
-          {/* First Row */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {stockData.slice(0, 5).map((stock, index) => (
               <div
                 key={`stock-top-${index}`}
-                className="flex items-center justify-between rounded-full bg-white px-4 py-3 shadow-sm"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-                    <Image
-                      src="/apple-logo.svg"
-                      alt="Apple Logo"
-                      width={16}
-                      height={16}
-                      className="h-4 w-4 text-white"
-                    />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-blue-500">{stock.symbol}</div>
-                    <div className="text-sm font-medium">{stock.name}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium">{stock.price}</div>
-                  <div className="text-xs font-medium text-green-500">
-                    {stock.change} ({stock.changePercent})
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Second Row */}
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {stockData.slice(0, 4).map((stock, index) => (
-              <div
-                key={`stock-bottom-${index}`}
                 className="flex items-center justify-between rounded-full bg-white px-4 py-3 shadow-sm"
               >
                 <div className="flex items-center space-x-3">
