@@ -1,17 +1,14 @@
-"use server";
+"use server"
 
-import { cookies } from "next/headers";
+import { cookies } from "next/headers"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-console.log("url", API_BASE_URL);
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"
 
 export async function registerUser(userData: {
-  username: string;
-  email: string;
-  role: string;
-  password: string;
-  confirmPassword: string;
+  userName: string
+  email: string
+  password: string
+  confirmPassword: string
 }) {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -20,34 +17,34 @@ export async function registerUser(userData: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
-    });
+    })
 
-    const data = await response.json();
-    // console.log("signup data", data);
+    const data = await response.json()
 
-    if (!response.ok) {
+    if (!response.ok || data.statusCode !== 200) {
       return {
         success: false,
         message: data.message || "Registration failed",
-      };
+      }
     }
 
     return {
       success: true,
       data: data.data,
-    };
+      message: data.message,
+    }
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("Registration error:", error)
     return {
       success: false,
       message: "An error occurred during registration",
-    };
+    }
   }
 }
 
 export async function loginUser(credentials: {
-  username: string;
-  password: string;
+  email: string
+  password: string
 }) {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -56,46 +53,36 @@ export async function loginUser(credentials: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(credentials),
-    });
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
-    if (!response.ok || !data.status) {
+    if (!response.ok || data.statusCode !== 200) {
       return {
         success: false,
         message: data.message || "Login failed",
-      };
+      }
     }
-
-    // Optional: Store refreshToken in cookie if needed
-    const cookieStore = cookies();
-    cookieStore.set("refreshToken", data.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
-    });
 
     return {
       success: true,
-      data: data.data, 
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-    };
+      data: data.data,
+    }
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Login error:", error)
     return {
       success: false,
       message: "An error occurred during login",
-    };
+    }
   }
 }
 
 export async function logout() {
-  const cookieStore = cookies();
-  const allCookies = cookieStore.getAll();
+  const cookieStore = await cookies()
+  const allCookies = cookieStore.getAll()
+
   // Delete each cookie
   allCookies.forEach((cookie) => {
-    cookieStore.delete(cookie.name);
-  });
+    cookieStore.delete(cookie.name)
+  })
 }
