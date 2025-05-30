@@ -21,12 +21,13 @@ export async function registerUser(userData: {
 
     const data = await response.json()
 
-    if (!response.ok || data.statusCode !== 200) {
-      return {
-        success: false,
-        message: data.message || "Registration failed",
-      }
-    }
+    if (!response.ok || data.statusCode < 200 || data.statusCode >= 300) {
+  return {
+    success: false,
+    message: data.message || "Registration failed",
+  }
+}
+
 
     return {
       success: true,

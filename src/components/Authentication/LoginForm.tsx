@@ -166,7 +166,7 @@ export default function LoginForm() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 {"Don't have an account? "}
-                <Link href="/register" className="text-green-500 hover:text-green-600">
+                <Link href="/registration" className="text-green-500 hover:text-green-600">
                   Sign up
                 </Link>
               </p>
