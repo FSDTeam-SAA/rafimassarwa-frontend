@@ -5,7 +5,7 @@ import FinancialFlowDiagram from "./_components/Tree";
 const page = () => {
   return (
     <div>
-      <div className="w-[978px] h-[1000px] mx-auto mt-10">
+      <div className="container h-[1000px] mx-auto mt-10">
         <FinancialFlowDiagram />
       </div>
 

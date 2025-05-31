@@ -1,245 +1,205 @@
 "use client"
 
-export default function FinancialFlowDiagram() {
+import { useEffect, useRef, useState } from "react"
+import * as echarts from "echarts"
+
+interface Node {
+  name: string
+}
+
+interface Link {
+  source: string
+  target: string
+  value: number
+}
+
+interface SankeyData {
+  nodes: Node[]
+  links: Link[]
+}
+
+interface SankeyChartProps {
+  symbol?: string
+  className?: string
+}
+
+export default function SankeyChart({ symbol = "AAPL", className = "" }: SankeyChartProps) {
+  const chartRef = useRef<HTMLDivElement>(null)
+  const chartInstance = useRef<echarts.ECharts | null>(null)
+  const [data, setData] = useState<SankeyData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stocks/revenue-breakdown?symbol=${symbol}`)
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`)
+        }
+
+        const result = await response.json()
+        setData(result)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch data")
+        console.error("Error fetching Sankey data:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [symbol])
+
+  // Initialize and update chart
+  useEffect(() => {
+    if (!chartRef.current || !data) return
+
+    // Initialize chart if not already done
+    if (!chartInstance.current) {
+      chartInstance.current = echarts.init(chartRef.current)
+    }
+
+    const option: echarts.EChartsOption = {
+      tooltip: {
+        trigger: "item",
+        triggerOn: "mousemove",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formatter: (params: any) => {
+          if (params.dataType === "edge") {
+            return `${params.data.source} → ${params.data.target}<br/>Value: $${params.data.value.toFixed(2)}B`
+          } else {
+            return `${params.data.name}`
+          }
+        },
+      },
+      animation: true,
+      animationDuration: 1000,
+      series: [
+        {
+          type: "sankey",
+          top: "5%",
+          bottom: "5%",
+          left: "3%",
+          right: "3%",
+          nodeWidth: 20,
+          nodeGap: 8,
+          layoutIterations: 32,
+          emphasis: {
+            focus: "adjacency",
+          },
+          data: data.nodes,
+          links: data.links,
+          orient: "vertical",
+          label: {
+            position: "top",
+            fontSize: 11,
+            fontWeight: "bold",
+            color: "#333",
+            distance: 5,
+          },
+          lineStyle: {
+            color: "gradient",
+            curveness: 0.5,
+            opacity: 0.7,
+          },
+          itemStyle: {
+            borderWidth: 1,
+            borderColor: "#fff",
+          },
+          levels: [
+            {
+              depth: 0,
+              itemStyle: {
+                color: "#24963E",
+              },
+            },
+            {
+              depth: 1,
+              itemStyle: {
+                color: "#566AEA",
+              },
+            },
+            {
+              depth: 2,
+              itemStyle: {
+                color: "#C23636",
+              },
+            },
+            {
+              depth: 3,
+              itemStyle: {
+                color: "#D6AB1E",
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    chartInstance.current.setOption(option, true)
+
+    // Handle resize
+    const handleResize = () => {
+      chartInstance.current?.resize()
+    }
+
+    window.addEventListener("resize", handleResize)
+
+    return () => {
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [data])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.dispose()
+        chartInstance.current = null
+      }
+    }
+  }, [])
+
+  if (loading) {
+    return (
+      <div className={`flex items-center justify-center h-96 ${className}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading financial data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className={`flex items-center justify-center h-96 ${className}`}>
+        <div className="text-center">
+          <div className="text-red-500 mb-2">⚠️</div>
+          <p className="text-red-600 font-medium">Error loading data</p>
+          <p className="text-gray-500 text-sm mt-1">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="relative w-full max-w-[1200px] mx-auto mt-10">
-      <div className="flex">
-        {/* Left side labels */}
-        <div className="flex flex-col justify-start items-end pr-4 text-right" style={{ width: "120px" }}>
-          <div className="h-[33px] mb-[67px]">
-            <div className="font-bold text-sm">Net Profit</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Tax</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Gross Profit</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Operating Profit</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Revenue</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Ad Revenue</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px]">
-            <div className="text-xs font-bold">$54bn</div>
-          </div>
-        </div>
-
-        {/* SVG Container */}
-        <div className="relative">
-          <svg width="978" height="700" viewBox="0 0 978 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M479.91 898.808C514.726 925.946 516.5 959.5 516 995L455.415 1010C458.811 941.651 437.369 910.325 426.223 903.205C392.256 872.549 389.071 830.962 391.725 814L453.5 816C451.377 850.677 468.587 884.987 479.91 898.808Z"
-              fill="url(#paint0_linear_13140_12289)"
-            />
-            <path
-              d="M383 1010C381.5 990.5 386.449 874.418 390 817H339.936V852.834C334.398 865.407 333.723 962.85 334.078 1010H383Z"
-              fill="url(#paint1_linear_13140_12289)"
-            />
-            <rect x="334" y="977" width="49" height="33" fill="#566AEA" />
-            <rect x="455" y="977" width="61" height="33" fill="#566AEA" />
-            <path
-              d="M287 51.5C287 79.1 256.666 109 241.499 120.5C232.719 127.085 227.658 140.35 225.999 151C225.239 155.875 225.947 159.807 225.999 163H201.5V154C201.9 129.2 183.333 106.667 174 98.5C162.8 89.3 158 63.3333 157 51.5V0H174V51.5C174.4 75.1 186.833 94.3333 193 101C201.4 107.4 209.167 121 212 127C214.8 135.8 217.167 151.667 218 158.5L221 141C223.8 125.8 240.833 108 249 101C271.8 85.4 277.667 60.5 278 50.5V0H287V51.5Z"
-              fill="#D9D9D9"
-            />
-            <path
-              d="M112.997 0H1.99725C-10.0028 78 34.9972 101.5 58.9972 103.5C88.5973 117.1 102.331 136.5 105.497 144.5V209C109.897 256.6 146.331 289.833 163.997 300.5C195.197 320.1 205.664 354.667 206.997 369.5V432.5H343.497V384.5C342.297 338.5 295.997 293 272.997 276C248.997 256.8 252 230.5 244.497 209L226.5 186.5L220.997 159C212.5 120.5 181.831 108.167 163.997 103.5C133.197 95.9 117.164 67 112.997 53.5V0Z"
-              fill="url(#paint2_linear_13140_12289)"
-            />
-            <path
-              d="M812.499 304H928.998C940.998 382 893.999 414 869.999 416C840.399 429.6 817.5 455.5 803.5 487V535C791.5 560.5 772.5 548.5 761 572.5V605C761 617.264 726.833 644.167 725.5 659H609.5C610.7 613 629.499 597 652.499 580C676.499 560.8 673.496 534.5 680.999 513L687.5 487L698.5 463C706.501 452.5 699 454.925 761.499 416C800 392.021 808.332 371 812.499 357.5V304Z"
-              fill="url(#paint3_linear_13140_12289)"
-            />
-            <path
-              d="M594 578.5C579 594.5 586.5 606.5 581.5 612L543 658.5L609.5 659V654.5C609.5 651.5 610 649 610 649L610.5 645L611.5 638.5L612.5 633.5L614 628L616.5 620.5L620 613L624 606.5L628.5 601L633.5 595.5L650 582.5L661.5 572.5L670 559.5L685 505.5C682.6 473.1 713.5 422.167 729.5 410C760.7 390 761.167 331 757.5 304H675.5C677 367 665.333 394.5 657.5 399C649.1 406.6 626.667 430.5 616.5 441.5C597.7 467.9 596.667 518.333 600 539.5C602.8 562.3 598 552 594 578.5Z"
-              fill="url(#paint4_linear_13140_12289)"
-            />
-            <path
-              d="M467.5 432.5H343.816L338.501 397C330.501 357.8 390.816 299.833 419.316 282.5C453.316 261.7 462.15 225.5 462.316 210V159.5C464.316 143.1 457.483 118.333 453.816 108C445.816 99.2 440.316 77.5 439.53 65.5L440.316 0H502.816L503.03 45.5C502.23 61.1 506.15 82 508.316 89C513.116 97 519.65 117.667 522.316 127C521.916 139.4 524.816 147.833 526.316 150.5C522.316 130.1 540.65 105 550.316 95C565.516 76.6 565.316 54.6667 563.316 46V0H606.03V45C607.63 70.2 591.316 95.5 583.316 104.5C576.116 112.5 569.983 124.5 567.816 129.5C564.216 137.1 563.316 152.667 563.316 159.5C568.916 127.9 601.65 112 617.316 108C670.516 94 691.15 60.8333 694.816 46V0H718.03C724.53 95 674.15 104.333 644.316 108C601.516 120.4 588.483 144.167 587.316 154.5V200.5C589.316 249.3 536.483 292.833 509.816 308.5C473.416 331.3 467 360.5 467.5 375V432.5Z"
-              fill="url(#paint5_linear_13140_12289)"
-            />
-            <path
-              d="M727.521 692C727.354 714 733.321 763.9 758.521 787.5C777.521 808.333 815.5 863 805.521 930H762.521C762.521 891.5 765.421 845.1 735.021 815.5C719.945 796.997 693.618 762.466 688.522 725.866C688.072 748.505 686.207 774.533 681.02 787.5C675.853 816.5 665.8 885.6 669 930H623.518C621.685 907.333 620.018 856.6 628.018 835C635.852 794.333 650.02 708.8 644.02 692H727.521Z"
-              fill="url(#paint6_linear_13140_12289)"
-            />
-            <path
-              d="M467 430C466.5 453.5 466.247 503.1 470.647 513.5C472.981 525.333 479.349 551.2 486.149 560C492.238 577.842 502.417 616.616 501.662 647.5V649.444C501.763 653.463 502.447 655.308 501.662 659.5H637L646.5 688C646.833 700.833 597.849 737.3 536.649 750.5C508.816 754.667 454.6 770.5 451 812.5L344.649 837.5V880C344.649 883 344.649 900 319.149 923.5C308.982 932.5 290.149 962.4 296.149 1010H28.6503C26.6503 1002.33 23.8503 983.1 28.6503 967.5C31.1497 956.833 39.8484 932.4 54.6484 920C62.8151 912.5 79.1484 889.3 79.1484 856.5L80 833.5V802.5C77.5 789.5 97.5484 762.9 201.148 740.5C212.982 736.333 237.648 721.5 241.648 695.5V647.5C242.815 630.167 240.748 588.4 223.148 560C216.315 537.167 203.648 484.3 207.648 455.5V430H467Z"
-              fill="url(#paint7_linear_13140_12289)"
-            />
-            <rect width="113" height="33" fill="#24963E" />
-            <rect x="105" y="152" width="121" height="33" fill="#24963E" />
-            <rect x="462" y="163" width="125" height="33" fill="#C23636" />
-            <rect x="674" y="304" width="84" height="33" fill="#C23636" />
-            <rect x="812" y="304" width="119" height="33" fill="#C23636" />
-            <path d="M599 503H804V536H599V503Z" fill="#C23636" />
-            <rect x="241" y="659" width="485" height="33" fill="#566AEA" />
-            <rect x="207" y="376" width="261" height="54" fill="#24963E" />
-            <rect x="80" y="800" width="374" height="33" fill="#566AEA" />
-            <rect x="26" y="977" width="270" height="33" fill="#566AEA" />
-            <rect x="622" y="897" width="47" height="33" fill="#D6AB1E" />
-            <rect x="762" y="897" width="45" height="33" fill="#D6AB1E" />
-            <rect x="157" width="17" height="33" fill="#C86F6F" />
-            <rect x="278" width="9" height="33" fill="#C86F6F" />
-            <rect x="440" width="63" height="33" fill="#C23636" />
-            <rect x="563" width="43" height="33" fill="#C23636" />
-            <path d="M695 0H718L718.5 16L718 33H695V0Z" fill="#C23636" />
-            <defs>
-              <linearGradient
-                id="paint0_linear_13140_12289"
-                x1="453.531"
-                y1="814"
-                x2="453.531"
-                y2="1010"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#D9D9D9" />
-                <stop offset="1" stopColor="#3D44CE" />
-              </linearGradient>
-              <linearGradient
-                id="paint1_linear_13140_12289"
-                x1="362"
-                y1="817"
-                x2="362"
-                y2="1010"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#D9D9D9" />
-                <stop offset="1" stopColor="#3D44CE" />
-              </linearGradient>
-              <linearGradient
-                id="paint2_linear_13140_12289"
-                x1="171.749"
-                y1="0"
-                x2="171.749"
-                y2="432.5"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#23E34D" stopOpacity="0.5" />
-                <stop offset="0.5" stopColor="#2CBA4C" stopOpacity="0.7" />
-                <stop offset="1" stopColor="#B2F4C0" stopOpacity="0.5" />
-              </linearGradient>
-              <linearGradient
-                id="paint3_linear_13140_12289"
-                x1="770.213"
-                y1="304"
-                x2="770.213"
-                y2="659"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#FFCDCD" />
-                <stop offset="0.5" stopColor="#EF7979" />
-                <stop offset="1" stopColor="#DF2626" stopOpacity="0.2" />
-              </linearGradient>
-              <linearGradient
-                id="paint4_linear_13140_12289"
-                x1="651.03"
-                y1="304"
-                x2="651.03"
-                y2="658.5"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#FFCDCD" />
-                <stop offset="0.5" stopColor="#EF7979" />
-                <stop offset="1" stopColor="#DF2626" stopOpacity="0.2" />
-              </linearGradient>
-              <linearGradient
-                id="paint5_linear_13140_12289"
-                x1="528.19"
-                y1="0"
-                x2="528.19"
-                y2="432.5"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#D9D9D9" />
-                <stop offset="0.5" stopColor="#D97777" />
-                <stop offset="1" stopColor="#FF7C7C" stopOpacity="0.3" />
-              </linearGradient>
-              <linearGradient
-                id="paint6_linear_13140_12289"
-                x1="714.582"
-                y1="692"
-                x2="714.582"
-                y2="930"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#FDFF7A" stopOpacity="0.5" />
-                <stop offset="1" stopColor="#CAC007" />
-              </linearGradient>
-              <linearGradient
-                id="paint7_linear_13140_12289"
-                x1="336.251"
-                y1="430"
-                x2="336.251"
-                y2="1010"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#DEEBFC" />
-                <stop offset="1" stopColor="#2C6EC4" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* Right side labels */}
-        <div className="flex flex-col justify-start items-start pl-4 text-left" style={{ width: "120px" }}>
-          <div className="h-[33px] mb-[67px]">
-            <div className="font-bold text-sm">Other</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">R & D</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Sales & Marketing</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">General & Admin</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Cost of Revenue</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px] mb-[119px]">
-            <div className="font-bold text-sm">Tax</div>
-            <div className="text-xs">$54bn</div>
-          </div>
-
-          <div className="h-[33px]">
-            <div className="text-xs font-bold">$54bn</div>
-          </div>
-        </div>
+    <div className={`w-full ${className}`}>
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Revenue Breakdown - {symbol}</h2>
+        <p className="text-gray-600">Financial flow visualization</p>
       </div>
-
-      {/* Bottom labels */}
-      <div className="flex justify-between px-[120px] mt-2">
-        <div className="text-xs font-bold">$54bn</div>
-        <div className="text-xs font-bold">$54bn</div>
-      </div>
+      <div
+        ref={chartRef}
+        className="w-full h-[800px] border border-gray-200 rounded-lg bg-white"
+        style={{ minHeight: "800px", width: "100%" }}
+      />
     </div>
   )
 }
