@@ -1,159 +1,189 @@
-"use client";
-import PathTracker from "../../_components/PathTracker";
+"use client"
+import PathTracker from "../../_components/PathTracker"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { Upload, X } from "lucide-react";
-import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useState } from "react"
+import { Upload, X } from "lucide-react"
+import useAxios from "@/hooks/useAxios"
+import { useMutation } from "@tanstack/react-query"
+import { useForm, Controller } from "react-hook-form"
+import { toast } from "sonner"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
+
+// Dynamically import Quill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
+import "react-quill/dist/quill.snow.css"
 
 interface BlogFormData {
-  blogTitle: string;
-  blogDescription: string;
+  blogTitle: string
+  blogDescription: string
 }
 
 const Page = () => {
-  const [image, setImage] = useState<{ file: File; preview: string } | null>(
-    null
-  );
+  const [image, setImage] = useState<{ file: File; preview: string } | null>(null)
 
-  const router = useRouter();
+  const router = useRouter()
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
-  } = useForm<BlogFormData>();
+  } = useForm<BlogFormData>()
+
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["blockquote", "code-block"],
+      ["clean"],
+    ],
+  }
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "list",
+    "bullet",
+    "indent",
+    "align",
+    "link",
+    "image",
+    "blockquote",
+    "code-block",
+  ]
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
 
-    if (!file) return;
+    if (!file) return
 
     // Validate file type
-    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
     if (!validTypes.includes(file.type)) {
-      toast.error("Please upload a valid image file (JPEG, PNG, WebP)");
-      return;
+      toast.error("Please upload a valid image file (JPEG, PNG, WebP)")
+      return
     }
 
     // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
-      toast.error("Image size should be less than 5MB");
-      return;
+      toast.error("Image size should be less than 5MB")
+      return
     }
 
     // Clean up previous image URL if exists
     if (image) {
-      URL.revokeObjectURL(image.preview);
+      URL.revokeObjectURL(image.preview)
     }
 
     // Create preview URL
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file)
 
     setImage({
       file,
       preview: previewUrl,
-    });
-
-    console.log("Image selected:", {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      preview: previewUrl,
-    });
-  };
+    })
+  }
 
   const removeImage = () => {
     if (image) {
-      URL.revokeObjectURL(image.preview);
-      setImage(null);
+      URL.revokeObjectURL(image.preview)
+      setImage(null)
     }
-  };
+  }
 
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxios()
 
   const { mutateAsync } = useMutation({
     mutationKey: ["add-blog"],
     mutationFn: async (data: FormData) => {
-      console.log("Sending FormData:", {
-        blogTitle: data.get("blogTitle"),
-        blogDescription: data.get("blogDescription"),
-        image: data.get("image"),
-      });
-
-      const response = await axiosInstance.post(
-        "/admin/blog/create-blog",
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      return response.data;
+      const response = await axiosInstance.post("/admin/blog/create-blog", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      return response.data
     },
-  });
+    onSuccess: (result) => {
+      toast.success(`Blog "${result.data.blogTitle}" created successfully!`)
+      reset()
+      if (image) {
+        URL.revokeObjectURL(image.preview)
+      }
+      setImage(null)
+      router.push("/dashboard/blogs")
+    },
+    onError: (error) => {
+      const errorMessage = "Failed to create blog post. Please try again."
+      toast.error(errorMessage)
+      console.error("Error creating blog post:", error)
+    },
+  })
+
+  // Custom validation for Quill content
+  const validateQuillContent = (value: string) => {
+    // Remove HTML tags to check actual text content
+    const textContent = value.replace(/<[^>]*>/g, "").trim()
+    if (!textContent) {
+      return "Blog description is required"
+    }
+    if (textContent.length < 10) {
+      return "Description must be at least 10 characters long"
+    }
+    if (textContent.length > 5000) {
+      return "Description must be less than 5000 characters"
+    }
+    return true
+  }
 
   const onSubmit = async (data: BlogFormData) => {
     try {
       // Validate that an image is uploaded
       if (!image) {
-        toast.error("Please upload an image for the blog post");
-        return;
+        toast.error("Please upload an image for the blog post")
+        return
       }
 
       // Create FormData object
-      const formData = new FormData();
+      const formData = new FormData()
 
       // Append text fields
-      formData.append("blogTitle", data.blogTitle);
-      formData.append("blogDescription", data.blogDescription);
+      formData.append("blogTitle", data.blogTitle)
+      formData.append("blogDescription", data.blogDescription)
 
       // Append image file
-      formData.append("imageLink", image.file);
-
-      console.log("Form submission data:", {
-        blogTitle: data.blogTitle,
-        blogDescription: data.blogDescription,
-        imageFile: image.file,
-      });
+      formData.append("imageLink", image.file)
 
       // Show loading toast
-      const loadingToast = toast.loading("Creating blog post...");
+      const loadingToast = toast.loading("Creating blog post...")
 
       // Submit the form
-      const result = await mutateAsync(formData);
+      await mutateAsync(formData)
 
-      console.log("API Response:", result);
-
-      // Dismiss loading toast and show success
-      toast.dismiss(loadingToast);
-      toast.success(`Blog "${result.data.blogTitle}" created successfully!`);
-
-      // Reset form and clear image
-      reset();
-      if (image) {
-        URL.revokeObjectURL(image.preview);
-      }
-      setImage(null);
-      router.push("/dashboard/blogs");
+      // Dismiss loading toast
+      toast.dismiss(loadingToast)
     } catch (error) {
-      console.error("Error creating blog post:", error);
-
-      // Show error toast with specific message if available
-      const errorMessage = "Failed to create blog post. Please try again.";
-
-      toast.error(errorMessage);
+      // Dismiss loading toast
+      toast.dismiss()
+      console.error("Error creating blog post:", error)
     }
-  };
+  }
 
   return (
     <div>
@@ -163,7 +193,7 @@ const Page = () => {
         <button
           onClick={handleSubmit(onSubmit)}
           disabled={isSubmitting}
-          className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#218838] transition-colors"
         >
           {isSubmitting ? "Saving..." : "Save"}
         </button>
@@ -174,11 +204,8 @@ const Page = () => {
           <div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
-                <label
-                  htmlFor="title"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Blog Title
+                <label htmlFor="title" className="text-sm font-medium text-gray-700">
+                  Blog Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="title"
@@ -188,46 +215,48 @@ const Page = () => {
                       value: 3,
                       message: "Title must be at least 3 characters long",
                     },
+                    maxLength: {
+                      value: 100,
+                      message: "Title must not exceed 100 characters",
+                    },
                   })}
                   placeholder="Enter Blog Title"
-                  className={`border border-[#b0b0b0] p-4 rounded-lg bg-inherit outline-none w-full ${
-                    errors.blogTitle ? "border-red-500" : ""
+                  className={`border p-4 rounded-lg bg-inherit outline-none w-full focus:ring-2 focus:ring-[#28a745] focus:border-transparent transition-all ${
+                    errors.blogTitle ? "border-red-500 focus:ring-red-500" : "border-[#b0b0b0]"
                   }`}
                 />
-                {errors.blogTitle && (
-                  <p className="text-red-500 text-sm">
-                    {errors.blogTitle.message}
-                  </p>
-                )}
+                {errors.blogTitle && <p className="text-red-500 text-sm mt-1">{errors.blogTitle.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="description"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Blog Description
+                <label htmlFor="description" className="text-sm font-medium text-gray-700">
+                  Blog Description <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  id="description"
-                  {...register("blogDescription", {
-                    required: "Blog description is required",
-                    minLength: {
-                      value: 10,
-                      message:
-                        "Description must be at least 10 characters long",
-                    },
-                  })}
-                  placeholder="Type Description here..."
-                  rows={4}
-                  className={`border border-[#b0b0b0] p-4 rounded-lg bg-inherit outline-none w-full resize-vertical ${
-                    errors.blogDescription ? "border-red-500" : ""
-                  }`}
-                />
+                <div className={`border rounded-lg ${errors.blogDescription ? "border-red-500" : "border-[#b0b0b0]"}`}>
+                  <Controller
+                    name="blogDescription"
+                    control={control}
+                    rules={{
+                      validate: validateQuillContent,
+                    }}
+                    render={({ field }) => (
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value}
+                        onChange={field.onChange}
+                        modules={modules}
+                        formats={formats}
+                        placeholder="Type Description here..."
+                        style={{
+                          backgroundColor: "inherit",
+                        }}
+                        className="quill-editor"
+                      />
+                    )}
+                  />
+                </div>
                 {errors.blogDescription && (
-                  <p className="text-red-500 text-sm">
-                    {errors.blogDescription.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.blogDescription.message}</p>
                 )}
               </div>
 
@@ -243,16 +272,8 @@ const Page = () => {
                         <Image
                           src={image.preview || "/placeholder.svg"}
                           alt="Blog preview"
-                          width={500}
-                          height={500}
-                          className="w-full h-full object-cover"
-                          onLoad={() =>
-                            console.log("Image loaded successfully")
-                          }
-                          onError={(e) => {
-                            console.error("Image failed to load:", e);
-                            toast.error("Failed to load image preview");
-                          }}
+                          fill
+                          className="object-cover"
                         />
                       </div>
                       <button
@@ -282,13 +303,12 @@ const Page = () => {
                       </label>
 
                       <div className="text-sm text-gray-500">
-                        {image.file.name} (
-                        {(image.file.size / 1024 / 1024).toFixed(2)} MB)
+                        {image.file.name} ({(image.file.size / 1024 / 1024).toFixed(2)} MB)
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-md p-12 text-center hover:border-gray-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-md p-12 text-center hover:border-[#28a745] hover:bg-green-50 transition-colors">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <div className="h-12 w-12 text-gray-400">
                         <Upload className="mx-auto h-12 w-12" />
@@ -296,7 +316,7 @@ const Page = () => {
                       <div className="flex text-sm text-gray-500">
                         <label
                           htmlFor="file-upload"
-                          className="relative cursor-pointer font-medium text-blue-600 hover:text-blue-500"
+                          className="relative cursor-pointer font-medium text-[#28a745] hover:text-[#218838]"
                         >
                           <span>Click to upload</span>
                           <input
@@ -310,12 +330,7 @@ const Page = () => {
                         </label>
                         <span className="ml-1">or drag and drop</span>
                       </div>
-                      <p className="text-xs text-gray-400">
-                        PNG, JPG, JPEG, WebP up to 5MB
-                      </p>
-                      <p className="text-xs text-red-400">
-                        * Image is required
-                      </p>
+                      <p className="text-xs text-gray-400">PNG, JPG, JPEG, WebP up to 5MB</p>
                     </div>
                   </div>
                 )}
@@ -327,8 +342,31 @@ const Page = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default Page;
+      <style jsx global>{`
+        .quill-editor .ql-editor {
+          min-height: 400px;
+          font-size: 14px;
+        }
+
+        .quill-editor .ql-toolbar {
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+          border-bottom: 1px solid #b0b0b0;
+        }
+
+        .quill-editor .ql-container {
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        .quill-editor .ql-editor.ql-blank::before {
+          font-style: normal;
+          color: #9ca3af;
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default Page

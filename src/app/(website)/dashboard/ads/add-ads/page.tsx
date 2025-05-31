@@ -1,32 +1,73 @@
-"use client";
-import PathTracker from "../../_components/PathTracker";
+"use client"
+import PathTracker from "../../_components/PathTracker"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { Upload, X } from "lucide-react";
-import Image from "next/image";
-import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { useState } from "react"
+import { Upload, X } from "lucide-react"
+import Image from "next/image"
+import useAxios from "@/hooks/useAxios"
+import { useMutation } from "@tanstack/react-query"
+import { useForm, Controller } from "react-hook-form"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
+
+// Dynamically import Quill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
+import "react-quill/dist/quill.snow.css"
 
 interface AdsFormData {
-  adsTitle: string;
-  adsContent: string;
+  adsTitle: string
+  adsContent: string
 }
 
 const Page = () => {
-  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+  const router = useRouter()
+  const [images, setImages] = useState<{ file: File; preview: string }[]>([])
 
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxios()
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<AdsFormData>();
+    control,
+  } = useForm<AdsFormData>()
+
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["blockquote", "code-block"],
+      ["clean"],
+    ],
+  }
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "list",
+    "bullet",
+    "indent",
+    "align",
+    "link",
+    "image",
+    "blockquote",
+    "code-block",
+  ]
 
   const { mutateAsync } = useMutation({
     mutationKey: ["add-ads"],
@@ -35,80 +76,115 @@ const Page = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      });
-      return response.data;
+      })
+      return response.data
     },
-  });
+    onSuccess: () => {
+      toast.success("Ad created successfully!")
+      reset()
+      // Clear images and revoke URLs
+      images.forEach((image) => URL.revokeObjectURL(image.preview))
+      setImages([])
+      router.push("/dashboard/ads")
+    },
+    onError: (error: import("axios").AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message || "Failed to create ad. Please try again."
+      toast.error(errorMessage)
+    },
+  })
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newImages = Array.from(e.target.files).map((file) => ({
-        file,
-        preview: URL.createObjectURL(file),
-      }));
-      setImages([...images, ...newImages]);
+      const newImages = Array.from(e.target.files)
+        .map((file) => {
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            toast.error(`Image ${file.name} is larger than 5MB`)
+            return null
+          }
+
+          // Validate file type
+          if (!file.type.startsWith("image/")) {
+            toast.error(`File ${file.name} is not a valid image`)
+            return null
+          }
+
+          return {
+            file,
+            preview: URL.createObjectURL(file),
+          }
+        })
+        .filter(Boolean) as { file: File; preview: string }[]
+
+      if (newImages.length > 0) {
+        setImages([...images, ...newImages])
+      }
     }
-  };
+  }
 
   const removeImage = (index: number) => {
-    const updatedImages = [...images];
+    const updatedImages = [...images]
     // Revoke the object URL to avoid memory leaks
-    URL.revokeObjectURL(updatedImages[index].preview);
-    updatedImages.splice(index, 1);
-    setImages(updatedImages);
-  };
+    URL.revokeObjectURL(updatedImages[index].preview)
+    updatedImages.splice(index, 1)
+    setImages(updatedImages)
+  }
+
+  // Custom validation for Quill content
+  const validateQuillContent = (value: string) => {
+    // Remove HTML tags to check actual text content
+    const textContent = value.replace(/<[^>]*>/g, "").trim()
+    if (!textContent) {
+      return "Ads description is required"
+    }
+    if (textContent.length < 10) {
+      return "Description must be at least 10 characters long"
+    }
+    if (textContent.length > 1000) {
+      return "Description must be less than 1000 characters"
+    }
+    return true
+  }
 
   const handleSave = async (data: AdsFormData) => {
     try {
       // Validate that at least one image is uploaded
       if (images.length === 0) {
-        toast.error("Please upload at least one image for the ad");
-        return;
+        toast.error("Please upload at least one image for the ad")
+        return
       }
 
       // Show loading toast
-      const loadingToast = toast.loading("Creating ad...");
+      const loadingToast = toast.loading("Creating ad...")
 
       // Create FormData object
-      const formData = new FormData();
-      formData.append("adsTitle", data.adsTitle);
-      formData.append("adsContent", data.adsContent);
+      const formData = new FormData()
+      formData.append("adsTitle", data.adsTitle)
+      formData.append("adsContent", data.adsContent)
 
       // Append all images
       images.forEach((image) => {
-        formData.append("imageLink", image.file);
-      });
+        formData.append("imageLink", image.file)
+      })
 
       // Submit the form
-      await mutateAsync(formData);
+      await mutateAsync(formData)
 
-      // Dismiss loading toast and show success
-      toast.dismiss(loadingToast);
-      toast.success("Ad created successfully!");
-
-      // Reset form and clear images
-      reset();
-      // Clear images and revoke URLs
-      images.forEach((image) => URL.revokeObjectURL(image.preview));
-      setImages([]);
+      // Dismiss loading toast
+      toast.dismiss(loadingToast)
 
       // Reset file input
-      const fileInput = document.getElementById(
-        "file-upload"
-      ) as HTMLInputElement;
+      const fileInput = document.getElementById("file-upload") as HTMLInputElement
       if (fileInput) {
-        fileInput.value = "";
+        fileInput.value = ""
       }
     } catch (error) {
-      // Dismiss loading toast and show error
-      toast.dismiss();
-
-      const errorMessage = "Failed to create ad. Please try again.";
-
-      toast.error(errorMessage);
-      console.error("Error creating ad:", error);
+      // Dismiss loading toast
+      toast.dismiss()
+      console.error("Error creating ad:", error)
     }
-  };
+  }
 
   return (
     <div>
@@ -129,11 +205,8 @@ const Page = () => {
           <div>
             <form onSubmit={handleSubmit(handleSave)} className="space-y-6">
               <div className="space-y-2">
-                <label
-                  htmlFor="adsTitle"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Ads Title
+                <label htmlFor="adsTitle" className="text-sm font-medium text-gray-700">
+                  Ads Title *
                 </label>
                 <input
                   id="adsTitle"
@@ -150,52 +223,40 @@ const Page = () => {
                   })}
                   placeholder="Enter Ads Title"
                   className={`border p-4 rounded-lg bg-inherit outline-none w-full focus:ring-2 focus:ring-[#28a745] focus:border-transparent transition-all ${
-                    errors.adsTitle
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-[#b0b0b0]"
+                    errors.adsTitle ? "border-red-500 focus:ring-red-500" : "border-[#b0b0b0]"
                   }`}
                 />
-                {errors.adsTitle && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.adsTitle.message}
-                  </p>
-                )}
+                {errors.adsTitle && <p className="text-red-500 text-sm mt-1">{errors.adsTitle.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="adsContent"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Ads Description
+                <label htmlFor="adsContent" className="text-sm font-medium text-gray-700">
+                  Ads Description *
                 </label>
-                <textarea
-                  id="adsContent"
-                  {...register("adsContent", {
-                    required: "Ads description is required",
-                    minLength: {
-                      value: 10,
-                      message:
-                        "Description must be at least 10 characters long",
-                    },
-                    maxLength: {
-                      value: 1000,
-                      message: "Description must not exceed 1000 characters",
-                    },
-                  })}
-                  placeholder="Type Description here..."
-                  rows={4}
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full resize-none focus:ring-2 focus:ring-[#28a745] focus:border-transparent transition-all ${
-                    errors.adsContent
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-[#b0b0b0]"
-                  }`}
-                />
-                {errors.adsContent && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.adsContent.message}
-                  </p>
-                )}
+                <div className={`border rounded-lg ${errors.adsContent ? "border-red-500" : "border-[#b0b0b0]"}`}>
+                  <Controller
+                    name="adsContent"
+                    control={control}
+                    rules={{
+                      validate: validateQuillContent,
+                    }}
+                    render={({ field }) => (
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value}
+                        onChange={field.onChange}
+                        modules={modules}
+                        formats={formats}
+                        placeholder="Type Description here..."
+                        style={{
+                          backgroundColor: "inherit",
+                        }}
+                        className="quill-editor"
+                      />
+                    )}
+                  />
+                </div>
+                {errors.adsContent && <p className="text-red-500 text-sm mt-1">{errors.adsContent.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -223,6 +284,9 @@ const Page = () => {
                           >
                             <X className="h-4 w-4" />
                           </button>
+                          <p className="text-xs text-gray-600 mt-1 truncate">
+                            {image.file.name} ({(image.file.size / 1024 / 1024).toFixed(2)} MB)
+                          </p>
                         </div>
                       ))}
 
@@ -246,8 +310,7 @@ const Page = () => {
                       </label>
                     </div>
                     <p className="text-sm text-gray-500">
-                      {images.length} image{images.length !== 1 ? "s" : ""}{" "}
-                      selected
+                      {images.length} image{images.length !== 1 ? "s" : ""} selected (Max 5MB per image)
                     </p>
                   </div>
                 ) : (
@@ -273,29 +336,40 @@ const Page = () => {
                           />
                         </label>
                       </div>
-                      <p className="text-xs text-gray-400">
-                        JPEG, PNG, JPG, WebP are allowed
-                      </p>
+                      <p className="text-xs text-gray-400">JPEG, PNG, JPG, WebP are allowed (Max 5MB per image)</p>
                     </div>
                   </div>
                 )}
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#218838] transition-colors"
-                >
-                  {isSubmitting ? "Creating Ad..." : "Create Ad"}
-                </button>
               </div>
             </form>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default Page;
+      <style jsx global>{`
+        .quill-editor .ql-editor {
+          min-height: 300px;
+          font-size: 14px;
+        }
+
+        .quill-editor .ql-toolbar {
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+          border-bottom: 1px solid #b0b0b0;
+        }
+
+        .quill-editor .ql-container {
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        .quill-editor .ql-editor.ql-blank::before {
+          font-style: normal;
+          color: #9ca3af;
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default Page
