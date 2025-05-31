@@ -47,11 +47,11 @@ export default function Navbar() {
       <header
         className={cn(
           "fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full transition-all duration-700 ease-in-out",
-          scrolled ? "pt-2" : "pt-6",
+          scrolled ? "pt-1" : "pt-6",
         )}
       >
         <div
-          className={cn("transition-all duration-700 ease-in-out mx-auto px-4", scrolled ? "max-w-[85rem]" : "max-w-6xl")}
+          className={cn("transition-all duration-700 ease-in-out mx-auto px-4", scrolled ? "container" : "max-w-[75rem]")}
         >
           <div className="bg-white/10 border border-gray-200/50 backdrop-blur-lg rounded-full shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between px-4 py-3">
@@ -81,7 +81,7 @@ export default function Navbar() {
                         "relative cursor-pointer text-sm font-semibold px-3 py-2 rounded-full transition-colors",
                         "text-gray-700 hover:text-green-600",
                         isActive && "bg-green-50 text-green-600",
-                        scrolled ? "px-3" : "px-3",
+                        scrolled ? "px-4" : "px-4",
                       )}
                     >
                       <span
