@@ -1,13 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "@/components/Navbar/Navebar";
 import Footer from "@/components/Footer/Footer";
 
 import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import Navbar from "@/components/Navbar/Navbar";
 
 const queryClient = new QueryClient();
 

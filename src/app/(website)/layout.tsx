@@ -20,8 +20,8 @@ export default function RootLayout({
       <body className={`${poppins.className} antialiased`}>
         {/* Top Loader Bar */}
         <NextTopLoader
-        initialPosition={0.08}
-            crawlSpeed={200}
+          initialPosition={0.08}
+          crawlSpeed={200}
           color="#16A34A" 
           height={3}
           showSpinner={false}
