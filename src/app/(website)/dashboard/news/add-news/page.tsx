@@ -1,5 +1,4 @@
 "use client";
-import PathTracker from "../../_components/PathTracker";
 
 import type React from "react";
 
@@ -8,9 +7,15 @@ import { Upload, X } from "lucide-react";
 import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// Dynamically import Quill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
+import PathTracker from "../../_components/PathTracker";
 
 interface NewsFormData {
   newsTitle: string;
@@ -20,7 +25,6 @@ interface NewsFormData {
 }
 
 const Page = () => {
-
   const router = useRouter();
 
   const [image, setImage] = useState<{ file: File; preview: string } | null>(
@@ -32,14 +36,47 @@ const Page = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm<NewsFormData>({
     defaultValues: {
       newsTitle: "",
       newsDescription: "",
-      tickers: "",
       imageLink: "",
     },
   });
+
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["blockquote", "code-block"],
+      ["clean"],
+    ],
+  };
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "list",
+    "bullet",
+    "indent",
+    "align",
+    "link",
+    "image",
+    "blockquote",
+    "code-block",
+  ];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -95,7 +132,8 @@ const Page = () => {
     },
     onError: (error: import("axios").AxiosError) => {
       const errorMessage =
-        (error.response?.data as { message?: string })?.message || "Failed to create news";
+        (error.response?.data as { message?: string })?.message ||
+        "Failed to create news";
       toast.error(errorMessage);
     },
   });
@@ -105,7 +143,7 @@ const Page = () => {
       const payload = {
         newsTitle: data.newsTitle,
         newsDescription: data.newsDescription,
-        tickers: data.tickers,
+        tickers: data.tickers || "",
         imageLink: image?.preview || data.imageLink,
       };
 
@@ -114,6 +152,22 @@ const Page = () => {
       console.error("Error creating news:", error);
       toast.error("An unexpected error occurred");
     }
+  };
+
+  // Custom validation for Quill content
+  const validateQuillContent = (value: string) => {
+    // Remove HTML tags to check actual text content
+    const textContent = value.replace(/<[^>]*>/g, "").trim();
+    if (!textContent) {
+      return "News description is required";
+    }
+    if (textContent.length < 10) {
+      return "Description must be at least 10 characters long";
+    }
+    if (textContent.length > 1000) {
+      return "Description must be less than 1000 characters";
+    }
+    return true;
   };
 
   return (
@@ -173,28 +227,35 @@ const Page = () => {
                 >
                   News Description *
                 </label>
-                <textarea
-                  id="newsDescription"
-                  placeholder="Type Description here..."
-                  rows={4}
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full resize-vertical ${
+                <div
+                  className={`border rounded-lg ${
                     errors.newsDescription
                       ? "border-red-500"
                       : "border-[#b0b0b0]"
                   }`}
-                  {...register("newsDescription", {
-                    required: "News description is required",
-                    minLength: {
-                      value: 10,
-                      message:
-                        "Description must be at least 10 characters long",
-                    },
-                    maxLength: {
-                      value: 1000,
-                      message: "Description must be less than 1000 characters",
-                    },
-                  })}
-                />
+                >
+                  <Controller
+                    name="newsDescription"
+                    control={control}
+                    rules={{
+                      validate: validateQuillContent,
+                    }}
+                    render={({ field }) => (
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value}
+                        onChange={field.onChange}
+                        modules={modules}
+                        formats={formats}
+                        placeholder="Type Description here..."
+                        style={{
+                          backgroundColor: "inherit",
+                        }}
+                        className="quill-editor"
+                      />
+                    )}
+                  />
+                </div>
                 {errors.newsDescription && (
                   <p className="text-red-500 text-sm">
                     {errors.newsDescription.message}
@@ -203,51 +264,8 @@ const Page = () => {
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="tickers"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Tickers *
-                </label>
-                <input
-                  id="tickers"
-                  placeholder="Enter tickers (e.g., AAPL, GOOGL, MSFT)"
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${
-                    errors.tickers ? "border-red-500" : "border-[#b0b0b0]"
-                  }`}
-                  {...register("tickers", {
-                    required: "Tickers are required",
-                    minLength: {
-                      value: 1,
-                      message: "At least one ticker is required",
-                    },
-                  })}
-                />
-                {errors.tickers && (
-                  <p className="text-red-500 text-sm">
-                    {errors.tickers.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="imageLink"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Image Link (Optional)
-                </label>
-                <input
-                  id="imageLink"
-                  placeholder="Enter image URL or upload an image above"
-                  className="border border-[#b0b0b0] p-4 rounded-lg bg-inherit outline-none w-full"
-                  {...register("imageLink")}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  News Image *
+                  Cover Image *
                 </label>
 
                 {image ? (
@@ -307,6 +325,29 @@ const Page = () => {
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        .quill-editor .ql-editor {
+          min-height: 400px;
+          font-size: 14px;
+        }
+
+        .quill-editor .ql-toolbar {
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+          border-bottom: 1px solid #b0b0b0;
+        }
+
+        .quill-editor .ql-container {
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        .quill-editor .ql-editor.ql-blank::before {
+          font-style: normal;
+          color: #9ca3af;
+        }
+      `}</style>
     </div>
   );
 };
