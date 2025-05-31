@@ -49,7 +49,7 @@ export default function HeroSwiper() {
   }, [nextSlide]);
 
   return (
-    <section className="relative overflow-hidden lg:py-24">
+    <section className="relative overflow-hidden py-14 lg:py-24">
       <div className="container mx-auto">
         <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Left Column - Text Content */}
