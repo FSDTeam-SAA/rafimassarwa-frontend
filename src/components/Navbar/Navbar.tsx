@@ -4,10 +4,32 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { Home, TrendingUp, Star, Calendar, Briefcase, Eye, Newspaper, LogIn, Menu, type LucideIcon } from "lucide-react"
+import {
+  Home,
+  TrendingUp,
+  Star,
+  Calendar,
+  Briefcase,
+  Eye,
+  Newspaper,
+  LogIn,
+  Menu,
+  LogOut,
+  type LucideIcon,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useSession, signOut } from "next-auth/react"
 
 interface NavItem {
   name: string
@@ -31,6 +53,7 @@ export default function Navbar() {
   const [activeTab, setActiveTab] = useState("Home")
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +63,171 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" })
+  }
+
+  // Get user initials for avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  // Render authentication section
+  const renderAuthSection = () => {
+    if (status === "loading") {
+      return (
+        <div className="hidden lg:block flex-shrink-0">
+          <div
+            className={cn(
+              "bg-gray-200 animate-pulse rounded-full transition-all duration-300",
+              scrolled ? "h-8 w-20" : "h-10 w-24",
+            )}
+          />
+        </div>
+      )
+    }
+
+    if (session?.user) {
+      return (
+        <div className="hidden lg:block flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div
+                className={cn(
+                  "flex items-center gap-2 cursor-pointer hover:bg-white/20 rounded-full transition-all duration-300 px-2 py-1",
+                  scrolled ? "gap-1" : "gap-2",
+                )}
+              >
+                <Avatar className={cn("transition-all duration-300", scrolled ? "h-6 w-6" : "h-8 w-8")}>
+                  <AvatarImage
+                    src={session.user.image || "/placeholder.svg?height=32&width=32"}
+                    alt={session.user.name || "User"}
+                  />
+                  <AvatarFallback className="text-xs font-semibold bg-green-500 text-white">
+                    {session.user.name ? getInitials(session.user.name) : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className={cn("text-left transition-all duration-300", scrolled ? "hidden xl:block" : "block")}>
+                  <p
+                    className={cn(
+                      "font-semibold text-gray-700 leading-tight transition-all duration-300",
+                      scrolled ? "text-xs" : "text-sm",
+                    )}
+                  >
+                    {session.user.name || "User"}
+                  </p>
+                  <p
+                    className={cn(
+                      "text-gray-500 leading-tight transition-all duration-300 capitalize",
+                      scrolled ? "text-xs" : "text-xs",
+                    )}
+                  >
+                    {session.user.role || "Member"}
+                  </p>
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{session.user.name || "User"}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{session.user.email || "No email"}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {/* <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator /> */}
+              <DropdownMenuItem className="text-red-600 focus:text-red-600 cursor-pointer" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )
+    }
+
+    return (
+      <Link href="/login" className="hidden lg:block flex-shrink-0">
+        <Button
+          className={cn(
+            "bg-green-500 hover:bg-green-600 transition-all duration-300 rounded-full",
+            scrolled ? "px-3 py-2 text-sm" : "px-4 py-2 text-base",
+          )}
+        >
+          <LogIn className={cn("transition-all duration-300", scrolled ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2")} />
+          <span className={cn("transition-all duration-300", scrolled ? "hidden xl:inline" : "inline")}>Log in</span>
+        </Button>
+      </Link>
+    )
+  }
+
+  // Render mobile auth section
+  const renderMobileAuthSection = () => {
+    if (session?.user) {
+      return (
+        <div className="mt-4 px-2 border-t pt-4">
+          <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg mb-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={session.user.image || "/placeholder.svg?height=40&width=40"}
+                alt={session.user.name || "User"}
+              />
+              <AvatarFallback className="bg-green-500 text-white font-semibold">
+                {session.user.name ? getInitials(session.user.name) : "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-900">{session.user.name || "User"}</p>
+              <p className="text-sm text-gray-600">{session.user.email || "No email"}</p>
+              <p className="text-xs text-green-600 capitalize">{session.user.role || "Member"}</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {/* <Button variant="outline" className="w-full justify-start" size="sm">
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </Button>
+            <Button variant="outline" className="w-full justify-start" size="sm">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Button> */}
+            <Button
+              variant="outline"
+              className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50"
+              size="sm"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Log out
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="mt-4 px-2">
+        <Button className="w-full bg-green-500 hover:bg-green-600 rounded-full">
+          <LogIn className="mr-2 h-4 w-4" />
+          Log in
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -51,7 +239,10 @@ export default function Navbar() {
         )}
       >
         <div
-          className={cn("transition-all duration-700 ease-in-out mx-auto px-4", scrolled ? "container" : "max-w-[75rem]")}
+          className={cn(
+            "transition-all duration-700 ease-in-out mx-auto px-4",
+            scrolled ? "container" : "max-w-[75rem]",
+          )}
         >
           <div className="bg-white/10 border border-gray-200/50 backdrop-blur-lg rounded-full shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between px-4 py-3">
@@ -118,20 +309,8 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* Login Button */}
-              <Link href="/login" className="hidden lg:block flex-shrink-0">
-                <Button
-                  className={cn(
-                    "bg-green-500 hover:bg-green-600 transition-all duration-300 rounded-full",
-                    scrolled ? "px-3 py-2 text-sm" : "px-4 py-2 text-base",
-                  )}
-                >
-                  <LogIn className={cn("transition-all duration-300", scrolled ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2")} />
-                  <span className={cn("transition-all duration-300", scrolled ? "hidden xl:inline" : "inline")}>
-                    Log in
-                  </span>
-                </Button>
-              </Link>
+              {/* Authentication Section */}
+              {renderAuthSection()}
 
               {/* Mobile menu */}
               <div className="lg:hidden">
@@ -165,12 +344,7 @@ export default function Navbar() {
                           </Link>
                         )
                       })}
-                      <div className="mt-4 px-2">
-                        <Button className="w-full bg-green-500 hover:bg-green-600 rounded-full">
-                          <LogIn className="mr-2 h-4 w-4" />
-                          Log in
-                        </Button>
-                      </div>
+                      {renderMobileAuthSection()}
                     </div>
                   </SheetContent>
                 </Sheet>

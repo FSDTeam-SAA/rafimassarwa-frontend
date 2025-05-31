@@ -17,24 +17,25 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isAuthRoute =
+    pathname === "/registration" ||
+    pathname === "/login" ||
+    pathname === "/forgot-password" ||
+    pathname === "/enter-otp" ||
+    pathname === "/reset-password";
 
+  const shouldHideFooterSpecific =
+    pathname.includes("my-portfolio") || pathname.includes("stock");
   return (
     <>
-      {pathname !== "/registration" &&
-        pathname !== "/login" &&
-        pathname !== "/forgot-password" &&
-        pathname !== "/enter-otp" &&
-        pathname !== "/reset-password" && <Navbar />}
+      {!isAuthRoute && !isDashboardRoute && <Navbar />}
+
       <QueryClientProvider client={queryClient}>
         <main>{children}</main>
       </QueryClientProvider>
-      {pathname !== "/registration" &&
-        pathname !== "/login" &&
-        pathname !== "/forgot-password" &&
-        pathname !== "/enter-otp" &&
-        pathname !== "/reset-password" &&
-        !pathname.includes("my-portfolio") &&
-        !pathname.includes("stock") && <Footer />}
+
+      {!isAuthRoute && !isDashboardRoute && !shouldHideFooterSpecific && <Footer />}
     </>
   );
 }
