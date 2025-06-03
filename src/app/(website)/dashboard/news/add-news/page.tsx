@@ -30,6 +30,8 @@ const Page = () => {
     null
   );
 
+  const [language, setLanguage] = useState<"en" | "ar">("en");
+
   const {
     register,
     handleSubmit,
@@ -123,8 +125,12 @@ const Page = () => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["add-news"],
-    mutationFn: async (payload: NewsFormData) => {
-      const res = await axiosInstance.post("/admin/news/create-news", payload);
+    mutationFn: async (payload: FormData) => {
+      const res = await axiosInstance.post("/admin/news/create-news", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return res.data;
     },
     onSuccess: () => {
@@ -142,31 +148,36 @@ const Page = () => {
   });
 
   const onSubmit = async (data: NewsFormData) => {
+    // Validate that an image is selected
+    if (!image) {
+      toast.error(
+        language === "ar"
+          ? "يرجى اختيار صورة الغلاف"
+          : "Please select a cover image"
+      );
+      return;
+    }
+
     try {
-      const payload = {
+      // Create FormData to send both form fields and image file
+      const formData = new FormData();
+      formData.append("newsTitle", data.newsTitle);
+      formData.append("newsDescription", data.newsDescription);
+      formData.append("imageLink", image.file); // Add the actual image file
+
+      console.log("FormData contents:", {
         newsTitle: data.newsTitle,
         newsDescription: data.newsDescription,
-        imageLink: data.imageLink,
-      };
+        imageFile: image.file.name,
+      });
 
-      await mutateAsync(payload);
+      await mutateAsync(formData);
     } catch (error) {
       console.error("Error creating news:", error);
-      toast.error("An unexpected error occurred");
+      toast.error(
+        language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"
+      );
     }
-  };
-
-  // Custom validation for Quill content
-  const validateQuillContent = (value: string) => {
-    // Remove HTML tags to check actual text content
-    const textContent = value.replace(/<[^>]*>/g, "").trim();
-    if (!textContent) {
-      return "News description is required";
-    }
-    if (textContent.length < 10) {
-      return "Description must be at least 10 characters long";
-    }
-    return true;
   };
 
   return (
@@ -174,17 +185,57 @@ const Page = () => {
       <div className="mb-8 flex items-center justify-between">
         <PathTracker />
 
-        <button
-          onClick={handleSubmit(onSubmit)}
-          disabled={isPending}
-          className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPending ? "Saving..." : "Save"}
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Language Toggle Button */}
+          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`px-3 py-3 w-[100px] border border-green-500 rounded-md text-sm font-medium transition-colors ${
+                language === "en"
+                  ? "bg-green-500 text-white font-medium shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              English
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("ar")}
+              className={`px-3 py-3 rounded-md text-sm w-[100px] border border-green-500 font-medium transition-colors ${
+                language === "ar"
+                  ? "bg-green-500 text-white font-medium shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              العربية
+            </button>
+          </div>
+
+          <button
+            onClick={handleSubmit(onSubmit)}
+            disabled={isPending}
+            className="bg-[#28a745] py-3 px-5 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending
+              ? "Uploading image..."
+              : isPending
+              ? language === "ar"
+                ? "جاري الحفظ..."
+                : "Saving..."
+              : language === "ar"
+              ? "حفظ"
+              : "Save"}
+          </button>
+        </div>
       </div>
 
       <div>
-        <div className="border border-[#b0b0b0] p-4 rounded-lg">
+        <div
+          className={`border border-[#b0b0b0] p-4 rounded-lg ${
+            language === "ar" ? "rtl" : "ltr"
+          }`}
+        >
           <div>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-2">
@@ -192,23 +243,35 @@ const Page = () => {
                   htmlFor="newsTitle"
                   className="text-sm font-medium text-gray-700"
                 >
-                  News Title * / عنوان الخبر
+                  {language === "ar" ? "عنوان الخبر *" : "News Title *"}
                 </label>
                 <input
                   id="newsTitle"
-                  placeholder="Enter News Title / أدخل عنوان الخبر"
+                  placeholder={
+                    language === "ar" ? "أدخل عنوان الخبر" : "Enter News Title"
+                  }
                   className={`border p-4 rounded-lg bg-inherit outline-none w-full ${
                     errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
-                  }`}
+                  } ${language === "ar" ? "text-right" : "text-left"}`}
+                  dir={language === "ar" ? "rtl" : "ltr"}
                   {...register("newsTitle", {
-                    required: "News title is required",
+                    required:
+                      language === "ar"
+                        ? "عنوان الخبر مطلوب"
+                        : "News title is required",
                     minLength: {
                       value: 3,
-                      message: "Title must be at least 3 characters long",
+                      message:
+                        language === "ar"
+                          ? "يجب أن يكون العنوان 3 أحرف على الأقل"
+                          : "Title must be at least 3 characters long",
                     },
                     maxLength: {
                       value: 100,
-                      message: "Title must be less than 100 characters",
+                      message:
+                        language === "ar"
+                          ? "يجب أن يكون العنوان أقل من 100 حرف"
+                          : "Title must be less than 100 characters",
                     },
                   })}
                 />
@@ -224,11 +287,12 @@ const Page = () => {
                   htmlFor="newsDescription"
                   className="text-sm font-medium text-gray-700"
                 >
-                  News Description * / وصف الخبر
+                  {language === "ar" ? "وصف الخبر *" : "News Description *"}
                 </label>
                 <div className="mb-2 text-xs text-gray-500">
-                  💡 Tip: Use the direction button (⇄) in the toolbar to switch
-                  between English (LTR) and Arabic (RTL) text direction
+                  {language === "ar"
+                    ? "💡 نصيحة: استخدم زر الاتجاه (⇄) في شريط الأدوات للتبديل بين اتجاه النص الإنجليزي والعربي"
+                    : "💡 Tip: Use the direction button (⇄) in the toolbar to switch between English (LTR) and Arabic (RTL) text direction"}
                 </div>
                 <div
                   className={`border rounded-lg ${
@@ -241,7 +305,22 @@ const Page = () => {
                     name="newsDescription"
                     control={control}
                     rules={{
-                      validate: validateQuillContent,
+                      validate: (value) => {
+                        const textContent = value
+                          .replace(/<[^>]*>/g, "")
+                          .trim();
+                        if (!textContent) {
+                          return language === "ar"
+                            ? "وصف الخبر مطلوب"
+                            : "News description is required";
+                        }
+                        if (textContent.length < 10) {
+                          return language === "ar"
+                            ? "يجب أن يكون الوصف 10 أحرف على الأقل"
+                            : "Description must be at least 10 characters long";
+                        }
+                        return true;
+                      },
                     }}
                     render={({ field }) => (
                       <ReactQuill
@@ -250,11 +329,17 @@ const Page = () => {
                         onChange={field.onChange}
                         modules={modules}
                         formats={formats}
-                        placeholder="Type Description here... / اكتب الوصف هنا..."
+                        placeholder={
+                          language === "ar"
+                            ? "اكتب الوصف هنا..."
+                            : "Type Description here..."
+                        }
                         style={{
                           backgroundColor: "inherit",
                         }}
-                        className="quill-editor arabic-support"
+                        className={`quill-editor arabic-support ${
+                          language === "ar" ? "rtl-mode" : "ltr-mode"
+                        }`}
                       />
                     )}
                   />
@@ -268,7 +353,7 @@ const Page = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Cover Image * / صورة الغلاف
+                  {language === "ar" ? "صورة الغلاف *" : "Cover Image *"}
                 </label>
 
                 {image ? (
@@ -307,8 +392,9 @@ const Page = () => {
                           className="relative cursor-pointer"
                         >
                           <span>
-                            Drop your image here, or browse / اسحب الصورة هنا أو
-                            تصفح
+                            {language === "ar"
+                              ? "اسحب الصورة هنا أو تصفح"
+                              : "Drop your image here, or browse"}
                           </span>
                           <input
                             id="file-upload"
@@ -321,7 +407,9 @@ const Page = () => {
                         </label>
                       </div>
                       <p className="text-xs text-gray-400">
-                        JPEG, PNG, JPG, WebP are allowed (Max 5MB)
+                        {language === "ar"
+                          ? "JPEG, PNG, JPG, WebP مسموح (حد أقصى 5 ميجابايت)"
+                          : "JPEG, PNG, JPG, WebP are allowed (Max 5MB)"}
                       </p>
                     </div>
                   </div>
@@ -408,6 +496,31 @@ const Page = () => {
         .arabic-support .ql-editor[dir="ltr"] ul {
           padding-left: 1.5em;
           padding-right: 0;
+        }
+
+        /* RTL support for form */
+        .rtl {
+          direction: rtl;
+        }
+
+        .ltr {
+          direction: ltr;
+        }
+
+        /* RTL mode for Quill editor */
+        .rtl-mode .ql-editor {
+          direction: rtl;
+          text-align: right;
+        }
+
+        .ltr-mode .ql-editor {
+          direction: ltr;
+          text-align: left;
+        }
+
+        /* Language toggle button styles */
+        .language-toggle {
+          transition: all 0.2s ease-in-out;
         }
       `}</style>
     </div>
