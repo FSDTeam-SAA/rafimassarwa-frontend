@@ -49,12 +49,12 @@ const items = [
     addUrl: "/dashboard/news/add-news",
     icon: Newspaper,
   },
-  // {
-  //   title: "Deep Research",
-  //   url: "/dashboard/deep-research",
-  //   addUrl: "/dashboard/news/add-deep-research",
-  //   icon: Newspaper,
-  // },
+  {
+    title: "Deep Research",
+    url: "/dashboard/deep-research",
+    addUrl: "/dashboard/news/add-deep-research",
+    icon: Newspaper,
+  },
   {
     title: "Ads",
     url: "/dashboard/ads",
