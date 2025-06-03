@@ -143,7 +143,7 @@ export default function PortfolioTable() {
             </div>
           </div>
           <TabsTrigger value="overview" className="data-[state=active]:bg-[#28A745] data-[state=active]:text-white bg-[#E0E0E0] px-5 py-2">Overview</TabsTrigger>
-          <TabsTrigger value="tipranks" className="data-[state=active]:bg-[#28A745] data-[state=active]:text-white bg-[#E0E0E0] px-5 py-2">TipRanks Essentials</TabsTrigger>
+          <TabsTrigger value="tipranks" className="data-[state=active]:bg-[#28A745] data-[state=active]:text-white bg-[#E0E0E0] px-5 py-2">Olive Stocks Essentials</TabsTrigger>
           <TabsTrigger value="holdings" className="data-[state=active]:bg-[#28A745] data-[state=active]:text-white bg-[#E0E0E0] px-5 py-2">Holdings</TabsTrigger>
           <TabsTrigger value="performance" className="data-[state=active]:bg-[#28A745] data-[state=active]:text-white bg-[#E0E0E0] px-5 py-2">Performance</TabsTrigger>
           <TabsTrigger value="dividends" className="data-[state=active]:bg-[#28A745] data-[state=active]:text-white bg-[#E0E0E0] px-5 py-2">Dividends</TabsTrigger>
@@ -300,7 +300,7 @@ export default function PortfolioTable() {
 
         {/* tipranks content */}
         <TabsContent value="tipranks">
-          <h3 className="text-center py-10 text-2xl font-semibold text-[#28A745]">Tipsranks Essential&apos;s data will appear there</h3>
+          <h3 className="text-center py-10 text-2xl font-semibold text-[#28A745]">Olive Stocks Essential&apos;s data will appear there</h3>
         </TabsContent>
 
         {/* holdings */}

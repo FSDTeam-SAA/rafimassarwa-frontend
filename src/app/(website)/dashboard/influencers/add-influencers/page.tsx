@@ -16,12 +16,6 @@ interface FormData {
   phoneNumber: string
   email: string
   address: string
-  imageLink: string
-}
-
-interface InfluencerPayload extends FormData {
-  role: string
-  followers: number
 }
 
 const Page = () => {
@@ -30,18 +24,17 @@ const Page = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
   } = useForm({
     defaultValues: {
       userName: "",
       phoneNumber: "",
       email: "",
       address: "",
-      imageLink: "",
     },
   })
 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
@@ -78,12 +71,15 @@ const Page = () => {
       return
     }
 
+    // Store the actual file for FormData
+    setSelectedFile(file)
+
+    // Create preview URL for display
     const reader = new FileReader()
     reader.onload = (e) => {
       if (e.target?.result) {
         const imageDataUrl = e.target.result as string
         setUploadedImage(imageDataUrl)
-        setValue("imageLink", imageDataUrl)
       }
     }
     reader.readAsDataURL(file)
@@ -97,28 +93,45 @@ const Page = () => {
 
   const { mutateAsync } = useMutation({
     mutationKey: ["add-influencer"],
-    mutationFn: async (data: InfluencerPayload) => {
-      const res = await axiosInstance.post("/admin/influencer/create", data)
+    mutationFn: async (formData: globalThis.FormData) => {
+      const res = await axiosInstance.post("/admin/influencer/create", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       return res.data
     },
     onSuccess: () => {
       toast.success("Influencer added successfully!")
       router.push("/dashboard/influencers")
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Upload error:", error)
       toast.error("Failed to add influencer")
     },
   })
 
   const onSubmit = async (data: FormData) => {
-    console.log("first", data)
     try {
-      const payload: InfluencerPayload = {
-        ...data,
-        role: "influencer",
-        followers: 0,
+      // Create FormData object
+      const formData = new FormData()
+
+      // Append form fields
+      formData.append("userName", data.userName)
+      formData.append("phoneNumber", data.phoneNumber)
+      formData.append("email", data.email)
+      formData.append("address", data.address)
+      formData.append("role", "influencer")
+      formData.append("followers", "0")
+      formData.append("password", "123456")
+
+      // Append image file if selected
+      if (selectedFile) {
+        formData.append("imageLink", selectedFile);
+        console.log(selectedFile)
       }
-      await mutateAsync(payload)
+
+      await mutateAsync(formData)
     } catch (error) {
       console.error("Submission error:", error)
     }
@@ -230,7 +243,7 @@ const Page = () => {
                 ) : (
                   <>
                     <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                    <p className="text-gray-500 text-center">Drop your imager here, or browse</p>
+                    <p className="text-gray-500 text-center">Drop your image here, or browse</p>
                     <p className="text-gray-400 text-sm mt-1">Jpeg, png are allowed</p>
                   </>
                 )}

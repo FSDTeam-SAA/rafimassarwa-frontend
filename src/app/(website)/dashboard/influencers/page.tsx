@@ -22,6 +22,7 @@ interface Influencer {
   role: string
   address: string
   followers: number
+  profilePhoto?: string
   createdAt: string
   updatedAt: string
   __v: number
@@ -170,7 +171,7 @@ const Page = () => {
                 <TableRow key={influencer._id} className="border-b border-[#b0b0b0]">
                   <TableCell className="flex items-center gap-3 py-4 border-none">
                     <Avatar className="h-12 w-12 border border-gray-200">
-                      <AvatarImage src="/placeholder.svg?height=40&width=40" alt={influencer.userName} />
+                      <AvatarImage src={`${influencer?.profilePhoto}`} alt={influencer.userName} />
                       <AvatarFallback>{influencer.userName.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <span className="font-medium">{influencer.userName}</span>
