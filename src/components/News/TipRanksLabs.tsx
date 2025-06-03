@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function TipRanksLabs() {
   return (
     <div className="w-full mb-8 container mx-auto">
-      <h1 className="text-2xl font-bold mb-6">TipRanks Labs</h1>
+      <h1 className="text-2xl font-bold mb-6">Olive Stock Labs</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Article */}
@@ -91,7 +91,7 @@ export default function TipRanksLabs() {
 
       <div className="flex justify-end mt-4">
         <Link href="#" className="text-xs text-blue-500 hover:underline">
-          More TipRanks Labs &gt;
+          More Olive Stock Labs &gt;
         </Link>
       </div>
     </div>

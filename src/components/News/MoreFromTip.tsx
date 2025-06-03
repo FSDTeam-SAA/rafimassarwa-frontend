@@ -90,7 +90,7 @@ type Props = {
 export default function MoreFromTip() {
   return (
     <div className="mb-[80px] container mx-auto">
-      <h1 className="text-[32px] font-semibold mb-6">More From TipRanks</h1>
+      <h1 className="text-[32px] font-semibold mb-6">More From Olive Stock</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {earnings.map((earning: Props) => (

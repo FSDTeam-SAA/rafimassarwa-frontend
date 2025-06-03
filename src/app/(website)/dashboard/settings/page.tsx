@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EditProfileModal } from "./_components/edit-password-modal";
 import { EditPasswordModal } from "./_components/edit-profile-modal";
 import PathTracker from "../_components/PathTracker";
+import { useSession } from "next-auth/react";
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState({
     firstName: "Bessie",
@@ -22,6 +23,13 @@ export default function ProfilePage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isPersonalInfoModalOpen, setIsPersonalInfoModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
+  const session = useSession();
+
+  console.log(session?.data?.user)
+
+  const userName = session?.data?.user?.name;
+  const userEmail = session?.data?.user?.email;
 
   const handleProfileUpdate = (newData: Partial<typeof profileData>) => {
     setProfileData({ ...profileData, ...newData });
@@ -50,9 +58,9 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h2 className="text-xl font-bold">
-                  {profileData.firstName} {profileData.lastName}
+                  {userName}
                 </h2>
-                <p className="text-gray-500">@{profileData.username}</p>
+                <p className="text-gray-500">{userEmail}</p>
               </div>
             </div>
             <Button

@@ -16,39 +16,6 @@ const SearchResult = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Filter Section */}
-      <div className="w-full shadow-lg p-4 border rounded-xl bg-white mb-20">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-full">
-          <div className="flex items-center gap-3 lg:w-1/2">
-            <h2 className="text-lg font-semibold">Filters:</h2>
-            <select className="border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-              <option>All Industries</option>
-              <option>Technology</option>
-              <option>Healthcare</option>
-              <option>Finance</option>
-              <option>Consumer Goods</option>
-            </select>
-            <select className="border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-              <option>All Market Caps</option>
-              <option>Large Cap</option>
-              <option>Mid Cap</option>
-              <option>Small Cap</option>
-            </select>
-          </div>
-          <div className="flex items-center justify-end gap-3 lg:w-1/3">
-            <input
-              type="text"
-              placeholder="Search stocks..."
-              className="border rounded-md px-3 py-3 text-sm w-full md:w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <button className="bg-green-500 text-white px-5 py-3 rounded-md text-sm hover:bg-green-600 transition-colors">
-              Search
-            </button>
-          </div>
-        </div>
-      </div>
-
-      
       {/* section 1  */}
       <div className="w-full shadow-lg p-6 border rounded-xl bg-white">
         <div className="flex flex-col lg:flex-row gap-6 h-auto lg:h-[500px]">
@@ -146,6 +113,12 @@ const SearchResult = () => {
                   width={38}
                   height={47}
                 />
+              </div>
+
+              <div>
+                <button className="bg-green-500 text-white font-semibold px-3 py-2 rounded-lg">
+                  Deep Research
+                </button>
               </div>
 
               <div>
