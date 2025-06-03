@@ -1,5 +1,6 @@
 import LayoutWrapper from "@/Layout/LayoutWrapper";
 import "../globals.css";
+import 'react-quill/dist/quill.snow.css'; 
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 import AuthSessionProvider from "@/components/Authentication/session-provider";

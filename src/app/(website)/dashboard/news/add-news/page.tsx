@@ -20,7 +20,6 @@ import PathTracker from "../../_components/PathTracker";
 interface NewsFormData {
   newsTitle: string;
   newsDescription: string;
-  tickers: string;
   imageLink: string;
 }
 
@@ -45,7 +44,7 @@ const Page = () => {
     },
   });
 
-  // Quill modules configuration
+  // Enhanced Quill modules configuration with Arabic/RTL support
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -54,8 +53,10 @@ const Page = () => {
       [{ list: "ordered" }, { list: "bullet" }],
       [{ indent: "-1" }, { indent: "+1" }],
       [{ align: [] }],
+      [{ direction: "rtl" }], // RTL/LTR direction toggle
       ["link", "image"],
       ["blockquote", "code-block"],
+      [{ script: "sub" }, { script: "super" }],
       ["clean"],
     ],
   };
@@ -72,10 +73,12 @@ const Page = () => {
     "bullet",
     "indent",
     "align",
+    "direction", // Add direction to formats
     "link",
     "image",
     "blockquote",
     "code-block",
+    "script",
   ];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,8 +146,7 @@ const Page = () => {
       const payload = {
         newsTitle: data.newsTitle,
         newsDescription: data.newsDescription,
-        tickers: data.tickers || "",
-        imageLink: image?.preview || data.imageLink,
+        imageLink: data.imageLink,
       };
 
       await mutateAsync(payload);
@@ -163,9 +165,6 @@ const Page = () => {
     }
     if (textContent.length < 10) {
       return "Description must be at least 10 characters long";
-    }
-    if (textContent.length > 1000) {
-      return "Description must be less than 1000 characters";
     }
     return true;
   };
@@ -193,11 +192,11 @@ const Page = () => {
                   htmlFor="newsTitle"
                   className="text-sm font-medium text-gray-700"
                 >
-                  News Title *
+                  News Title * / عنوان الخبر
                 </label>
                 <input
                   id="newsTitle"
-                  placeholder="Enter News Title"
+                  placeholder="Enter News Title / أدخل عنوان الخبر"
                   className={`border p-4 rounded-lg bg-inherit outline-none w-full ${
                     errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
                   }`}
@@ -225,8 +224,12 @@ const Page = () => {
                   htmlFor="newsDescription"
                   className="text-sm font-medium text-gray-700"
                 >
-                  News Description *
+                  News Description * / وصف الخبر
                 </label>
+                <div className="mb-2 text-xs text-gray-500">
+                  💡 Tip: Use the direction button (⇄) in the toolbar to switch
+                  between English (LTR) and Arabic (RTL) text direction
+                </div>
                 <div
                   className={`border rounded-lg ${
                     errors.newsDescription
@@ -247,11 +250,11 @@ const Page = () => {
                         onChange={field.onChange}
                         modules={modules}
                         formats={formats}
-                        placeholder="Type Description here..."
+                        placeholder="Type Description here... / اكتب الوصف هنا..."
                         style={{
                           backgroundColor: "inherit",
                         }}
-                        className="quill-editor"
+                        className="quill-editor arabic-support"
                       />
                     )}
                   />
@@ -265,7 +268,7 @@ const Page = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Cover Image *
+                  Cover Image * / صورة الغلاف
                 </label>
 
                 {image ? (
@@ -303,7 +306,10 @@ const Page = () => {
                           htmlFor="file-upload"
                           className="relative cursor-pointer"
                         >
-                          <span>Drop your image here, or browse</span>
+                          <span>
+                            Drop your image here, or browse / اسحب الصورة هنا أو
+                            تصفح
+                          </span>
                           <input
                             id="file-upload"
                             name="file-upload"
@@ -330,6 +336,7 @@ const Page = () => {
         .quill-editor .ql-editor {
           min-height: 400px;
           font-size: 14px;
+          font-family: "Arial", "Tahoma", sans-serif;
         }
 
         .quill-editor .ql-toolbar {
@@ -346,6 +353,61 @@ const Page = () => {
         .quill-editor .ql-editor.ql-blank::before {
           font-style: normal;
           color: #9ca3af;
+        }
+
+        /* Arabic text support styles */
+        .arabic-support .ql-editor {
+          line-height: 1.8;
+        }
+
+        /* RTL direction support */
+        .arabic-support .ql-editor[dir="rtl"] {
+          text-align: right;
+          direction: rtl;
+        }
+
+        .arabic-support .ql-editor[dir="ltr"] {
+          text-align: left;
+          direction: ltr;
+        }
+
+        /* Arabic font support */
+        .arabic-support .ql-editor p,
+        .arabic-support .ql-editor div,
+        .arabic-support .ql-editor span {
+          font-family: "Tahoma", "Arial Unicode MS", "Lucida Sans Unicode",
+            sans-serif;
+        }
+
+        /* Direction button styling */
+        .ql-direction .ql-picker-label::before {
+          content: "⇄";
+        }
+
+        .ql-direction .ql-picker-item[data-value="rtl"]::before {
+          content: "RTL";
+        }
+
+        .ql-direction .ql-picker-item[data-value="ltr"]::before {
+          content: "LTR";
+        }
+
+        /* Better spacing for mixed content */
+        .arabic-support .ql-editor p {
+          margin-bottom: 0.5em;
+        }
+
+        /* Improved list styling for RTL */
+        .arabic-support .ql-editor[dir="rtl"] ol,
+        .arabic-support .ql-editor[dir="rtl"] ul {
+          padding-right: 1.5em;
+          padding-left: 0;
+        }
+
+        .arabic-support .ql-editor[dir="ltr"] ol,
+        .arabic-support .ql-editor[dir="ltr"] ul {
+          padding-left: 1.5em;
+          padding-right: 0;
         }
       `}</style>
     </div>
