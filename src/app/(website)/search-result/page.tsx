@@ -1,11 +1,14 @@
-import SearchResult from "@/components/SearchResult/SearchResult"
+import SearchResult from "@/components/SearchResult/SearchResult";
+import { Suspense } from "react";
 
 const page = () => {
   return (
     <div className="mt-10 mb-16">
-       <SearchResult /> 
+      <Suspense>
+        <SearchResult />
+      </Suspense>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
