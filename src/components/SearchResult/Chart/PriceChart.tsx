@@ -1,25 +1,17 @@
 "use client";
 import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useQuery } from "@tanstack/react-query";
+import useAxios from "@/hooks/useAxios";
+import { useSearchParams } from "next/navigation";
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -30,25 +22,82 @@ const chartConfig = {
 const PriceChart = () => {
   const [isActive, setIsActive] = useState("Day");
 
+  const axiosInstance = useAxios();
+  const searchParams = useSearchParams();
+  // console.log(searchParams.q)
+  const query = searchParams.get("q");
+
+  const { data: priceData } = useQuery({
+    queryKey: ["price-chart-data"],
+    queryFn: async () => {
+      const res = await axiosInstance(
+        `/stocks/stocks-overview?symbol=${query}`
+      );
+      return res.data?.data;
+    },
+  });
+
+  interface ChartDataItem {
+    time: number;
+    close: number;
+    volume: number;
+  }
+
+  const getFilteredChartData = (chartData: ChartDataItem[], period: string) => {
+    if (!chartData || chartData.length === 0) return [];
+
+    const now = Date.now();
+    let startTime = 0;
+
+    switch (period) {
+      case "Day":
+        startTime = now - 24 * 60 * 60 * 1000; // 1 day
+        break;
+      case "Week":
+        startTime = now - 7 * 24 * 60 * 60 * 1000; // 1 week
+        break;
+      case "Month":
+        startTime = now - 30 * 24 * 60 * 60 * 1000; // 1 month
+        break;
+      case "Year":
+        startTime = now - 365 * 24 * 60 * 60 * 1000; // 1 year
+        break;
+      case "5 Year":
+        startTime = now - 5 * 365 * 24 * 60 * 60 * 1000; // 5 years
+        break;
+      case "Max":
+        startTime = 0; // Show all data
+        break;
+      default:
+        startTime = now - 24 * 60 * 60 * 1000; // Default to 1 day
+    }
+
+    return chartData
+      .filter((item) => item.time >= startTime)
+      .map((item) => ({
+        time: new Date(item.time).toLocaleDateString(),
+        price: item.close,
+        volume: item.volume,
+      }));
+  };
+
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div className="flex space-x-2 sm:text-[32px] text-xl">
-          <span className="font-bold">$220.00</span>
-          <span className="text-green-600 font-semibold">+12.03 (2.24%)</span>
-        </div>
-        <a href="#" className="text-blue-600 text-sm hover:underline">
-          View Full Chart <span className="ml-1">&rarr;</span>
-        </a>
+      <div className="flex space-x-2 sm:text-[32px] text-xl">
+        <span className="font-bold">{priceData?.priceInfo?.currentPrice}</span>
+        <span className="text-green-600 font-semibold">
+          +{priceData?.priceInfo?.change} ({priceData?.priceInfo?.percentChange}
+          %)
+        </span>
       </div>
 
-      <div className="text-sm text-gray-500 mt-1">
+      {/* <div className="text-sm text-gray-500 mt-1">
         <span className="mr-2">221.22</span>
         <span className="text-red-600 font-semibold">▼ 1.22 (1.2%)</span>
         <span className="ml-2">
           After Hours · 17 March 7:02 pm EDT · Market Closed
         </span>
-      </div>
+      </div> */}
 
       <div className=" mt-4 overflow-x-auto">
         <div className="flex gap-2 w-max min-w-full px-2">
@@ -111,13 +160,10 @@ const PriceChart = () => {
       <div className="mt-5">
         <Card>
           <CardContent>
-            <ChartContainer 
-            config={chartConfig}
-            className="w-full h-[400px]"
-            >
+            <ChartContainer config={chartConfig} className="w-full h-[400px]">
               <AreaChart
                 accessibilityLayer
-                data={chartData}
+                data={getFilteredChartData(priceData?.chart || [], isActive)}
                 margin={{
                   left: 12,
                   right: 12,
@@ -125,18 +171,25 @@ const PriceChart = () => {
               >
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="month"
+                  dataKey="time"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 3)}
+                  tickFormatter={(value) => {
+                    // Show abbreviated date format
+                    const date = new Date(value);
+                    return date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    });
+                  }}
                 />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" hideLabel />}
                 />
                 <Area
-                  dataKey="desktop"
+                  dataKey="price"
                   type="linear"
                   fill="green"
                   fillOpacity={0.3}
