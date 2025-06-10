@@ -24,6 +24,7 @@ const formSchema = z
       message: "Password must be at least 6 characters.",
     }),
     confirmPassword: z.string(),
+    termsCondition : z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -49,6 +50,7 @@ export default function RegistrationForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      termsCondition : false
     },
   });
 
@@ -80,10 +82,10 @@ export default function RegistrationForm() {
 
   return (
     <div className="flex lg:min-h-screen items-center justify-center p-4 bg-gradient-to-l from-[white] to-[#e8f7eb]">
-      <div className="w-full max-w-6xl lg:overflow-hidden rounded-[2rem] bg-white shadow-[0_0_40px_rgba(0,0,0,0.2)] h-[620px]">
+      <div className="w-full max-w-6xl lg:overflow-hidden rounded-[2rem] bg-white shadow-[0_0_40px_rgba(0,0,0,0.2)] h-[650px]">
         <div className="flex flex-col lg:flex-row">
           {/* Left side - Registration Form */}
-          <div className="w-full p-10 md:w-1/2 mx-auto lg:h-[620px] flex flex-col items-center justify-center">
+          <div className="w-full p-10 md:w-1/2 mx-auto lg:h-[650px] flex flex-col items-center justify-center">
             {/* <p className="mb-4 text-center text-lg text-gray-700">
               Join our community and unlock exclusive content!
             </p> */}
@@ -212,6 +214,22 @@ export default function RegistrationForm() {
                 )}
               </div>
 
+              {/* Remember Me checkbox */}
+              <div className="flex items-center">
+                <input
+                  id="termsCondition"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-green-500 focus:ring-green-500"
+                  {...register("termsCondition")}
+                />
+                <label
+                  htmlFor="termsCondition"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  I agree to the <span className="text-green-500">Terms & Condition</span>
+                </label>
+              </div>
+
               {/* Register button */}
               <button
                 type="submit"
@@ -253,7 +271,7 @@ export default function RegistrationForm() {
           </div>
 
           {/* Right side - Welcome message */}
-          <div className="relative w-[70%] h-[620px] hidden lg:block">
+          <div className="relative w-[70%] h-[650px] hidden lg:block">
             <div className="bg-gradient-to-br from-[#f0f9f0] to-[#e6f7e6] p-10 skew-x-12 w-full h-full absolute ml-[76px] shadow-[0_0_40px_rgba(0,0,0,0.2)]"></div>
 
             <div className="absolute flex flex-col items-center justify-center w-full h-full text-gray-700">
