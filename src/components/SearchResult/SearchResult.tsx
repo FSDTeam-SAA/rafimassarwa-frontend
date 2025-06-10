@@ -32,6 +32,8 @@ const SearchResult = () => {
     },
   });
 
+  console.log(stockData)
+
   // Calculate percentage difference
   const percentDiff = (((stockData?.valuationBar?.currentPrice - stockData?.valuationBar?.fairValue) / stockData?.valuationBar?.fairValue) * 100)
   const isOvervalued = stockData?.valuationBar?.currentPrice > stockData?.valuationBar?.fairValue;
@@ -66,11 +68,11 @@ const SearchResult = () => {
   // Get status text and color
   const getStatusInfo = () => {
     if (isFairlyValued) {
-      return { text: "Fair Value", bgColor: "#28A745", textColor: "white" };
+      return { text: "Fair Value", bgColor: "#28A745", textColor: "#28A745" };
     } else if (isUndervalued) {
-      return { text: "Under Value", bgColor: "#FFD700", textColor: "black" };
+      return { text: "Under Value", bgColor: "#FFD700", textColor: "#FFD700" };
     } else {
-      return { text: "Over Value", bgColor: "#FF5733", textColor: "white" };
+      return { text: "Over Value", bgColor: "#FF5733", textColor: "#FF5733" };
     }
   };
 
@@ -189,7 +191,7 @@ const SearchResult = () => {
 
               <div>
                 <Image
-                  src={"/images/chad.png"}
+                  src={stockData?.shariaCompliant ? "/images/chad.png" : "/images/chadRed.png"}
                   alt="Chad Logo"
                   width={40}
                   height={40}
@@ -335,6 +337,7 @@ const SearchResult = () => {
                   height="23"
                   stroke="#C8C8C8"
                   fill="white"
+                  className="bg-green-500"
                 />
                 <text
                   x="418"
@@ -380,19 +383,19 @@ const SearchResult = () => {
 
                 <text
                   x="524"
-                  y="58"
+                  y="65"
                   textAnchor="middle"
                   className="text-xs font-bold"
-                  fill={statusInfo.textColor}
+                  fill={"#03AC13"}
                 >
                   {Math.abs((percentDiff))}%
                 </text>
                 <text
                   x="524"
-                  y="72"
+                  y="77"
                   textAnchor="middle"
                   className="text-xs font-medium"
-                  fill={statusInfo.textColor}
+                  fill={"#03AC13"}
                 >
                   {statusInfo.text}
                 </text>
