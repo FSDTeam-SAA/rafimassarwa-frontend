@@ -185,12 +185,14 @@ const SearchResult = () => {
                 <h1 className="text-xl font-bold mb-2 text-gray-800 truncate ">
                   {stockData?.company}
                 </h1>
-                <Image
-                  src={"/images/apple.png"}
-                  alt="Apple Logo"
-                  width={38}
-                  height={47}
-                />
+                {stockData?.logo && (
+                  <Image
+                    src={stockData.logo}
+                    alt="Company Logo"
+                    width={38}
+                    height={47}
+                  />
+                )}
               </div>
 
               <div className=" w-1/3 flex justify-end">
@@ -224,9 +226,7 @@ const SearchResult = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 className="mx-auto h-[230px] w-[80%]"
               >
-                <Link
-                href={`/graphic-concept`}
-                >
+                <Link href={`/graphic-concept`}>
                   <rect
                     x="307.557"
                     y="19.252"
