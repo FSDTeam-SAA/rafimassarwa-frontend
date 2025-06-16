@@ -67,8 +67,6 @@ export default function Home() {
     getGainLose();
   }, [getOverview]);
 
-  console.log(gainLoseData)
-
 
   const dailyReturn = overviewData?.dailyReturn ?? 0;
   const dailyReturnPercent = overviewData?.dailyReturnPercent ?? 0;

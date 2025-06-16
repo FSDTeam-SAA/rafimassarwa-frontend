@@ -44,7 +44,7 @@ export default function ProfileInfo() {
                         <h3 className='text-xl font-semibold pb-2'>{user?.fullName}</h3>
                         <div className="text-[#595959] text-sm">
                             <h5>{user?.email}</h5>
-                            <p>Member since : 
+                            <p>Member since :
                                 {
                                     user?.createdAt &&
                                     new Date(user.createdAt).toLocaleDateString("en-US", {
