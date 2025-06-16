@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { GoDesktopDownload, GoPeople } from "react-icons/go";
+import { GoDesktopDownload } from "react-icons/go";
 import { MdOutlineAccountCircle, MdOutlineSupportAgent } from "react-icons/md";
 import { IoIosStarHalf } from "react-icons/io";
 import { RiNewspaperLine } from "react-icons/ri";
@@ -74,11 +74,6 @@ export function PortfolioSidebar() {
       icon: <CiShare1 />,
       label: "Refer with friends",
       href: "/my-portfolio/refer-with-friends",
-    },
-    {
-      icon: <GoPeople />,
-      label: "Influencers",
-      href: "/my-portfolio/influencers",
     },
     {
       icon: <MdOutlineSupportAgent />,

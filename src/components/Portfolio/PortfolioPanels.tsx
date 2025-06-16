@@ -1,6 +1,82 @@
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Edit2, Plus } from "lucide-react";
+import { useEffect } from "react";
+import { FaCaretUp, FaCaretDown } from "react-icons/fa";
+
 
 export default function Home() {
+
+  const { mutate: getOverview, data: overviewData } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          holdings: [
+            {
+              symbol: "AAPL",
+              shares: 2,
+            },
+            {
+              symbol: "MSFT",
+              shares: 2,
+            },
+          ],
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch portfolio overview");
+      }
+
+      return res.json();
+    },
+  });
+
+
+  const { mutate: getGainLose, data: gainLoseData } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/topmovers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          symbols: [
+            "AAPL",
+            "MSFT"
+          ]
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch portfolio overview");
+      }
+
+      return res.json();
+    },
+  });
+
+  // Trigger on mount (page reload)
+  useEffect(() => {
+    getOverview();
+    getGainLose();
+  }, [getOverview]);
+
+  console.log(gainLoseData)
+
+
+  const dailyReturn = overviewData?.dailyReturn ?? 0;
+  const dailyReturnPercent = overviewData?.dailyReturnPercent ?? 0;
+  const isReturnPositive = dailyReturn >= 0;
+  const isReturnPercentPositive = dailyReturnPercent >= 0;
+
+
+
   return (
     <div className="flex flex-col ">
       {/* Action Buttons */}
@@ -30,7 +106,7 @@ export default function Home() {
             </div>
 
             <div className="py-6 text-center">
-              <h1 className="text-[40px] text-[#595959] font-bold">$0.00</h1>
+              <h1 className="text-[40px] text-[#595959] font-bold">${overviewData?.totalHoldings}</h1>
             </div>
 
             <div className="text-sm text-gray-600 mt-4 text-center">
@@ -38,9 +114,9 @@ export default function Home() {
             </div>
 
             <div className="flex text-center items-center justify-center mt-2 py-2">
-              <div>Portfolio Cash</div>
+              <div>Portfolio Cash : </div>
               <div className="flex items-center gap-2">
-                <span>$0.00</span>
+                <span>&nbsp;${overviewData?.totalHoldings}</span>
                 <Edit2 className="h-4 w-4 text-gray-400" />
               </div>
             </div>
@@ -49,11 +125,15 @@ export default function Home() {
               <div className="flex divide-x divide-gray-200">
                 {/* Total Return */}
                 <div className="flex-1 px-4">
-                  <div className="flex items-center text-green-500">
-                    <span className="text-lg">+$0.00</span>
+                  <div className={`flex items-center ${isReturnPositive ? "text-green-500" : "text-red-500"}`}>
+                    {isReturnPositive ? <FaCaretUp className="w-6 h-6 mr-1" /> : <FaCaretDown className="w-6 h-6 mr-1" />}
+                    <span className="text-lg font-semibold">$ {dailyReturn}</span>
                   </div>
-                  <span className="text-xl">+1.20%</span>
-                  <div className="flex items-center text-xs mt-4">
+                  <div className={`flex items-center ${isReturnPercentPositive ? "text-green-500" : "text-red-500"}`}>
+                    {isReturnPercentPositive ? <FaCaretUp className="w-6 h-6 mr-1" /> : <FaCaretDown className="w-6 h-6 mr-1" />}
+                    <span className="text-lg font-semibold">$ {dailyReturnPercent}%</span>
+                  </div>
+                  <div className="flex items-center text-xs mt-4 text-muted-foreground">
                     Daily Return
                   </div>
                 </div>
@@ -63,8 +143,8 @@ export default function Home() {
                   <div className="h-8 flex items-center justify-center">
                     ---
                   </div>
-                  <div className="text-xs text-green-500 text-center">
-                    Daily Return
+                  <div className="text-xs text-center">
+                    30 Day Return
                   </div>
                 </div>
 
@@ -73,8 +153,8 @@ export default function Home() {
                   <div className="h-8 flex items-center justify-center">
                     ---
                   </div>
-                  <div className="text-xs text-green-500 text-center">
-                    Daily Return
+                  <div className="text-xs text-center">
+                    30 Day Return
                   </div>
                 </div>
               </div>
@@ -88,7 +168,7 @@ export default function Home() {
             <h2 className="font-semibold text-lg text-gray-800">
               Portfolio Overview
             </h2>
-            <div className="flex mt-2 shadow-[0px_0px_10px_1px_#0000001A]">
+            <div className="flex justify-between mt-2 shadow-[0px_0px_10px_1px_#0000001A]">
               <div className="px-4 py-2 font-medium relative after:absolute after:top-0 after:left-0 after:content-[''] after:h-[5px] after:w-full after:bg-[#28A745]">
                 Top Gainers
               </div>
@@ -96,14 +176,50 @@ export default function Home() {
             </div>
 
             <div className="mt-4">
-              <div className="flex justify-between items-center py-2">
-                <div className="font-medium">PANW</div>
-                <div className="text-green-500">
-                  <div className="text-xs">+0.2%</div>
-                  <div className="font-medium text-right">+$6.65</div>
+              <div className="grid grid-cols-2 gap-5 items-center py-2">
+                <div className="">
+                  {
+                    gainLoseData?.topGainers?.map((item: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between gap-2 border-b space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-semibold">{item.symbol}</span>
+                        </div>
+                        <div className="">
+                          <div className={`flex items-center ${item.dp > 0 ? "text-green-500" : "text-red-500"}`}>
+                            {item.dp > 0 ? <FaCaretUp className="w-4 h-4 mr-1" /> : <FaCaretDown className="w-4 h-4 mr-1" />}
+                            <span className="text-base font-semibold">{item.dp.toFixed(2)}%</span>
+                          </div>
+                          <div className={`flex items-center ${item.d > 0 ? "text-green-500" : "text-red-500"}`}>
+                            {item.d > 0 ? <FaCaretUp className="w-4 h-4 mr-1" /> : <FaCaretDown className="w-4 h-4 mr-1" />}
+                            <span className="text-base font-semibold">$ {item.d}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  }
                 </div>
-                <div className="py-4 text-center text-gray-500 text-sm">
-                  No holdings to show
+                <div className="">
+                  <div className="py-4 text-center text-gray-500 text-sm">
+                    {
+                      gainLoseData?.topLosers?.map((item: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between gap-2 border-b space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-semibold">{item.symbol}</span>
+                          </div>
+                          <div className="">
+                            <div className={`flex items-center ${item.dp > 0 ? "text-green-500" : "text-red-500"}`}>
+                              {item.dp > 0 ? <FaCaretUp className="w-4 h-4 mr-1" /> : <FaCaretDown className="w-4 h-4 mr-1" />}
+                              <span className="text-base font-semibold">{item.dp.toFixed(2)}%</span>
+                            </div>
+                            <div className={`flex items-center ${item.d > 0 ? "text-green-500" : "text-red-500"}`}>
+                              {item.d > 0 ? <FaCaretUp className="w-4 h-4 mr-1" /> : <FaCaretDown className="w-4 h-4 mr-1" />}
+                              <span className="text-base font-semibold">$ {item.d}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    }
+                  </div>
                 </div>
               </div>
             </div>
