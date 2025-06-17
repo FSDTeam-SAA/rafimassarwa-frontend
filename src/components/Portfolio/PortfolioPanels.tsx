@@ -1,56 +1,66 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowRight, Edit2, Plus } from "lucide-react";
-import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react"; // Removed useState
 import { FaCaretUp, FaCaretDown } from "react-icons/fa";
-
+import { usePortfolio } from "./portfolioContext"; // Import usePortfolio
 
 export default function Home() {
+  const { data: session } = useSession();
+  const { selectedPortfolioId } = usePortfolio(); // Use selectedPortfolioId from context
 
-  const { mutate: getOverview, data: overviewData } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`, {
-        method: "POST",
+  // Fetch portfolio data for selected ID
+  const { data: portfolioData } = useQuery({
+    queryKey: ["portfolio", selectedPortfolioId], // add selectedPortfolioId to the query key
+    queryFn: async () => {
+      // If selectedPortfolioId is undefined (initial load before a selection), prevent the fetch.
+      // The `enabled` prop below also handles this, but it's good to be explicit here too.
+      if (!selectedPortfolioId) {
+        return null;
+      }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get/${selectedPortfolioId}`, {
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
         },
-        body: JSON.stringify({
-          holdings: [
-            {
-              symbol: "AAPL",
-              shares: 2,
-            },
-            {
-              symbol: "MSFT",
-              shares: 2,
-            },
-          ],
-        }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch portfolio overview");
-      }
-
-      return res.json();
+      const data = await res.json();
+      return data;
     },
+    enabled: !!session?.user?.accessToken && !!selectedPortfolioId, // only run when both are available
   });
 
 
+  // Trigger overview when portfolioData is ready
   const { mutate: getGainLose, data: gainLoseData } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (symbols: string[]) => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/topmovers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          symbols: [
-            "AAPL",
-            "MSFT"
-          ]
-        }),
+        body: JSON.stringify({ symbols }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch portfolio overview");
+      }
+
+      return res.json();
+    },
+  });
+  console.log("Gain lose data: ", gainLoseData);
+
+  const { mutate: getOverview, data: overviewData } = useMutation({
+    mutationFn: async (holdings: { symbol: string; shares: number }[]) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ holdings }),
       });
 
       if (!res.ok) {
@@ -61,11 +71,20 @@ export default function Home() {
     },
   });
 
-  // Trigger on mount (page reload)
   useEffect(() => {
-    getOverview();
-    getGainLose();
-  }, [getOverview]);
+    if (portfolioData && portfolioData.stocks && portfolioData.stocks.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const symbols = portfolioData.stocks.map((stock: any) => stock.symbol);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const holdings = portfolioData.stocks.map((stock: any) => ({
+        symbol: stock.symbol,
+        shares: stock.quantity,
+      }));
+      getOverview(holdings);
+      getGainLose(symbols);
+    }
+    // No need to set selectedPortfolioId here, as it's now controlled by the context
+  }, [portfolioData, getGainLose, getOverview]);
 
 
   const dailyReturn = overviewData?.dailyReturn ?? 0;
@@ -73,6 +92,8 @@ export default function Home() {
   const isReturnPositive = dailyReturn >= 0;
   const isReturnPercentPositive = dailyReturnPercent >= 0;
 
+
+  console.log(overviewData)
 
 
   return (
@@ -129,7 +150,7 @@ export default function Home() {
                   </div>
                   <div className={`flex items-center ${isReturnPercentPositive ? "text-green-500" : "text-red-500"}`}>
                     {isReturnPercentPositive ? <FaCaretUp className="w-6 h-6 mr-1" /> : <FaCaretDown className="w-6 h-6 mr-1" />}
-                    <span className="text-lg font-semibold">$ {dailyReturnPercent}%</span>
+                    <span className="text-lg font-semibold">{dailyReturnPercent}%</span>
                   </div>
                   <div className="flex items-center text-xs mt-4 text-muted-foreground">
                     Daily Return
@@ -177,6 +198,7 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-5 items-center py-2">
                 <div className="">
                   {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     gainLoseData?.topGainers?.map((item: any, index: number) => (
                       <div key={index} className="flex items-center justify-between gap-2 border-b space-y-3">
                         <div className="flex items-center gap-2">
@@ -189,7 +211,7 @@ export default function Home() {
                           </div>
                           <div className={`flex items-center ${item.d > 0 ? "text-green-500" : "text-red-500"}`}>
                             {item.d > 0 ? <FaCaretUp className="w-4 h-4 mr-1" /> : <FaCaretDown className="w-4 h-4 mr-1" />}
-                            <span className="text-base font-semibold">$ {item.d}</span>
+                            <span className="text-base font-semibold">$ {item.d.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -199,6 +221,7 @@ export default function Home() {
                 <div className="">
                   <div className="py-4 text-center text-gray-500 text-sm">
                     {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       gainLoseData?.topLosers?.map((item: any, index: number) => (
                         <div key={index} className="flex items-center justify-between gap-2 border-b space-y-3">
                           <div className="flex items-center gap-2">
@@ -211,7 +234,7 @@ export default function Home() {
                             </div>
                             <div className={`flex items-center ${item.d > 0 ? "text-green-500" : "text-red-500"}`}>
                               {item.d > 0 ? <FaCaretUp className="w-4 h-4 mr-1" /> : <FaCaretDown className="w-4 h-4 mr-1" />}
-                              <span className="text-base font-semibold">$ {item.d}</span>
+                              <span className="text-base font-semibold">$ {item.d.toFixed(2)}</span>
                             </div>
                           </div>
                         </div>

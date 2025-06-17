@@ -9,7 +9,7 @@ import React, { useState } from 'react'
 
 export default function Page() {
 
-    const [selectedStock, setSelectedStock] = useState("AAPL")
+    const [selectedStock, setSelectedStock] = useState<string | undefined>(undefined) // Initialize as undefined
     const [timeframe, setTimeframe] = useState("1Y") // Changed default from 1M to 1Y
     const [comparisonStocks, setComparisonStocks] = useState<string[]>([])
 
@@ -35,6 +35,13 @@ export default function Page() {
         setComparisonStocks([])
     }
 
+
+    const handleInitialStockSelection = (symbol: string) => {
+        if (!selectedStock) { // Only set if not already set (e.g., on first load)
+            setSelectedStock(symbol)
+        }
+    }
+
     return (
         <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-1">
@@ -50,10 +57,16 @@ export default function Page() {
                     />
                     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
                         <div className="lg:col-span-3">
-                            <StockChart selectedStock={selectedStock} timeframe={timeframe} comparisonStocks={comparisonStocks} />
+                            {selectedStock && (
+                                <StockChart selectedStock={selectedStock} timeframe={timeframe} comparisonStocks={comparisonStocks} />
+                            )}
                         </div>
                         <div className="lg:col-span-1">
-                            <StockList selectedStock={selectedStock} onSelectStock={setSelectedStock} />
+                            <StockList
+                                selectedStock={selectedStock}
+                                onSelectStock={setSelectedStock}
+                                onInitialStockLoaded={handleInitialStockSelection} // Pass the new callback
+                            />
                         </div>
                     </div>
                     <div className="mt-20">

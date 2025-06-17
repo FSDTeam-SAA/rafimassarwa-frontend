@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import { IoWarningOutline } from "react-icons/io5";
 import { FiEdit2 } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -27,17 +27,28 @@ import Link from "next/link";
 import { Input } from "../ui/input";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { usePortfolio } from "./portfolioContext";
 
 export default function PortfolioTable() {
 
+  const [editableShares, setEditableShares] = useState<Record<string, number>>({});
+
   const { data: session } = useSession();
 
+  const { selectedPortfolioId } = usePortfolio(); // Use selectedPortfolioId from context
+
+  // Fetch portfolio data for selected ID
   const { data: portfolioData } = useQuery({
-    queryKey: ["portfolio"],
+    queryKey: ["portfolio", selectedPortfolioId], // add selectedPortfolioId to the query key
     queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get`, {
+      // If selectedPortfolioId is undefined (initial load before a selection), prevent the fetch.
+      // The `enabled` prop below also handles this, but it's good to be explicit here too.
+      if (!selectedPortfolioId) {
+        return null;
+      }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get/${selectedPortfolioId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.user?.accessToken}`,
@@ -46,7 +57,7 @@ export default function PortfolioTable() {
       const data = await res.json();
       return data;
     },
-    enabled: !!session?.user?.accessToken,
+    enabled: !!session?.user?.accessToken && !!selectedPortfolioId, // only run when both are available
   });
 
   const { mutate: getOverview, data: overviewData } = useMutation({
@@ -69,8 +80,9 @@ export default function PortfolioTable() {
 
   // Trigger overview when portfolioData is ready
   useEffect(() => {
-    if (portfolioData && portfolioData.length > 0) {
-      const holdings = portfolioData[0].stocks.map((stock: any) => ({
+    if (portfolioData && portfolioData.stocks.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const holdings = portfolioData.stocks.map((stock: any) => ({
         symbol: stock.symbol,
         shares: stock.quantity,
       }));
@@ -78,91 +90,17 @@ export default function PortfolioTable() {
     }
   }, [portfolioData, getOverview]);
 
-  console.log("Overview Holdings:", overviewData?.holdings);
+  useEffect(() => {
+    if (overviewData?.holdings) {
+      const sharesMap: Record<string, number> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      overviewData.holdings.forEach((item: any) => {
+        sharesMap[item.symbol] = item.shares;
+      });
+      setEditableShares(sharesMap);
+    }
+  }, [overviewData]);
 
-
-  const tableData = [
-    {
-      _id: 1,
-      ticker: "AAPL",
-      logo: '/images/appl.png',
-      numberOfShares: 12,
-      aiCatalyst: "/images/Ai.png",
-      changeArrow: "▲",
-      changeAmount: 0,
-      price: 120.22,
-      priceChange: 3.2,
-      priceChangePercentage: "12%",
-      recommendation: "Moderate Buy",
-      analystPriceTarget: "/images/lock.png",
-      holdingValue: "Strong",
-      holdingGain: -3.2,
-    },
-    {
-      _id: 2,
-      ticker: "AAPL",
-      logo: '/images/appl.png',
-      numberOfShares: 12,
-      aiCatalyst: "/images/Ai.png",
-      changeArrow: "▲",
-      changeAmount: 0,
-      price: 120.22,
-      priceChange: 3.2,
-      priceChangePercentage: "12%",
-      recommendation: "Hold",
-      analystPriceTarget: "/images/lock.png",
-      holdingValue: "Strong",
-      holdingGain: -3.2,
-    },
-    {
-      _id: 3,
-      ticker: "AAPL",
-      logo: '/images/appl.png',
-      numberOfShares: 12,
-      aiCatalyst: "/images/Ai.png",
-      changeArrow: "▲",
-      changeAmount: 0,
-      price: 120.22,
-      priceChange: 3.2,
-      priceChangePercentage: "12%",
-      recommendation: "Hold",
-      analystPriceTarget: "/images/lock.png",
-      holdingValue: "Strong",
-      holdingGain: -3.2,
-    },
-    {
-      _id: 4,
-      ticker: "AAPL",
-      logo: '/images/appl.png',
-      numberOfShares: 12,
-      aiCatalyst: "/images/Ai.png",
-      changeArrow: "▲",
-      changeAmount: 0,
-      price: 120.22,
-      priceChange: 3.2,
-      priceChangePercentage: "12%",
-      recommendation: "Moderate Buy",
-      analystPriceTarget: "/images/lock.png",
-      holdingValue: "Strong",
-      holdingGain: -3.2,
-    },
-    {
-      _id: 5,
-      ticker: "AAPL",
-      logo: '/images/appl.png',
-      numberOfShares: 12,
-      aiCatalyst: "/images/Ai.png",
-      changeArrow: "▲",
-      changeAmount: 0,
-      price: 120.22,
-      priceChange: 3.2,
-      priceChangePercentage: "12%",
-      recommendation: "Moderate Buy",
-      analystPriceTarget: "/images/lock.png",
-      holdingValue: "Strong",
-      holdingGain: 3.2,
-    },
-  ];
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-[100px] lg:mb-20 mb-5">
@@ -227,8 +165,9 @@ export default function PortfolioTable() {
               </TableRow>
             </TableHeader>
             <TableBody className="text-center">
-              {overviewData?.holdings?.map((item: any) => (
-                <TableRow key={item._id} className="h-24">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {overviewData?.holdings?.map((item: any, index: number) => (
+                <TableRow key={index} className="h-24">
                   <TableCell className="font-medium">
                     <Link href={`/stock/${item.symbol.toLowerCase()}`}>
                       <div className="flex justify-center">
@@ -253,10 +192,16 @@ export default function PortfolioTable() {
                     <div className="flex gap-1 text-center items-center">
                       <span><IoWarningOutline className="text-[#FFD700]" /></span>
                       <Input
-                        value={item.shares}
+                        value={editableShares[item.symbol] ?? ""}
                         className="text-center w-14"
+                        onChange={(e) =>
+                          setEditableShares((prev) => ({
+                            ...prev,
+                            [item.symbol]: Number(e.target.value),
+                          }))
+                        }
                       />
-                      <span><FiEdit2 className="text-[#28A745]" /></span>
+                      <span><FiEdit2 onClick={() => console.log(item)} className="text-[#28A745] cursor-pointer" /></span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -385,28 +330,6 @@ export default function PortfolioTable() {
           <h3 className="text-center py-10 text-2xl font-semibold text-[#28A745]">Technicals data will appear there</h3>
         </TabsContent>
       </Tabs>
-      <div className="flex items-center justify-end p-4">
-        <div className="flex items-center space-x-2">
-          <button className="flex h-8 w-8 items-center justify-center rounded-md bg-green-600 text-white">
-            1
-          </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600">
-            2
-          </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600">
-            3
-          </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600">
-            4
-          </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600">
-            5
-          </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600">
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
