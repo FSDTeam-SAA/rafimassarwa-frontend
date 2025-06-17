@@ -1,3 +1,7 @@
+"use client"
+
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image'
 import { CiEdit } from "react-icons/ci";
 
@@ -5,12 +9,19 @@ import { CiEdit } from "react-icons/ci";
 export default function ProfileInfo() {
 
 
-    const user = {
-        avatar: "/images/my_portfolio_page/user.png",
-        fullname: "Alex Mitchell",
-        email: "alex.mitchell@example.com",
-        startDate: "April 2023"
-    }
+    const { data: session } = useSession();
+
+    const userId = session?.user?.id
+    const { data: user } = useQuery({
+        queryKey: ["user"],
+        queryFn: async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/get-user/${userId}`);
+            const data = await res.json();
+            return data;
+        },
+        select: (data) => data?.data,
+        enabled: !!userId
+    })
 
 
     return (
@@ -19,8 +30,8 @@ export default function ProfileInfo() {
                 <div className="flex gap-4 items-center">
                     <div className="relative">
                         <Image
-                            src={user.avatar}
-                            alt={`${user.fullname}`}
+                            src={user?.profilePhoto || "/images/my_portfolio_page/user.png"}
+                            alt={`${user?.fullname}`}
                             width={1000}
                             height={600}
                             className='w-24 h-24 rounded-full'
@@ -30,10 +41,20 @@ export default function ProfileInfo() {
                         </div>
                     </div>
                     <div className="">
-                        <h3 className='text-xl font-semibold pb-2'>{user.fullname}</h3>
+                        <h3 className='text-xl font-semibold pb-2'>{user?.fullName}</h3>
                         <div className="text-[#595959] text-sm">
-                            <h5>{user.email}</h5>
-                            <p>Member since {user.startDate}</p>
+                            <h5>{user?.email}</h5>
+                            <p>Member since :
+                                {
+                                    user?.createdAt &&
+                                    new Date(user.createdAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    })
+                                }
+                            </p>
+
                         </div>
                     </div>
                 </div>
