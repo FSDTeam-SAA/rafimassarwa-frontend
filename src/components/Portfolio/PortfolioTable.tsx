@@ -169,7 +169,7 @@ export default function PortfolioTable() {
               {overviewData?.holdings?.map((item: any, index: number) => (
                 <TableRow key={index} className="h-24">
                   <TableCell className="font-medium">
-                    <Link href={`/stock/${item.symbol.toLowerCase()}`}>
+                    <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
                       <div className="flex justify-center">
                         <div className="flex items-center gap-2">
                           <div className="flex w-8 h-8 rounded-full bg-black justify-center items-center p-2">

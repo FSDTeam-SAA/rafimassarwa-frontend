@@ -1,16 +1,14 @@
 "use client"
 
-import RecentNews from '@/components/overview/news'
-import StockPremiumBanner from '@/components/Portfolio/chart/chart-bottom'
-import StockChart from '@/components/Portfolio/chart/stock-chart'
-import StockHeader from '@/components/Portfolio/chart/stock-header'
-import StockList from '@/components/Portfolio/chart/stock-list'
-import React, { useState } from 'react'
+import { useState } from "react" // Import useEffect
+import StockChart from "@/components/Portfolio/chart/stock-chart"
+import StockHeader from "@/components/Portfolio/chart/stock-header"
+import StockList from "@/components/Portfolio/chart/stock-list"
+import StockPremiumBanner from "@/components/Portfolio/chart/chart-bottom"
 
-export default function Page() {
-
+export default function ChartPage() {
     const [selectedStock, setSelectedStock] = useState<string | undefined>(undefined) // Initialize as undefined
-    const [timeframe, setTimeframe] = useState("1Y") // Changed default from 1M to 1Y
+    const [timeframe, setTimeframe] = useState("1Y")
     const [comparisonStocks, setComparisonStocks] = useState<string[]>([])
 
     // Function to handle adding/removing comparison stocks
@@ -35,7 +33,7 @@ export default function Page() {
         setComparisonStocks([])
     }
 
-
+    // Function to handle initial stock selection from StockList
     const handleInitialStockSelection = (symbol: string) => {
         if (!selectedStock) { // Only set if not already set (e.g., on first load)
             setSelectedStock(symbol)
@@ -44,19 +42,23 @@ export default function Page() {
 
     return (
         <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
                 <div className="col-span-5">
-                    <StockHeader
-                        selectedStock={selectedStock}
-                        onStockChange={setSelectedStock}
-                        timeframe={timeframe}
-                        onTimeframeChange={setTimeframe}
-                        comparisonStocks={comparisonStocks}
-                        onToggleComparison={toggleComparisonStock}
-                        onClearComparisons={clearComparisons}
-                    />
+                    {/* Ensure selectedStock is not undefined before passing */}
+                    {selectedStock && (
+                        <StockHeader
+                            selectedStock={selectedStock}
+                            onStockChange={setSelectedStock}
+                            timeframe={timeframe}
+                            onTimeframeChange={setTimeframe}
+                            comparisonStocks={comparisonStocks}
+                            onToggleComparison={toggleComparisonStock}
+                            onClearComparisons={clearComparisons}
+                        />
+                    )}
                     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
                         <div className="lg:col-span-3">
+                            {/* Ensure selectedStock is not undefined before rendering StockChart */}
                             {selectedStock && (
                                 <StockChart selectedStock={selectedStock} timeframe={timeframe} comparisonStocks={comparisonStocks} />
                             )}
@@ -73,8 +75,12 @@ export default function Page() {
                         <StockPremiumBanner />
                     </div>
                 </div>
-                <div className="col-span-2">
-                    <RecentNews />
+                <div className="col-span-1">
+                    <div className="md:w-[200px] h-full">
+                        <div className="bg-green-50 h-full rounded-xl flex items-center justify-center">
+                            <div className="font-bold text-3xl -rotate-90 tracking-wider hidden md:flex">Banner Ads</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
