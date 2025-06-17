@@ -186,7 +186,7 @@ socket.onmessage = (event) => {
   console.log(data)
 
     console.log("sdd")
-    const latestPrice = data.data[0].p;
+    const latestPrice = data?.data[0]?.p;
     setCurrentPrice(latestPrice);
     console.log(currentPrice)
 

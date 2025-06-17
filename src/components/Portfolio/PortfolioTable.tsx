@@ -175,7 +175,7 @@ export default function PortfolioTable() {
                           <div className="flex w-8 h-8 rounded-full bg-black justify-center items-center p-2">
                             <Image
                               src={item.logo}
-                              alt={item.ticker}
+                              alt={item.symbol}
                               width={350}
                               height={200}
                               className="w-5 h-5 object-cover"
