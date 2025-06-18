@@ -4,7 +4,6 @@
 import { useSession } from "next-auth/react";
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { toast } from "sonner";
 
 interface NotificationData {
   _id: string;
@@ -67,9 +66,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (socket) {
       socket.on("stockUpdate", (data) => {
-        console.log("stockUpdate:", data);
-        toast.success(`${data.symbol} updated`);
-
         setNotifications((prev) => {
           const exists = prev.some((s) => s.symbol === data.symbol);
           return exists

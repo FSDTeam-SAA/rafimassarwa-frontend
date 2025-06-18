@@ -58,7 +58,7 @@ export default function StockList({ onSelectStock, selectedStock }: StockListPro
     // Trigger overview when portfolioData is ready
     useEffect(() => {
         if (portfolioData && portfolioData.stocks && portfolioData.stocks.length > 0) {
-            // eslint-dosable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const holdings = portfolioData.stocks.map((stock: any) => ({
                 symbol: stock.symbol,
                 shares: stock.quantity,

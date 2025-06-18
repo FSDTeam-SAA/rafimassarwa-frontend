@@ -10,6 +10,7 @@ import useAxios from "@/hooks/useAxios"
 import { usePortfolio } from "./portfolioContext"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner" // Assuming you have sonner for toasts
+import { useSocketContext } from "@/providers/SocketProvider"
 
 // Custom hooks (you'll need to implement these based on your project structure)
 const useDebounce = (value: string, delay: number) => {
@@ -51,26 +52,15 @@ interface AddHoldingData {
     symbol: string;
     quantity: number;
 }
-// --- End Type Definitions ---
 
-
-// Stock data array for the grid (consider fetching this dynamically or removing if not used)
-// This is a static array, will only show placeholders. If you intend to show
-// "trending" or "top" stocks, you'll need to fetch them.
-const staticStockData = Array(5).fill({ // Changed to 5 to match slice(0, 5)
-    symbol: "AAPL",
-    name: "Apple",
-    price: "220.00",
-    change: "+1.52",
-    changePercent: "+0.86%",
-})
 
 export default function AddToPortfolio() {
     const [searchQuery, setSearchQuery] = useState("")
     const [showResults, setShowResults] = useState(false)
     const searchRef = useRef<HTMLDivElement>(null)
     const axiosInstance = useAxios()
-    const queryClient = useQueryClient(); // Initialize useQueryClient
+    const queryClient = useQueryClient();
+    const { notifications } = useSocketContext();
 
     const { selectedPortfolioId } = usePortfolio();
     const { data: session } = useSession()
@@ -280,7 +270,7 @@ export default function AddToPortfolio() {
                                 </>
                             ) : searchQuery.length > 0 ? ( // Changed from > 1 to > 0 to show "No stocks found" even for single character
                                 <div className="p-4 text-center text-gray-500">
-                                    <p>No stocks found for &quot;{searchQuery}"</p>
+                                    <p>No stocks found for &quot;{searchQuery}&quot;</p>
                                 </div>
                             ) : (
                                 <div className="p-4 text-center text-gray-500">
@@ -294,30 +284,37 @@ export default function AddToPortfolio() {
                 {/* Stock Grid */}
                 <div className="mt-10">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                        {staticStockData.map((stock, index) => ( // Changed variable name to staticStockData
+                        {notifications?.map((stock, index) => (
                             <div
                                 key={`stock-top-${index}`}
                                 className="flex items-center justify-between rounded-full bg-white px-4 py-3 shadow-sm"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-                                        <Image
-                                            src="/placeholder.svg?height=16&width=16"
-                                            alt="Apple Logo"
-                                            width={16}
-                                            height={16}
-                                            className="h-4 w-4 text-white"
-                                        />
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full">
+                                        {stock?.logo && (
+                                            <Image
+                                                src={stock.logo}
+                                                alt="Company Logo"
+                                                width={38}
+                                                height={47}
+                                                className="rounded-full"
+                                            />
+                                        )}
                                     </div>
                                     <div>
-                                        <div className="text-xs font-medium text-blue-500">{stock.symbol}</div>
+                                        <div className="text-xs font-medium text-blue-500">
+                                            {stock.symbol}
+                                        </div>
                                         <div className="text-sm font-medium">{stock.name}</div>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm font-medium">{stock.price}</div>
+                                    <div className="text-sm font-medium">
+                                        {parseFloat(stock.currentPrice)?.toFixed(2)}
+                                    </div>
                                     <div className="text-xs font-medium text-green-500">
-                                        {stock.change} ({stock.changePercent})
+                                        {parseFloat(stock.change)?.toFixed(2)} (
+                                        {parseFloat(stock.percent)?.toFixed(2)}%)
                                     </div>
                                 </div>
                             </div>

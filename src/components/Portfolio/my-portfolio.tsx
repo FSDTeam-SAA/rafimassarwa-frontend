@@ -3,12 +3,12 @@
 import PortfolioPanels from "@/components/Portfolio/PortfolioPanels"
 import PortfolioTable from "@/components/Portfolio/PortfolioTable"
 import StockTickerCarousel from "@/components/Watchlist/StockTickerCarousel"
-import { FinnhubProvider } from "@/providers/SocketProvider"
 import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import AddToPortfolio from "./addToPortfolio"
 import { AddPortfolioDialog } from "./add-portfolio-dialog"
 import { usePortfolio } from "./portfolioContext"
+import { SocketProvider } from "@/providers/SocketProvider"
 
 const MyPortfolio = () => {
 
@@ -57,9 +57,9 @@ const MyPortfolio = () => {
     return (
       <div className="flex justify-center items-center">
         <div className="">
-          <FinnhubProvider>
+          <SocketProvider>
             <AddToPortfolio />
-          </FinnhubProvider>
+          </SocketProvider>
         </div>
       </div>
     )

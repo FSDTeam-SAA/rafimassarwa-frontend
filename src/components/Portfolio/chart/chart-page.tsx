@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 "use client";
 
@@ -55,8 +54,7 @@ export default function ChartPage() {
             return data as PortfolioData;
         },
         enabled: !!session?.user?.accessToken && !!selectedPortfolioId,
-        staleTime: 5 * 60 * 1000,
-        cacheTime: 10 * 60 * 1000,
+        staleTime: 5 * 60 * 1000
     });
 
     // Set the initial selected stock
@@ -134,7 +132,7 @@ export default function ChartPage() {
                             selectedStock={selectedStock}
                             onStockChange={setSelectedStock}
                             timeframe={timeframe}
-                            onTimeframeChange={setTimeframe}
+                            onTimeframeChange={setTimeframe as (timeframe: string) => void}
                             comparisonStocks={comparisonStocks}
                             onToggleComparison={toggleComparisonStock}
                             onClearComparisons={clearComparisons}

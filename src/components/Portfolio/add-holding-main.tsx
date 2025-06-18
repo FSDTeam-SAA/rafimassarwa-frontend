@@ -244,7 +244,7 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
                         </>
                     ) : searchQuery.length > 0 ? (
                         <div className="p-4 text-center text-gray-500">
-                            <p>No stocks found for &quot;{searchQuery}"</p>
+                            <p>No stocks found for &quot;{searchQuery}&quot;</p>
                         </div>
                     ) : (
                         <div className="p-4 text-center text-gray-500">
