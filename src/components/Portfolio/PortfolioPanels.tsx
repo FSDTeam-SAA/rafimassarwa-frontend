@@ -1,11 +1,13 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowRight, Edit2, Plus } from "lucide-react";
+import { ArrowRight, Edit2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react"; // Removed useState
 import { FaCaretUp, FaCaretDown } from "react-icons/fa";
 import { usePortfolio } from "./portfolioContext"; // Import usePortfolio
+import { AddPortfolioDialog } from "./add-portfolio-dialog";
+import AddToPortfolioDialog from "./add-holding-dialog";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -51,7 +53,6 @@ export default function Home() {
       return res.json();
     },
   });
-  console.log("Gain lose data: ", gainLoseData);
 
   const { mutate: getOverview, data: overviewData } = useMutation({
     mutationFn: async (holdings: { symbol: string; shares: number }[]) => {
@@ -93,20 +94,12 @@ export default function Home() {
   const isReturnPercentPositive = dailyReturnPercent >= 0;
 
 
-  console.log(overviewData)
-
-
   return (
     <div className="flex flex-col ">
       {/* Action Buttons */}
       <div className="flex justify-end gap-2 p-3 mt-8 mb-6">
-        <button className="border rounded-md px-4 py-2 text-green-500 hover:bg-green-50 transition">
-          Add Portfolio
-        </button>
-        <button className="bg-green-500 rounded-md px-4 py-2 text-white flex items-center gap-1 hover:bg-green-600 transition">
-          <Plus className="h-4 w-4" />
-          Add Holdings
-        </button>
+        <AddPortfolioDialog />
+        <AddToPortfolioDialog />
       </div>
 
       {/* Portfolio Sections */}
