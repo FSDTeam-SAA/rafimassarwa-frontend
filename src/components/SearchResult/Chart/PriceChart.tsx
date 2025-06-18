@@ -227,7 +227,6 @@ const PriceChart = () => {
                     [dataMin, dataMax]: [number, number],
                     // allowDataOverflow: boolean
                   ) => {
-                      console.log("YAxis domain:", dataMin, dataMax);
                     if (isNaN(dataMin) || isNaN(dataMax)) {
                       // fallback domain if invalid values detected
                       return [0, 1];

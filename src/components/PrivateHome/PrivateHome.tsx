@@ -20,6 +20,8 @@ interface StockResult {
   price: number;
   change: number;
   percentChange: number;
+  logo?: string;
+  exchange?: string;
 }
 
 interface SearchResponse {
@@ -135,14 +137,24 @@ const PrivateHome = () => {
                   </span>
                 </div>
                 {searchData.results.map((stock, index) => (
-                  <Link key={`${stock.symbol}-${index}`} href={`/search-result?q=${stock?.symbol}`}>
+                  <Link
+                    key={`${stock.symbol}-${index}`}
+                    href={`/search-result?q=${stock?.symbol}`}
+                  >
                     <div
                       onClick={() => handleStockSelect(stock)}
                       className="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white text-sm font-bold">
-                          {stock.symbol.charAt(0)}
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          {stock?.logo && (
+                            <Image
+                              src={stock.logo}
+                              alt="Company Logo"
+                              width={38}
+                              height={47}
+                            />
+                          )}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
@@ -160,7 +172,7 @@ const PrivateHome = () => {
                               }}
                             />
                             <span className="text-sm text-gray-600">
-                              NASDAQ
+                              {stock.exchange}
                             </span>
                           </div>
                           <p className="text-sm text-gray-500">

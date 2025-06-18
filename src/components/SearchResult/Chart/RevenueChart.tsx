@@ -145,8 +145,6 @@ const RevenueChart = () => {
       mobile: item.actual, // Actual data
     })).reverse() || []
 
-  console.log(revenueData, isLoading)
-
   return (
     <div className="">
       <Card className="">
