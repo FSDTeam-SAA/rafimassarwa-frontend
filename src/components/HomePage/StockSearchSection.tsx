@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
+import { useSocketContext } from "@/providers/SocketProvider";
 
 // Custom hooks (you'll need to implement these based on your project structure)
 const useDebounce = (value: string, delay: number) => {
@@ -42,20 +43,14 @@ interface SearchResponse {
   results: StockResult[];
 }
 
-// Stock data array for the grid
-const stockData = Array(8).fill({
-  symbol: "AAPL",
-  name: "Apple",
-  price: "220.00",
-  change: "+1.52",
-  changePercent: "+0.86%",
-});
-
 export default function StockSearchSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const axiosInstance = useAxios();
+  const { notifications } = useSocketContext();
+
+  console.log(notifications);
 
   // TanStack Query for search
   const debouncedQuery = useDebounce(searchQuery, 500);
@@ -230,20 +225,22 @@ export default function StockSearchSection() {
         {/* Stock Grid */}
         <div className="mt-10">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {stockData.slice(0, 5).map((stock, index) => (
+            {notifications?.map((stock, index) => (
               <div
                 key={`stock-top-${index}`}
                 className="flex items-center justify-between rounded-full bg-white px-4 py-3 shadow-sm"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-                    <Image
-                      src="/placeholder.svg?height=16&width=16"
-                      alt="Apple Logo"
-                      width={16}
-                      height={16}
-                      className="h-4 w-4 text-white"
-                    />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full">
+                    {stock?.logo && (
+                      <Image
+                        src={stock.logo}
+                        alt="Company Logo"
+                        width={38}
+                        height={47}
+                        className="rounded-full"
+                      />
+                    )}
                   </div>
                   <div>
                     <div className="text-xs font-medium text-blue-500">
@@ -253,9 +250,12 @@ export default function StockSearchSection() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-medium">{stock.price}</div>
+                  <div className="text-sm font-medium">
+                    {parseFloat(stock.currentPrice)?.toFixed(2)}
+                  </div>
                   <div className="text-xs font-medium text-green-500">
-                    {stock.change} ({stock.changePercent})
+                    {parseFloat(stock.change)?.toFixed(2)} (
+                    {parseFloat(stock.percent)?.toFixed(2)}%)
                   </div>
                 </div>
               </div>

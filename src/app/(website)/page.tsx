@@ -4,7 +4,7 @@ import Services from "@/components/HomePage/Services";
 import PortfolioGrowth from "@/components/HomePage/PortfolioGrowth";
 import LatestArticles from "@/shared/Articles";
 import StockDashboard from "@/shared/StockDashboard";
-import { FinnhubProvider } from "@/providers/SocketProvider";
+import { SocketProvider } from "@/providers/SocketProvider";
 
 export default function Home() {
   return (
@@ -13,7 +13,9 @@ export default function Home() {
         <Hero />
       </div>
       <div>
-        <FinnhubProvider><StockSearchSection /></FinnhubProvider> 
+        <SocketProvider>
+          <StockSearchSection />
+        </SocketProvider>
       </div>
       <div>
         <Services />
