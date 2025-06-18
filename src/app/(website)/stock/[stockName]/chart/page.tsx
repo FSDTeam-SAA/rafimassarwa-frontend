@@ -33,12 +33,6 @@ export default function ChartPage() {
         setComparisonStocks([])
     }
 
-    // Function to handle initial stock selection from StockList
-    const handleInitialStockSelection = (symbol: string) => {
-        if (!selectedStock) { // Only set if not already set (e.g., on first load)
-            setSelectedStock(symbol)
-        }
-    }
 
     return (
         <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
@@ -67,7 +61,6 @@ export default function ChartPage() {
                             <StockList
                                 selectedStock={selectedStock}
                                 onSelectStock={setSelectedStock}
-                                onInitialStockLoaded={handleInitialStockSelection} // Pass the new callback
                             />
                         </div>
                     </div>

@@ -59,6 +59,7 @@ export default function PersonalDetailsCard() {
     const [editingField, setEditingField] = useState<string | null>(null)
     const [tempValue, setTempValue] = useState("")
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
+    const [oldPassword, setOldPassword] = useState("") // Added oldPassword state
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
@@ -109,15 +110,17 @@ export default function PersonalDetailsCard() {
     })
 
     const resetPasswordMutation = useMutation({
-        mutationFn: async (newPassword: string) => {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, {
+        mutationFn: async ({ oldPassword, newPassword }: { oldPassword: string; newPassword: string }) => {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/change-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.user?.accessToken}`,
                 },
                 body: JSON.stringify({
-                    token: session?.user?.accessToken,
-                    password: newPassword,
+                    userId: session?.user?.id,
+                    oldPassword: oldPassword,
+                    newPassword: newPassword,
                 }),
             })
 
@@ -128,11 +131,13 @@ export default function PersonalDetailsCard() {
         onSuccess: () => {
             toast.success("Password updated successfully!")
             setIsPasswordDialogOpen(false)
+            setOldPassword("") // Clear old password on success
             setNewPassword("")
             setConfirmPassword("")
         },
-        onError: () => {
-            toast.error("Failed to reset password")
+        onError: (error) => {
+            const message = error instanceof Error ? error.message : "Failed to reset password";
+            toast.error(message)
         },
     })
 
@@ -156,17 +161,22 @@ export default function PersonalDetailsCard() {
     const handleCancel = () => setEditingField(null)
 
     const handlePasswordChange = () => {
+        if (!oldPassword) {
+            toast.error("Please enter your old password");
+            return;
+        }
+
         if (newPassword !== confirmPassword) {
-            toast.error("Passwords don't match")
+            toast.error("New and confirm passwords don't match")
             return
         }
 
         if (newPassword.length < 6) {
-            toast.error("Password too short")
+            toast.error("New password is too short (minimum 6 characters)")
             return
         }
 
-        resetPasswordMutation.mutate(newPassword)
+        resetPasswordMutation.mutate({ oldPassword, newPassword })
     }
 
     const handleSaveChanges = () => {
@@ -276,15 +286,27 @@ export default function PersonalDetailsCard() {
                                         <DialogContent>
                                             <DialogHeader>
                                                 <DialogTitle>Change Password</DialogTitle>
-                                                <DialogDescription>Enter your new password below.</DialogDescription>
+                                                <DialogDescription>Enter your old and new passwords below.</DialogDescription>
                                             </DialogHeader>
                                             <div className="space-y-4 py-4">
                                                 <div className="space-y-2">
-                                                    <p className="text-sm">New Password</p>
-                                                    <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                                                    <p className="text-sm">Old Password</p>
+                                                    <Input
+                                                        type="password"
+                                                        value={oldPassword}
+                                                        onChange={(e) => setOldPassword(e.target.value)}
+                                                    />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <p className="text-sm">Confirm Password</p>
+                                                    <p className="text-sm">New Password</p>
+                                                    <Input
+                                                        type="password"
+                                                        value={newPassword}
+                                                        onChange={(e) => setNewPassword(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-sm">Confirm New Password</p>
                                                     <Input
                                                         type="password"
                                                         value={confirmPassword}

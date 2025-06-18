@@ -23,13 +23,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import Link from "next/link";
 import { Input } from "../ui/input";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { usePortfolio } from "./portfolioContext";
+import { toast } from "sonner";
+
+
+interface AddHoldingData {
+  symbol: string;
+  quantity: number;
+}
 
 export default function PortfolioTable() {
 
@@ -37,7 +56,9 @@ export default function PortfolioTable() {
 
   const { data: session } = useSession();
 
-  const { selectedPortfolioId } = usePortfolio(); // Use selectedPortfolioId from context
+  const { selectedPortfolioId } = usePortfolio();
+
+  const queryClient = useQueryClient();
 
   // Fetch portfolio data for selected ID
   const { data: portfolioData } = useQuery({
@@ -90,6 +111,7 @@ export default function PortfolioTable() {
     }
   }, [portfolioData, getOverview]);
 
+
   useEffect(() => {
     if (overviewData?.holdings) {
       const sharesMap: Record<string, number> = {};
@@ -100,6 +122,72 @@ export default function PortfolioTable() {
       setEditableShares(sharesMap);
     }
   }, [overviewData]);
+
+
+  const { mutate: DeleteStock, isPending: isDeletingStock } = useMutation({
+    mutationFn: async (data: { symbol: string; portfolioId: string }) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/delete-stock`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] });
+    },
+  });
+
+
+  const { mutate: addHolding } = useMutation({
+    mutationFn: async (data: AddHoldingData) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+        body: JSON.stringify({
+          portfolioId: selectedPortfolioId,
+          symbol: data.symbol,
+          quantity: data.quantity
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add stock to portfolio.");
+      }
+
+      return response.json()
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || `Added stock to portfolio!`);
+      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error adding stock to portfolio.");
+    },
+  })
+
+
+  const handleUpdateQuantity = (symbol: string, quantity: number) => {
+    addHolding({ symbol, quantity });
+  }
+
+
+  const handleDelete = async (stockSymbol: string) => {
+    console.log("Deleted Stock: ", stockSymbol)
+    DeleteStock({
+      symbol: stockSymbol,
+      portfolioId: selectedPortfolioId ? selectedPortfolioId : ""
+    })
+  }
 
 
   return (
@@ -175,7 +263,7 @@ export default function PortfolioTable() {
                           <div className="flex w-8 h-8 rounded-full bg-black justify-center items-center p-2">
                             <Image
                               src={item.logo}
-                              alt={item.ticker}
+                              alt={item.symbol}
                               width={350}
                               height={200}
                               className="w-5 h-5 object-cover"
@@ -201,7 +289,7 @@ export default function PortfolioTable() {
                           }))
                         }
                       />
-                      <span><FiEdit2 onClick={() => console.log(item)} className="text-[#28A745] cursor-pointer" /></span>
+                      <span><FiEdit2 onClick={() => handleUpdateQuantity(item.symbol, editableShares[item.symbol])} className="text-[#28A745] cursor-pointer" /></span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -290,8 +378,31 @@ export default function PortfolioTable() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-center">
-                      <Trash className="h-4 w-4" />
+                    <div className="flex justify-center cursor-pointer">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          {/* Use a button or div if you don't want a default button style */}
+                          <Trash className="h-4 w-4 text-red-500 hover:text-red-700 transition-colors" />
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure you want to delete {item.symbol}?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently remove {item.symbol} from your portfolio.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(item.symbol)}
+                              disabled={isDeletingStock} // Disable button while deleting
+                              className="bg-red-500 hover:bg-red-600 text-white"
+                            >
+                              {isDeletingStock ? 'Deleting...' : 'Delete'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>

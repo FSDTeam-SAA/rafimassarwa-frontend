@@ -1,3 +1,4 @@
+// components/chart/stock-list.tsx
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,16 +7,17 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { useEffect } from "react"
 import { usePortfolio } from "../portfolioContext"
+import Image from "next/image"
 
 interface StockListProps {
     onSelectStock: (symbol: string) => void
-    selectedStock: string | undefined // Allow undefined for initial state
-    onInitialStockLoaded: (symbol: string) => void // New prop for callback
+    selectedStock: string | undefined
+    // onInitialStockLoaded: (symbol: string) => void // This prop is now less critical and can potentially be removed if initial selection is always handled by ChartPage
 }
 
-export default function StockList({ onSelectStock, selectedStock, onInitialStockLoaded }: StockListProps) {
+export default function StockList({ onSelectStock, selectedStock }: StockListProps) { // Removed onInitialStockLoaded from props
     const { data: session } = useSession();
-    const { selectedPortfolioId } = usePortfolio(); // No need for setSelectedPortfolioId here
+    const { selectedPortfolioId } = usePortfolio();
 
     const { data: portfolioData } = useQuery({
         queryKey: ["portfolio", selectedPortfolioId],
@@ -36,7 +38,7 @@ export default function StockList({ onSelectStock, selectedStock, onInitialStock
     });
 
     const { mutate: getOverview, data: overviewData } = useMutation({
-        mutationFn: async (holdings: { symbol: string; shares: number }[]) => { // Add type for holdings
+        mutationFn: async (holdings: { symbol: string; shares: number }[]) => {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`, {
                 method: "POST",
                 headers: {
@@ -53,7 +55,7 @@ export default function StockList({ onSelectStock, selectedStock, onInitialStock
         },
     });
 
-    // Trigger overview and set initial selected stock when portfolioData is ready
+    // Trigger overview when portfolioData is ready
     useEffect(() => {
         if (portfolioData && portfolioData.stocks && portfolioData.stocks.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,13 +65,10 @@ export default function StockList({ onSelectStock, selectedStock, onInitialStock
             }));
             getOverview(holdings);
 
-            // Set the first stock as selected if no stock is currently selected
-            // This is crucial for initial load
-            if (!selectedStock && holdings.length > 0) {
-                onInitialStockLoaded(holdings[0].symbol);
-            }
+            // Removed the onInitialStockLoaded call from here.
+            // The initial selection is now handled by ChartPage.
         }
-    }, [portfolioData, getOverview, selectedStock, onInitialStockLoaded]); // Add selectedStock and onInitialStockLoaded to dependency array
+    }, [portfolioData, getOverview]);
 
     console.log("overview data: ", overviewData)
 
@@ -81,7 +80,8 @@ export default function StockList({ onSelectStock, selectedStock, onInitialStock
             <CardContent className="p-0">
                 <ScrollArea className="h-[440px]">
                     <div className="space-y-1 p-4 pt-0">
-                        {overviewData?.holdings?.map((stock: { symbol: string, quantity: number, _id: string, price: number, change: number, percent: number }) => (
+                        {/* Ensure overviewData exists before mapping */}
+                        {overviewData?.holdings?.map((stock: { symbol: string, quantity: number, _id: string, price: number, change: number, percent: number, logo: string }) => (
                             <div
                                 key={stock._id}
                                 className={`flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-muted ${selectedStock === stock.symbol ? "bg-muted" : ""
@@ -89,12 +89,17 @@ export default function StockList({ onSelectStock, selectedStock, onInitialStock
                                 onClick={() => onSelectStock(stock.symbol)}
                             >
                                 <div className="flex items-center gap-2">
-                                    <div className="flex h-8 w-10 items-center justify-center rounded bg-blue-100 text-xs text-blue-600">
-                                        {stock.symbol}
+                                    <div className="relative flex h-6 w-8 items-center justify-center rounded bg-blue-100 text-xs text-blue-600">
+                                        <Image
+                                            src={stock.logo}
+                                            alt={stock.symbol}
+                                            width={350}
+                                            height={200}
+                                            className="object-cover"
+                                        />
                                     </div>
                                     <div>
                                         <div className="text-sm font-medium">{stock.symbol}</div>
-                                        {/* <div className="text-xs text-muted-foreground">{stock.name}</div> */}
                                     </div>
                                 </div>
                                 <div className="text-right">
@@ -107,6 +112,11 @@ export default function StockList({ onSelectStock, selectedStock, onInitialStock
                                 </div>
                             </div>
                         ))}
+                        {!overviewData?.holdings?.length && (
+                            <div className="p-4 text-center text-muted-foreground">
+                                No stocks in this portfolio yet.
+                            </div>
+                        )}
                     </div>
                 </ScrollArea>
             </CardContent>
