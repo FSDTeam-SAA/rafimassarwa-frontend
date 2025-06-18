@@ -27,8 +27,12 @@ const nextConfig = {
         hostname: "data.bloomberglp.com",
         pathname: "/**", // Allows all paths under flagcdn.com
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**", // Allows all paths under flagcdn.com
+      },
     ],
-    
   },
 };
 

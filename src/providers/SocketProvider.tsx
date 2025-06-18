@@ -1,101 +1,112 @@
 
 "use client";
 
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import React, { createContext, useState, useEffect, useContext } from "react";
+import { io, Socket } from "socket.io-client";
+import { toast } from "sonner";
 
-interface FinnhubContextType {
-  sendMessage: (message: string) => void;
-  lastMessage: unknown;
+interface NotificationData {
+  _id: string;
+  symbol: string;
+  currentPrice: string;
+  change: string;
+  percent: string;
+  name: string;
+  logo: string
 }
 
-const FinnhubContext = createContext<FinnhubContextType | undefined>(undefined);
+interface SocketContextType {
+  socket: Socket | null;
+  notifications: NotificationData[];
+  setNotifications: React.Dispatch<React.SetStateAction<NotificationData[]>>;
+  notificationCount: NotificationData | null;
+  setNotificationCount: React.Dispatch<
+    React.SetStateAction<NotificationData | null>
+  >;
+}
 
-export const FinnhubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [lastMessage, setLastMessage] = useState<unknown>(null);
-  const socketRef = useRef<WebSocket | null>(null);
+const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-  const [openPrice, setOpenPrice] = useState<number | null>(null);
-const [currentPrice, setCurrentPrice] = useState<number | null>(null);
-const [priceChange, setPriceChange] = useState<{ amount: number; percent: number } | null>(null);
+export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const session = useSession();
+  const token = session?.data?.user?.accessToken;
+  const userID = session?.data?.user?.id;
+  const [listenerSet, setListenerSet] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(() => {
+    // Read from localStorage during first render
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("notificationCount");
+      return stored ? JSON.parse(stored) : { notificationCount: 0 };
+    }
+    return { notificationCount: 0 };
+  });
 
-useEffect(() => {
-  const fetchOpenPrice = async () => {
-    const res = await fetch(
-      `https://finnhub.io/api/v1/quote?symbol=AAPL&token=${process.env.NEXT_PUBLIC_FINNHUB_API_KEY}`
-    );
-    const data = await res.json();
-    setOpenPrice(data.o); // "o" = open price
-  };
-
-  fetchOpenPrice();
-}, []);
-console.log(openPrice)
-
-
-// eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    const socket = new WebSocket(`wss://ws.finnhub.io?token=${process.env.NEXT_PUBLIC_FINNHUB_API_KEY}`);
-    socketRef.current = socket;
+    if (notificationCount !== null) {
+      localStorage.setItem(
+        "notificationCount",
+        JSON.stringify(notificationCount)
+      );
+    }
+  }, [notificationCount]);
 
-    socket.onopen = () => {
-      console.log("✅ Connected to Finnhub WebSocket");
-      // Example: Subscribe to a symbol
-      socket.send(JSON.stringify({ type: "subscribe", symbol: "AAPL" }));
-
-    };
-
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-
-    console.log("sdd")
-    const latestPrice = data?.data[0]?.p;
-    setCurrentPrice(latestPrice);
-
-    if (openPrice !== null) {
-      const diff = latestPrice - openPrice;
-      const percent = (diff / openPrice) * 100;
-
-      setPriceChange({
-        amount: diff,
-        percent: percent,
+  useEffect(() => {
+    if (token && !socket) {
+      const socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}`, {
+        extraHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      setSocket(socket);
     }
 
-    setLastMessage(data);
-};
+    if (socket) {
+      socket.on("stockUpdate", (data) => {
+        console.log("stockUpdate:", data);
+        toast.success(`${data.symbol} updated`);
 
-    socket.onerror = (error) => {
-      console.error("❌ WebSocket error:", error);
-    };
-
-    socket.onclose = () => {
-      console.warn("🔌 Finnhub WebSocket closed");
-    };
-
-    return () => {
-      socket.close();
-    };
-  }, []);
-
-  const sendMessage = (message: string) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(message);
-    } else {
-      console.warn("WebSocket not connected");
+        setNotifications((prev) => {
+          const exists = prev.some((s) => s.symbol === data.symbol);
+          return exists
+            ? prev.map((s) =>
+              s.symbol === data.symbol ? { ...s, ...data } : s
+            )
+            : [...prev, data]; // <-- push if new
+        });
+      });
+      setListenerSet(true);
+      return () => {
+        socket.disconnect();
+        setSocket(null);
+      };
     }
-  };
+  }, [token, socket, listenerSet, userID]);
+  console.log(notifications);
 
   return (
-    <FinnhubContext.Provider value={{ sendMessage, lastMessage }}>
+    <SocketContext.Provider
+      value={{
+        socket,
+        notifications,
+        setNotifications,
+        notificationCount,
+        setNotificationCount,
+      }}
+    >
       {children}
-    </FinnhubContext.Provider>
+    </SocketContext.Provider>
   );
 };
 
-export const useFinnhub = () => {
-  const context = useContext(FinnhubContext);
+export const useSocketContext = () => {
+  const context = useContext(SocketContext);
   if (!context) {
-    throw new Error("useFinnhub must be used within a FinnhubProvider");
+    throw new Error("useSocketContext must be used within a SocketProvider");
   }
   return context;
 };

@@ -1,98 +1,101 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { Search, Star, TrendingUp, TrendingDown } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useState, useRef, useEffect } from "react"
-import { useQuery } from "@tanstack/react-query"
-import useAxios from "@/hooks/useAxios"
+import { Search, Star, TrendingUp, TrendingDown } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import useAxios from "@/hooks/useAxios";
+import { useSocketContext } from "@/providers/SocketProvider";
 
 // Custom hooks (you'll need to implement these based on your project structure)
 const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value)
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
+      setDebouncedValue(value);
+    }, delay);
 
     return () => {
-      clearTimeout(handler)
-    }
-  }, [value, delay])
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
 
-  return debouncedValue
-}
-
+  return debouncedValue;
+};
 
 interface StockResult {
-  symbol: string
-  description: string
-  flag: string
-  price: number
-  change: number
-  percentChange: number
+  symbol: string;
+  description: string;
+  flag: string;
+  price: number;
+  change: number;
+  percentChange: number;
+  exchange: string;
+  logo?: string;
 }
 
 interface SearchResponse {
-  success: boolean
-  results: StockResult[]
+  success: boolean;
+  results: StockResult[];
 }
 
-// Stock data array for the grid
-const stockData = Array(8).fill({
-  symbol: "AAPL",
-  name: "Apple",
-  price: "220.00",
-  change: "+1.52",
-  changePercent: "+0.86%",
-})
-
 export default function StockSearchSection() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showResults, setShowResults] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
-  const axiosInstance = useAxios()
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const axiosInstance = useAxios();
+  const { notifications } = useSocketContext();
+
+  console.log(notifications);
 
   // TanStack Query for search
-  const debouncedQuery = useDebounce(searchQuery, 500)
+  const debouncedQuery = useDebounce(searchQuery, 500);
 
   const { data: searchData, isLoading } = useQuery<SearchResponse>({
     queryKey: ["stocks-search", debouncedQuery],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/stocks/search?q=${debouncedQuery}`)
-      return response.data
+      const response = await axiosInstance.get(
+        `/stocks/search?q=${debouncedQuery}`
+      );
+      return response.data;
     },
     enabled: debouncedQuery.length > 0,
     staleTime: 30000,
-  })
+  });
 
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowResults(false)
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowResults(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchQuery(value)
-    setShowResults(value.length > 0)
-  }
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowResults(value.length > 0);
+  };
 
   const handleStockSelect = (stock: StockResult) => {
-    setSearchQuery(stock.symbol)
-    setShowResults(false)
+    setSearchQuery(stock.symbol);
+    setShowResults(false);
     // Add your navigation logic here
-    console.log("Selected stock:", stock)
-  }
+    console.log("Selected stock:", stock);
+  };
+
+  console.log(searchData);
 
   return (
     <section className="w-full bg-[#f0f7f0] py-16">
@@ -102,7 +105,8 @@ export default function StockSearchSection() {
             Make Informed, Data-Driven Investments
           </h2>
           <p className="mt-4 text-lg text-gray-800">
-            We empower everyone with access to institutional-grade research tools and data.
+            We empower everyone with access to institutional-grade research
+            tools and data.
           </p>
         </div>
 
@@ -134,21 +138,35 @@ export default function StockSearchSection() {
                 <>
                   <div className="p-3 border-b border-gray-100 flex items-center gap-2">
                     <Star className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium text-gray-700">Search Results</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Search Results
+                    </span>
                   </div>
                   {searchData.results.map((stock, index) => (
-                    <Link key={`${stock.symbol}-${index}`} href={`/search-result?q=${stock?.symbol}`}>
+                    <Link
+                      key={`${stock.symbol}-${index}`}
+                      href={`/search-result?q=${stock?.symbol}`}
+                    >
                       <div
                         onClick={() => handleStockSelect(stock)}
                         className="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                            {stock.symbol.charAt(0)}
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            {stock?.logo && (
+                              <Image
+                                src={stock.logo}
+                                alt="Company Logo"
+                                width={38}
+                                height={47}
+                              />
+                            )}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-900">{stock.symbol}</span>
+                              <span className="font-semibold text-gray-900">
+                                {stock.symbol}
+                              </span>
                               <Image
                                 src={stock.flag || "/placeholder.svg"}
                                 alt="Country flag"
@@ -156,19 +174,27 @@ export default function StockSearchSection() {
                                 height={16}
                                 className="w-4 h-4"
                                 onError={(e) => {
-                                  e.currentTarget.style.display = "none"
+                                  e.currentTarget.style.display = "none";
                                 }}
                               />
-                              <span className="text-sm text-gray-600">NASDAQ</span>
+                              <span className="text-sm text-gray-600">
+                                {stock.exchange}
+                              </span>
                             </div>
-                            <p className="text-sm text-gray-500">{stock.description}</p>
+                            <p className="text-sm text-gray-500">
+                              {stock.description}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold text-gray-900">${stock.price.toFixed(2)}</div>
+                          <div className="font-semibold text-gray-900">
+                            ${stock.price.toFixed(2)}
+                          </div>
                           <div
                             className={`flex items-center gap-1 text-sm ${
-                              stock.change >= 0 ? "text-green-600" : "text-red-600"
+                              stock.change >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
                             }`}
                           >
                             {stock.change >= 0 ? (
@@ -178,7 +204,8 @@ export default function StockSearchSection() {
                             )}
                             <span>
                               {stock.change >= 0 ? "+" : ""}
-                              {stock.change.toFixed(2)} ({stock.percentChange.toFixed(2)}%)
+                              {stock.change.toFixed(2)} (
+                              {stock.percentChange.toFixed(2)}%)
                             </span>
                           </div>
                         </div>
@@ -198,30 +225,37 @@ export default function StockSearchSection() {
         {/* Stock Grid */}
         <div className="mt-10">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {stockData.slice(0, 5).map((stock, index) => (
+            {notifications?.map((stock, index) => (
               <div
                 key={`stock-top-${index}`}
                 className="flex items-center justify-between rounded-full bg-white px-4 py-3 shadow-sm"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-                    <Image
-                      src="/placeholder.svg?height=16&width=16"
-                      alt="Apple Logo"
-                      width={16}
-                      height={16}
-                      className="h-4 w-4 text-white"
-                    />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full">
+                    {stock?.logo && (
+                      <Image
+                        src={stock.logo}
+                        alt="Company Logo"
+                        width={38}
+                        height={47}
+                        className="rounded-full"
+                      />
+                    )}
                   </div>
                   <div>
-                    <div className="text-xs font-medium text-blue-500">{stock.symbol}</div>
+                    <div className="text-xs font-medium text-blue-500">
+                      {stock.symbol}
+                    </div>
                     <div className="text-sm font-medium">{stock.name}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-medium">{stock.price}</div>
+                  <div className="text-sm font-medium">
+                    {parseFloat(stock.currentPrice)?.toFixed(2)}
+                  </div>
                   <div className="text-xs font-medium text-green-500">
-                    {stock.change} ({stock.changePercent})
+                    {parseFloat(stock.change)?.toFixed(2)} (
+                    {parseFloat(stock.percent)?.toFixed(2)}%)
                   </div>
                 </div>
               </div>
@@ -230,5 +264,5 @@ export default function StockSearchSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
