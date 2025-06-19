@@ -19,7 +19,6 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
                         <div className="lg:ml-72 pb-10">
                             <BannerAds />
                             {children}
-                            <Toaster />
                         </div>
                     </div>
                 </div>
