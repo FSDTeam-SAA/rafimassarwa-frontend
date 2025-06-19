@@ -50,7 +50,6 @@ export default function StockSearchSection() {
   const axiosInstance = useAxios();
   const { notifications } = useSocketContext();
 
-  console.log(notifications);
 
   // TanStack Query for search
   const debouncedQuery = useDebounce(searchQuery, 500);
@@ -94,8 +93,6 @@ export default function StockSearchSection() {
     // Add your navigation logic here
     console.log("Selected stock:", stock);
   };
-
-  console.log(searchData);
 
   return (
     <section className="w-full bg-[#f0f7f0] py-16">
@@ -253,7 +250,13 @@ export default function StockSearchSection() {
                   <div className="text-sm font-medium">
                     {parseFloat(stock.currentPrice)?.toFixed(2)}
                   </div>
-                  <div className="text-xs font-medium text-green-500">
+                  <div
+                    className={`text-xs font-medium text-green-500 ${
+                      parseFloat(stock.change) >= 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
                     {parseFloat(stock.change)?.toFixed(2)} (
                     {parseFloat(stock.percent)?.toFixed(2)}%)
                   </div>
