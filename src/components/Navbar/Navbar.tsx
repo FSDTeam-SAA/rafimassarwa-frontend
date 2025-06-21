@@ -98,7 +98,7 @@ export default function Navbar() {
     if (session?.user) {
       return (
         <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
-          <Bell className="h-5 w-5" />
+          <Link href='/notification'><Bell className="text-green-600" /></Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div
@@ -175,7 +175,7 @@ export default function Navbar() {
       return (
         <div className="mt-4 px-2 border-t pt-4">
           <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg mb-3">
-            <BiNotification className="text-green-600" />
+            <Link href='/notification'><BiNotification className="text-green-600" /></Link>
             <Avatar className="h-10 w-10">
               <AvatarImage
                 src={session.user.image || "/placeholder.svg?height=40&width=40"}
