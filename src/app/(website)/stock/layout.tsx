@@ -11,9 +11,7 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
                 <div className="">
                     <SidebarTrigger className="lg:hidden mt-2 ml-1" />
                     <div className="">
-                        <OverviewSidebar params={{
-                            stockName: ''
-                        }} />
+                        <OverviewSidebar />
                     </div>
                     <div className="lg:flex lg:justify-end mx-2 lg:mx-0">
                         <div className="lg:ml-72 pb-10">

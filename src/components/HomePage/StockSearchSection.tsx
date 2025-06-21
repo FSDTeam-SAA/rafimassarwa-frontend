@@ -50,7 +50,6 @@ export default function StockSearchSection() {
   const axiosInstance = useAxios();
   const { notifications } = useSocketContext();
 
-  console.log(notifications);
 
   // TanStack Query for search
   const debouncedQuery = useDebounce(searchQuery, 500);
@@ -94,8 +93,6 @@ export default function StockSearchSection() {
     // Add your navigation logic here
     console.log("Selected stock:", stock);
   };
-
-  console.log(searchData);
 
   return (
     <section className="w-full bg-[#f0f7f0] py-16">
@@ -263,6 +260,52 @@ export default function StockSearchSection() {
           )}
         </div>
 
+        {/* Stock Grid */}
+        <div className="mt-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {notifications?.map((stock, index) => (
+              <div
+                key={`stock-top-${index}`}
+                className="flex items-center justify-between rounded-full bg-white px-4 py-3 shadow-sm"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full">
+                    {stock?.logo && (
+                      <Image
+                        src={stock.logo}
+                        alt="Company Logo"
+                        width={38}
+                        height={47}
+                        className="rounded-full"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-blue-500">
+                      {stock.symbol}
+                    </div>
+                    <div className="text-sm font-medium">{stock.name}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium">
+                    {parseFloat(stock.currentPrice)?.toFixed(2)}
+                  </div>
+                  <div
+                    className={`text-xs font-medium text-green-500 ${
+                      parseFloat(stock.change) >= 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {parseFloat(stock.change)?.toFixed(2)} (
+                    {parseFloat(stock.percent)?.toFixed(2)}%)
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
