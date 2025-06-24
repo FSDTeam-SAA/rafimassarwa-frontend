@@ -9,9 +9,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useRouter } from "next/navigation";
 
 const EarningChart = () => {
   const [activeTab, setActiveTab] = useState("Results");
+  const router = useRouter();
 
   return (
     <div>
@@ -105,7 +107,7 @@ const EarningChart = () => {
               height={20}
               width={20}
             />
-            AI Summary{" "}
+            Slides{" "}
             <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
               Pro
             </span>
@@ -118,20 +120,20 @@ const EarningChart = () => {
               height={20}
               width={20}
             />
-            AI Summary{" "}
+            Report{" "}
             <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
               Pro
             </span>
           </button>
 
-          <button className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
+          <button onClick={() => router.push('/tree')} className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
             <Image
               src={"/images/transcript.png"}
               alt="star img"
               height={20}
               width={20}
             />
-            AI Summary{" "}
+            Tree{" "}
             <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
               Pro
             </span>
