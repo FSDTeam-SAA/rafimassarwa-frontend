@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import Link from "next/link";
 import { Input } from "../ui/input";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
@@ -62,21 +62,6 @@ export default function PortfolioTable() {
     direction: null,
   });
 
-  const { data: portfolioData } = useQuery({
-    queryKey: ["portfolio", selectedPortfolioId],
-    queryFn: async () => {
-      if (!selectedPortfolioId) return null;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get/${selectedPortfolioId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-      });
-      return res.json();
-    },
-    enabled: !!session?.user?.accessToken && !!selectedPortfolioId,
-  });
-
   const { mutate: getOverview, data: overviewData } = useMutation({
     mutationFn: async (portfolioId: string) => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`, {
@@ -92,6 +77,7 @@ export default function PortfolioTable() {
   useEffect(() => {
     if (overviewData?.holdings) {
       const sharesMap: Record<string, number> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       overviewData.holdings.forEach((item: any) => {
         sharesMap[item.symbol] = item.shares;
       });
@@ -184,6 +170,7 @@ export default function PortfolioTable() {
     if (!overviewData?.holdings || !sortConfig.key || !sortConfig.direction) {
       return overviewData?.holdings || [];
     }
+     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return [...overviewData.holdings].sort((a: any, b: any) => {
       const valueA = a[sortConfig.key!];
       const valueB = b[sortConfig.key!];

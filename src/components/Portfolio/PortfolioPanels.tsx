@@ -14,7 +14,6 @@ import { toast } from "sonner";
 export default function Home() {
   const { data: session } = useSession();
   const { selectedPortfolioId } = usePortfolio();
-  const [loading, setLoading] = useState(false)
   const [cashValue, setCashValue] = useState<string>("");
 
 
