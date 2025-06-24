@@ -9,11 +9,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const EarningChart = () => {
   const [activeTab, setActiveTab] = useState("Results");
-  const router = useRouter();
+
+  const params = useSearchParams();
+
+  const stock = params.get('q')
 
   return (
     <div>
@@ -114,30 +118,23 @@ const EarningChart = () => {
           </button>
 
           <button className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
-            <Image
-              src={"/images/report.png"}
-              alt="star img"
-              height={20}
-              width={20}
-            />
-            Report{" "}
-            <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
-              Pro
-            </span>
+             <Link href={`tree?q=${stock}`}>
+            <button className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
+              <Image
+                src={"/images/transcript.png"}
+                alt="star img"
+                height={20}
+                width={20}
+              />
+              Tree{" "}
+              <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
+                Pro
+              </span>
+            </button>
+          </Link>
           </button>
 
-          <button onClick={() => router.push('/tree')} className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
-            <Image
-              src={"/images/transcript.png"}
-              alt="star img"
-              height={20}
-              width={20}
-            />
-            Tree{" "}
-            <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
-              Pro
-            </span>
-          </button>
+         
         </div>
       </div>
 
