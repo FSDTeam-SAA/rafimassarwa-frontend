@@ -206,6 +206,30 @@ export default function PortfolioTable() {
   }, [overviewData?.holdings, sortConfig]);
 
 
+  const handleNotification = async (symbol: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+        body: JSON.stringify({ symbol }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMessage = data?.error;
+        return toast.error(errorMessage);
+      }
+      return toast.success(data.message);
+    } catch (error) {
+      return toast.error("Something went wrong. Please try again.");
+    }
+  };
+
+
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-[100px] lg:mb-20 mb-5">
@@ -438,7 +462,7 @@ export default function PortfolioTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-center">
-                      <IoNotificationsOutline className="h-4 w-4" />
+                      <IoNotificationsOutline onClick={() => handleNotification(item.symbol)} className="h-4 w-4 cursor-pointer" />
                     </div>
                   </TableCell>
                   <TableCell>
