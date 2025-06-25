@@ -48,7 +48,7 @@ type Stock = {
 
 const columnHelper = createColumnHelper<Stock>();
 
-export default function Portfolio() {
+export default function Portfolio({ title }: { title: string }) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // API calling
@@ -255,11 +255,10 @@ export default function Portfolio() {
         header: "Month %",
         cell: (info) => (
           <span
-            className={`font-medium ${
-              info.getValue() && info.getValue().includes("-")
-                ? "text-red-500"
-                : "text-green-500"
-            }`}
+            className={`font-medium ${info.getValue() && info.getValue().includes("-")
+              ? "text-red-500"
+              : "text-green-500"
+              }`}
           >
             {info.getValue() || "0.00%"}
           </span>
@@ -323,7 +322,7 @@ export default function Portfolio() {
     return (
       <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
         <h2 className="text-xl sm:text-2xl font-medium mb-4">
-          Olive Stocks Portfolio
+          {title}
         </h2>
         <div className="flex items-center justify-center py-8">
           <div className="text-gray-500">Loading stocks...</div>
@@ -354,9 +353,9 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
+    <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 border mt-10">
       <h2 className="text-xl sm:text-2xl font-medium mb-4">
-        Olive Stocks Portfolio
+        {title}
       </h2>
 
       <div className="overflow-x-auto">
@@ -371,11 +370,10 @@ export default function Portfolio() {
                   >
                     {header.isPlaceholder ? null : (
                       <div
-                        className={`flex items-center justify-center gap-2 ${
-                          header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : ""
-                        }`}
+                        className={`flex items-center justify-center gap-2 ${header.column.getCanSort()
+                          ? "cursor-pointer select-none"
+                          : ""
+                          }`}
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         {flexRender(
@@ -399,7 +397,7 @@ export default function Portfolio() {
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm"
+                      className="px-2 sm:px-4 py-3 sm:py-2 text-xs sm:text-sm"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -433,18 +431,17 @@ export default function Portfolio() {
             -
             {Math.min(
               (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
+              table.getState().pagination.pageSize,
               table.getFilteredRowModel().rows.length
             )}{" "}
             of {table.getFilteredRowModel().rows.length} stocks
           </div>
           <div className="flex items-center space-x-1 sm:space-x-2">
             <button
-              className={`flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600 ${
-                !table.getCanPreviousPage()
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
+              className={`flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600 ${!table.getCanPreviousPage()
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+                }`}
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
@@ -476,11 +473,10 @@ export default function Portfolio() {
                 return (
                   <button
                     key={page}
-                    className={`flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-md text-xs sm:text-sm ${
-                      currentPage === page
-                        ? "bg-green-600 text-white"
-                        : "border border-gray-200 text-gray-600"
-                    }`}
+                    className={`flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-md text-xs sm:text-sm ${currentPage === page
+                      ? "bg-green-600 text-white"
+                      : "border border-gray-200 text-gray-600"
+                      }`}
                     onClick={() => table.setPageIndex(page - 1)}
                   >
                     {page}
@@ -490,9 +486,8 @@ export default function Portfolio() {
             )}
 
             <button
-              className={`flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600 ${
-                !table.getCanNextPage() ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600 ${!table.getCanNextPage() ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
