@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronUp,
   ChevronDown,
+  Trash,
 } from "lucide-react";
 import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
@@ -21,7 +22,6 @@ import {
   type Column,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { IoIosNotificationsOutline } from "react-icons/io";
 import { toast } from "sonner";
 
 type Stock = {
@@ -47,32 +47,33 @@ type Stock = {
 
 const columnHelper = createColumnHelper<Stock>();
 
-export default function StockOfMonth() {
+export default function WatchlistTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // API calling
   const axiosInstance = useAxios();
 
-  const { data: qualityStock } = useQuery({
-    queryKey: ["stocks-of-months"],
+  const { data: qualityStock, refetch } = useQuery({
+    queryKey: ["wathlist-stock"],
     queryFn: async () => {
-      const res = await axiosInstance("/stocks/stock-of-month");
-      return res.data;
+      const res = await axiosInstance("/protfolio/watchlist");
+      return res.data.data;
     },
   });
 
   const { mutateAsync } = useMutation({
     mutationFn: async (payload: Stock) => {
-      const res = await axiosInstance.post("/protfolio/watchlist/add", {
+      const res = await axiosInstance.post("/protfolio/watchlist/remove", {
         symbol: payload?.symbol,
       });
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Stock added in watchlist!");
+      toast.success("Stock delete from watchlist!");
+      refetch();
     },
     onError: () => {
-      toast.error("Already added in watchlist");
+      toast.error("failed to delete");
     },
   });
 
@@ -287,9 +288,9 @@ export default function StockOfMonth() {
           return (
             <button
               onClick={() => handleWatchlist(rowData)}
-              className="text-2xl flex justify-center cursor-pointer"
+              className="flex justify-center cursor-pointer"
             >
-              <IoIosNotificationsOutline />
+              <Trash className="text-sm"/>
             </button>
           );
         },
@@ -299,10 +300,7 @@ export default function StockOfMonth() {
     []
   );
 
-  const data = useMemo(
-    () => qualityStock?.stockOfTheMonth || [],
-    [qualityStock]
-  );
+  const data = useMemo(() => qualityStock || [], [qualityStock]);
 
   const table = useReactTable({
     data,
@@ -326,7 +324,7 @@ export default function StockOfMonth() {
     return (
       <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
         <h2 className="text-xl sm:text-2xl font-medium mb-4">
-          Stocks Of Months
+          Watchlist
         </h2>
         <div className="flex items-center justify-center py-8">
           <div className="text-gray-500">Loading stocks...</div>
@@ -358,7 +356,9 @@ export default function StockOfMonth() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-      <h2 className="text-xl sm:text-2xl font-medium mb-4">Stocks Of Months</h2>
+      <h2 className="text-xl sm:text-2xl font-medium mb-4">
+        Olive Stocks Portfolio
+      </h2>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[800px]">
@@ -368,7 +368,7 @@ export default function StockOfMonth() {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-2 sm:px-4 py-3 text-center text-xs sm:text-sm font-medium text-gray-700"
+                    className="px-2 sm:px-2 py-3 text-center text-xs sm:text-sm font-medium text-gray-700"
                   >
                     {header.isPlaceholder ? null : (
                       <div
