@@ -224,8 +224,9 @@ export default function PortfolioTable() {
         return toast.error(errorMessage);
       }
       return toast.success(data.message);
-    } catch (error) {
-      return toast.error("Something went wrong. Please try again.");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return toast.error(error.message);
     }
   };
 
