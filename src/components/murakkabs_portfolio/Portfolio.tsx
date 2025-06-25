@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -9,7 +10,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   useReactTable,
   getCoreRowModel,
@@ -21,6 +22,8 @@ import {
   type Column,
 } from "@tanstack/react-table";
 import Link from "next/link";
+import { IoIosNotificationsOutline } from "react-icons/io";
+import { toast } from "sonner";
 
 type Stock = {
   symbol: string;
@@ -59,6 +62,25 @@ export default function Portfolio() {
     },
   });
 
+  const { mutateAsync } = useMutation({
+    mutationFn: async (payload: Stock) => {
+      const res = await axiosInstance.post("/protfolio/watchlist/add", {
+        symbol: payload?.symbol,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Stock added in watchlist!");
+    },
+    onError: () => {
+      toast.error("Already added in watchlist");
+    },
+  });
+
+  const handleWatchlist = async (rowData: Stock) => {
+    await mutateAsync(rowData);
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.accessor("symbol", {
@@ -67,18 +89,18 @@ export default function Portfolio() {
           <div>
             <Link
               href={`/search-result?q=${info.getValue()}`}
-              className="flex items-center"
+              className="flex items-center gap-2"
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full">
+              <div>
                 <Image
                   src={info.row.original.logo || "/placeholder.svg"}
                   alt="logo"
                   width={1000}
                   height={1000}
-                  className="h-8 w-8"
+                  className="h-8 w-8 rounded-full"
                 />
               </div>
-              <span className="ml-2 text-xs sm:text-sm font-medium hidden sm:block">
+              <span className="text-xs sm:text-sm font-medium hidden sm:block">
                 {info.getValue()}
               </span>
             </Link>
@@ -258,6 +280,21 @@ export default function Portfolio() {
         cell: (info) => info.getValue() || "N/A",
         enableSorting: true,
       }),
+      columnHelper.display({
+        id: "action",
+        header: "Action",
+        cell: (info) => {
+          const rowData = info.row.original;
+          return (
+            <button
+              onClick={() => handleWatchlist(rowData)}
+              className="text-2xl flex justify-center cursor-pointer"
+            >
+              <IoIosNotificationsOutline />
+            </button>
+          );
+        },
+      }),
     ],
     []
   );
@@ -330,7 +367,7 @@ export default function Portfolio() {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-2 sm:px-4 py-3 text-center text-xs sm:text-sm font-medium text-gray-700"
+                    className="px-2 sm:px-2 py-3 text-center text-xs sm:text-sm font-medium text-gray-700"
                   >
                     {header.isPlaceholder ? null : (
                       <div
