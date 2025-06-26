@@ -4,8 +4,6 @@ import RecentNews from "@/components/overview/news";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronUp } from "lucide-react";
 import StockNews from "./_components/StockNews";
-import NewsAndScore from "./_components/NewsAndScore";
-import MediaCoverageChart from "./_components/chart/MediaCoverageChart";
 import StockPremiumBanner from "@/components/Portfolio/chart/chart-bottom";
 import OverviewFAQ from "@/components/overview/overview-faq";
 import useAxios from "@/hooks/useAxios";
@@ -69,13 +67,13 @@ const Page = () => {
             <StockNews stockNews={allNews} />
           </div>
 
-          <div>
+          {/* <div>
             <NewsAndScore />
-          </div>
+          </div> */}
 
-          <div className="mt-10">
+          {/* <div className="mt-10">
             <MediaCoverageChart />
-          </div>
+          </div> */}
 
           <div className="mt-16">
             <OverviewFAQ />
