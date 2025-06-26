@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Info } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -139,9 +139,12 @@ export default function OptionsChainTable() {
     return `${month}/${day}, ${time}`;
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading)
+    return (
+      <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+        <Loader2 className="h-12 w-12 animate-spin text-green-500" />
+      </div>
+    );
 
   return (
     <div className="w-full border border-gray-200 rounded-md overflow-hidden">
@@ -298,10 +301,16 @@ export default function OptionsChainTable() {
                     <td
                       className={cn(
                         "py-3 px-3 text-sm",
-                        put.change_percent > 0 ? "text-green-600" : "text-red-600"
+                        put.change_percent > 0
+                          ? "text-green-600"
+                          : "text-red-600"
                       )}
                     >
-                      {put.change_percent ? (put.change_percent > 0 ? "+" : "") + put.change_percent.toFixed(2) + "%" : "-"}
+                      {put.change_percent
+                        ? (put.change_percent > 0 ? "+" : "") +
+                          put.change_percent.toFixed(2) +
+                          "%"
+                        : "-"}
                     </td>
                     <td className="py-3 px-3 text-sm">
                       {put.volume ? put.volume.toLocaleString() : "-"}
@@ -326,7 +335,8 @@ export default function OptionsChainTable() {
             <thead>
               <tr className="border-b border-gray-200">
                 <th colSpan={6} className="text-center py-3 font-semibold">
-                  {apiResponse?.symbol || "Stock"} Option Calls - {expirationDate}
+                  {apiResponse?.symbol || "Stock"} Option Calls -{" "}
+                  {expirationDate}
                 </th>
               </tr>
               <tr className="border-b border-gray-200 text-sm">
@@ -350,7 +360,9 @@ export default function OptionsChainTable() {
                   <td className="py-3 px-3 text-sm font-medium text-center bg-gray-100">
                     {call.strike.toFixed(1)}
                   </td>
-                  <td className="py-3 px-3 text-sm">{call.delta?.toFixed(2) || "-"}</td>
+                  <td className="py-3 px-3 text-sm">
+                    {call.delta?.toFixed(2) || "-"}
+                  </td>
                   <td className="py-3 px-3 text-sm">
                     ${call.last_price.toFixed(2)}
                   </td>
@@ -385,7 +397,8 @@ export default function OptionsChainTable() {
               <thead>
                 <tr className="border-b border-gray-200">
                   <th colSpan={6} className="text-center py-3 font-semibold">
-                    {apiResponse?.symbol || "Stock"} Option Puts - {expirationDate}
+                    {apiResponse?.symbol || "Stock"} Option Puts -{" "}
+                    {expirationDate}
                   </th>
                 </tr>
                 <tr className="border-b border-gray-200 text-sm">
@@ -393,11 +406,15 @@ export default function OptionsChainTable() {
                     Strike
                   </th>
                   <th className="py-2 px-3 text-left font-medium">Strike Δ</th>
-                  <th className="py-2 px-3 text-left font-medium">Last Price</th>
+                  <th className="py-2 px-3 text-left font-medium">
+                    Last Price
+                  </th>
                   <th className="py-2 px-3 text-left font-medium">%Change</th>
                   <th className="py-2 px-3 text-left font-medium">Volume</th>
                   <th className="py-2 px-3 text-left font-medium">OI</th>
-                  <th className="py-2 px-3 text-left font-medium">Last Trade</th>
+                  <th className="py-2 px-3 text-left font-medium">
+                    Last Trade
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -409,14 +426,18 @@ export default function OptionsChainTable() {
                     <td className="py-3 px-3 text-sm font-medium text-center bg-gray-100">
                       {put.strike.toFixed(1)}
                     </td>
-                    <td className="py-3 px-3 text-sm">{put.delta?.toFixed(2) || "-"}</td>
+                    <td className="py-3 px-3 text-sm">
+                      {put.delta?.toFixed(2) || "-"}
+                    </td>
                     <td className="py-3 px-3 text-sm">
                       ${put.last_price.toFixed(2)}
                     </td>
                     <td
                       className={cn(
                         "py-3 px-3 text-sm",
-                        put.change_percent > 0 ? "text-green-600" : "text-red-600"
+                        put.change_percent > 0
+                          ? "text-green-600"
+                          : "text-red-600"
                       )}
                     >
                       {put.change_percent > 0 ? "+" : ""}
