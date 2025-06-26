@@ -7,6 +7,7 @@ import { CiEdit } from "react-icons/ci";
 import { usePortfolio } from '../portfolioContext';
 import { useEffect } from 'react'; // No need for useState here now
 import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
+import { Loader2 } from 'lucide-react';
 
 interface ProfileInfoProps {
     selectedImage: File | null;
@@ -22,7 +23,7 @@ export default function ProfileInfo({ selectedImage, imagePreview, handleImageCh
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    const { data: user } = useQuery({
+    const { data: user, isLoading: userDataLoading } = useQuery({
         queryKey: ["user"],
         queryFn: async () => {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/get-user/${userId}`);
@@ -118,15 +119,27 @@ export default function ProfileInfo({ selectedImage, imagePreview, handleImageCh
                     </div>
                 </div>
                 <div className="p-4 pr-12 bg-[#EAF6EC] rounded-xl text-[#28A745]">
-                    <h3 className='text-xs pb-1'>Portfolio Value</h3>
-                    <h2 className='text-lg font-semibold pb-1'>${overviewData?.totalValueWithCash}</h2>
-                    <div className="flex gap-2 items-center">
-                        <div className={`flex items-center ${isReturnPercentPositive ? "text-green-500" : "text-red-500"}`}>
-                            {isReturnPercentPositive ? <FaCaretUp className="w-6 h-6 mr-1" /> : <FaCaretDown className="w-6 h-6 mr-1" />}
-                            <span className="text-base font-semibold">{dailyReturnPercent}%</span>
-                        </div>
-                        <span>today</span>
-                    </div>
+                    {
+                        userDataLoading ? (
+                            <div className="flex justify-center items-center h-full">
+                                <Loader2 className='w-6 h-6 animate-spin' />
+                            </div>
+                        )
+                            :
+                            (
+                                <div className="">
+                                    <h3 className='text-xs pb-1'>Portfolio Value</h3>
+                                    <h2 className='text-lg font-semibold pb-1'>${overviewData?.totalValueWithCash}</h2>
+                                    <div className="flex gap-2 items-center">
+                                        <div className={`flex items-center ${isReturnPercentPositive ? "text-green-500" : "text-red-500"}`}>
+                                            {isReturnPercentPositive ? <FaCaretUp className="w-6 h-6 mr-1" /> : <FaCaretDown className="w-6 h-6 mr-1" />}
+                                            <span className="text-base font-semibold">{dailyReturnPercent}%</span>
+                                        </div>
+                                        <span>today</span>
+                                    </div>
+                                </div>
+                            )
+                    }
                 </div>
             </div>
         </div>

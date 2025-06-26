@@ -178,11 +178,7 @@ export default function StockHeader({
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                     <div className="font-bold text-xl">{selectedStock}</div>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground">
-                        Volume
-                    </Button>
                 </div>
-
                 {comparisonStocks && onToggleComparison &&
                     comparisonStocks?.length > 0 && (
                         <div className="flex flex-wrap items-center gap-2">
