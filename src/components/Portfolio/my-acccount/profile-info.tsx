@@ -5,17 +5,23 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image'
 import { CiEdit } from "react-icons/ci";
 import { usePortfolio } from '../portfolioContext';
-import { useEffect } from 'react';
+import { useEffect } from 'react'; // No need for useState here now
 import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
 
+interface ProfileInfoProps {
+    selectedImage: File | null;
+    imagePreview: string | null;
+    handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-export default function ProfileInfo() {
+export default function ProfileInfo({ selectedImage, imagePreview, handleImageChange }: ProfileInfoProps) {
+    // Removed selectedImage and imagePreview states from here
+    // Removed setIsUploadingImage as it's not used here anymore
 
     const { selectedPortfolioId } = usePortfolio();
-
     const { data: session } = useSession();
+    const userId = session?.user?.id;
 
-    const userId = session?.user?.id
     const { data: user } = useQuery({
         queryKey: ["user"],
         queryFn: async () => {
@@ -25,7 +31,7 @@ export default function ProfileInfo() {
         },
         select: (data) => data?.data,
         enabled: !!userId
-    })
+    });
 
     const { mutate: getOverview, data: overviewData } = useMutation({
         mutationFn: async () => {
@@ -45,10 +51,26 @@ export default function ProfileInfo() {
         }
     }, [selectedPortfolioId, getOverview]);
 
-
     const dailyReturnPercent = overviewData?.dailyReturnPercent ?? 0;
-
     const isReturnPercentPositive = dailyReturnPercent >= 0;
+
+    if (!user) {
+        return (
+            <div className="w-full animate-pulse">
+                <div className="flex md:flex-row flex-col gap-4 md:justify-between lg:items-center mt-4 p-4 shadow rounded-xl bg-white">
+                    <div className="flex gap-4 items-center">
+                        <div className="w-24 h-24 bg-gray-300 rounded-full" />
+                        <div className="space-y-2">
+                            <div className="w-32 h-4 bg-gray-300 rounded" />
+                            <div className="w-48 h-3 bg-gray-200 rounded" />
+                            <div className="w-40 h-3 bg-gray-200 rounded" />
+                        </div>
+                    </div>
+                    <div className="w-48 h-16 bg-gray-200 rounded-lg" />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full mb-12">
@@ -56,15 +78,27 @@ export default function ProfileInfo() {
                 <div className="flex gap-4 items-center">
                     <div className="relative">
                         <Image
-                            src={user?.profilePhoto || "/images/my_portfolio_page/user.png"}
-                            alt={`${user?.fullname}`}
+                            src={imagePreview || user?.profilePhoto || "/images/my_portfolio_page/user.png"}
+                            alt={user?.fullname || ""}
                             width={1000}
                             height={600}
-                            className='w-24 h-24 rounded-full'
+                            className="w-24 h-24 rounded-full object-cover"
                         />
-                        <div className="h-7 w-7 rounded-full bg-[#28A745] flex justify-center items-center text-white absolute right-1 bottom-0">
+                        {/* Only one label/input needed */}
+                        <label htmlFor="profilePhotoInput" className="h-7 w-7 rounded-full bg-[#28A745] flex justify-center items-center text-white absolute right-1 bottom-0 cursor-pointer">
                             <CiEdit />
-                        </div>
+                            <input
+                                id="profilePhotoInput"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageChange}
+                            />
+                        </label>
+                        {/* Remove this duplicate div */}
+                        {/* <div className="h-7 w-7 rounded-full bg-[#28A745] flex justify-center items-center text-white absolute right-1 bottom-0">
+                            <CiEdit />
+                        </div> */}
                     </div>
                     <div className="">
                         <h3 className='text-xl font-semibold pb-2'>{user?.fullName}</h3>
@@ -80,7 +114,6 @@ export default function ProfileInfo() {
                                     })
                                 }
                             </p>
-
                         </div>
                     </div>
                 </div>
