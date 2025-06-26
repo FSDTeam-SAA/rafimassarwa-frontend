@@ -3,16 +3,6 @@ import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { usePortfolio } from "../portfolioContext"
 
-interface UserProfileProps {
-    name: string
-    portfolioDate: string
-    rank: number
-    totalInvestors: number
-    platform: string
-    profileImage?: string
-    isRanked?: boolean
-}
-
 export function UserProfile() {
 
     const { selectedPortfolioId } = usePortfolio()

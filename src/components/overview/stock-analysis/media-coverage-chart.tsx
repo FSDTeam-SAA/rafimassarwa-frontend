@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, useCallback } from "react"
+import { useRef, useEffect, useState, useCallback, useMemo } from "react" // Import useMemo
 import * as echarts from "echarts"
 import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -61,8 +61,8 @@ export default function PerformanceCoverage({ similarStockApiResponse }: Perform
     const { theme } = useTheme()
     const [isClient, setIsClient] = useState(false)
 
-    // Color palette for different stocks
-    const stockColors = ["#2695FF", "#28A745", "#0E3A18", "#FFD700", "#ff5733", "#594B00"]
+    // Color palette for different stocks - Memoized
+    const stockColors = useMemo(() => ["#2695FF", "#28A745", "#0E3A18", "#FFD700", "#ff5733", "#594B00"], [])
 
     // Available stocks - dynamically created from API data
     const [stocks, setStocks] = useState<Stock[]>([])
@@ -88,7 +88,7 @@ export default function PerformanceCoverage({ similarStockApiResponse }: Perform
             }))
             setStocks(apiStocks)
         }
-    }, [similarStockApiResponse])
+    }, [similarStockApiResponse, stockColors]) // stockColors is now stable due to useMemo
 
     // Process API data based on selected time period
     const processApiData = useCallback(

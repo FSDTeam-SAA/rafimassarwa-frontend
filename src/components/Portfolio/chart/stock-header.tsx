@@ -95,7 +95,7 @@ export default function StockHeader({
             getOverview();
         }
         // No need to set selectedPortfolioId here, as it's now controlled by the context
-    }, [portfolioData, getOverview]);
+    }, [portfolioData, getOverview, selectedPortfolioId]);
 
 
     // Update stock info when selected stock changes

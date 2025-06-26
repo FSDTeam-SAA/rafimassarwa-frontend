@@ -299,8 +299,8 @@ export default function PortfolioTable() {
                   </TableHeader>
 
                   <TableBody className="text-center">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       sortedHoldings.map((item: any, index: number) => (
                         <TableRow key={index} className="h-24">
                           <TableCell className="font-medium">

@@ -29,6 +29,7 @@ export default function SimilarStocksPage() {
   // Ensure stockName is a string, as useParams can return string | string[]
   const stockName = typeof params.stockName === "string" ? params.stockName : undefined
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: similarStockApiResponse } = useQuery<{ similarStocks: SimilarStockApiData[]; chartData: any }>({
     queryKey: ["similar-stock-data", stockName],
     queryFn: async () => {

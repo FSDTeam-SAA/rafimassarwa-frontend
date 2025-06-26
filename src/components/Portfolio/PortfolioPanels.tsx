@@ -24,7 +24,6 @@ import {
 import {
   CanvasRenderer
 } from "echarts/renderers";
-import MyPortfolio from "./my-portfolio";
 
 // Register required components
 echarts.use([
@@ -141,11 +140,13 @@ export default function Home() {
     const { labels, datasets } = performanceChartData;
 
     const filteredSeries = datasets
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .filter((ds: any) => {
         if (ds.label === "My Portfolio" && showPortfolio) return true;
         if (ds.label === "S&P 500" && showSP500) return true;
         return false;
       })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((ds: any) => {
         const isPortfolio = ds.label === "My Portfolio";
         return {
@@ -168,12 +169,14 @@ export default function Home() {
 
 
     const options: echarts.EChartsCoreOption = {
-      
+
       tooltip: {
         trigger: "axis",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         formatter: (params: any) =>
           params
             .map(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (item: any) =>
                 `${item.seriesName}: <b>${item.data.toFixed(2)}%</b>`
             )

@@ -13,7 +13,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Pencil, Mail, Lock, Loader2 } from "lucide-react"
+import { Pencil, Mail, Lock } from "lucide-react"
 import { BiUser } from "react-icons/bi"
 
 import SubscriptionCard from "./subscription-card"

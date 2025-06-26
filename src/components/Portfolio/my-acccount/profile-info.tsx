@@ -15,9 +15,7 @@ interface ProfileInfoProps {
     handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function ProfileInfo({ selectedImage, imagePreview, handleImageChange }: ProfileInfoProps) {
-    // Removed selectedImage and imagePreview states from here
-    // Removed setIsUploadingImage as it's not used here anymore
+export default function ProfileInfo({ imagePreview, handleImageChange }: ProfileInfoProps) {
 
     const { selectedPortfolioId } = usePortfolio();
     const { data: session } = useSession();
