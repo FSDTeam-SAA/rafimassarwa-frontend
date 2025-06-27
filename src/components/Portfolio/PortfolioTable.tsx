@@ -258,8 +258,8 @@ export default function PortfolioTable() {
                       {[
                         { label: "Company Name", key: "name" },
                         { label: "Number of Shares", key: "shares" },
-                        { label: "Share Price", key: "buyPrice" },
-                        { label: "Curr. Price", key: "price" },
+                        { label: "Avg. Cost Price", key: "buyPrice" },
+                        { label: "Market Price", key: "price" },
                         { label: "Price Change", key: "change" },
                         { label: "Olive's Rating", key: "value" },
                         { label: "Holding Gain", key: "percent" },
@@ -274,7 +274,7 @@ export default function PortfolioTable() {
                             className="text-center cursor-pointer select-none"
                           >
                             <div className="inline-flex items-center space-x-1">
-                              <span>{label}</span>
+                              <span className="text-xs">{label}</span>
                               <div className="flex flex-col">
                                 <ChevronUp
                                   className={`w-3 h-3 -mb-1 ${isAsc ? "text-black" : "text-gray-400"
@@ -292,6 +292,12 @@ export default function PortfolioTable() {
 
                       <TableHead className="text-center">Holding Value</TableHead>
                       <TableHead className="text-center">Monthly Return</TableHead>
+                      <TableHead className="text-center">Cost Basis</TableHead>
+                      <TableHead className="text-center">Unrealized (P&L)</TableHead>
+                      <TableHead className="text-center">P&L%</TableHead>
+                      <TableHead className="text-center">Weight</TableHead>
+                      <TableHead className="text-center">Valuation</TableHead>
+                      <TableHead className="text-center">Price Target</TableHead>
                       <TableHead className="text-center">Alerts</TableHead>
                       <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
@@ -301,7 +307,7 @@ export default function PortfolioTable() {
                     {
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       sortedHoldings.map((item: any, index: number) => (
-                        <TableRow key={index} className="h-24">
+                        <TableRow key={index} className="">
                           <TableCell className="font-medium">
                             <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
                               <div className="flex justify-center">
@@ -351,7 +357,7 @@ export default function PortfolioTable() {
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="flex justify-center items-center h-32">
                             <Input
                               value={editablePrices[item.symbol] ?? ""}
                               className="text-center w-16"
@@ -464,6 +470,24 @@ export default function PortfolioTable() {
                               <span>{item.percent < 0 ? <FaCaretDown className="text-red-500 text-xl" /> : <FaCaretUp className="text-xl text-[#28A745]" />}</span>
                               {item.percent?.toFixed(2)}%
                             </div>
+                          </TableCell>
+                          <TableCell className="">
+                            N/A
+                          </TableCell>
+                          <TableCell className="">
+                            N/A
+                          </TableCell>
+                          <TableCell className="">
+                            N/A
+                          </TableCell>
+                          <TableCell className="">
+                            N/A
+                          </TableCell>
+                          <TableCell className="">
+                            N/A
+                          </TableCell>
+                          <TableCell className="">
+                            N/A
                           </TableCell>
                           <TableCell>
                             <div className="flex justify-center">
