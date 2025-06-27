@@ -255,7 +255,6 @@ export default function PortfolioTable() {
                   <TableHeader>
                     <TableRow className="bg-[#EAF6EC] h-[70px]">
                       <TableHead className="w-[120px] text-center">Stock Name</TableHead>
-
                       {[
                         { label: "Company Name", key: "name" },
                         { label: "Number of Shares", key: "shares" },
