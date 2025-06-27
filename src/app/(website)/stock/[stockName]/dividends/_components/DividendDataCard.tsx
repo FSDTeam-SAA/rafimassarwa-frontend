@@ -1,7 +1,6 @@
 "use client";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function DividendDataCard() {
@@ -96,16 +95,6 @@ export default function DividendDataCard() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Calculator Link */}
-      <div className="border-t border-gray-200 p-3 text-right">
-        <Link
-          href="/dividend-calculator"
-          className="text-sm text-blue-500 hover:text-blue-700"
-        >
-          Open AAPL in Dividend Calculator ›
-        </Link>
       </div>
     </div>
   );
