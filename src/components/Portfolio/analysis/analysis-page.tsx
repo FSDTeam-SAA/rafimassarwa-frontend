@@ -1,6 +1,5 @@
 import { AssetAllocation } from "./asset-chart"
 import { HoldingsDistribution } from "./holding-distribution"
-import { Plus } from "lucide-react"
 import PerformanceGrid from "./performance-grid"
 
 export default function AnalysisPage() {

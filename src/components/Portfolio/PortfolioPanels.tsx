@@ -24,7 +24,6 @@ import {
 import {
   CanvasRenderer
 } from "echarts/renderers";
-import { min } from "date-fns";
 
 // Register required components
 echarts.use([

@@ -39,7 +39,6 @@ import { usePortfolio } from "./portfolioContext"
 import { toast } from "sonner"
 import Portfolio from "../olivestocks_portfolio/Portfolio"
 import { Button } from "../ui/button"
-import { min } from "date-fns"
 
 interface AddHoldingData {
   symbol: string
@@ -131,6 +130,7 @@ export default function PortfolioTable() {
   // Initialize watchlist stocks
   useEffect(() => {
     if (watchlistData) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const watchlistSymbols = new Set(watchlistData.map((stock: any) => stock.symbol))
       setWatchlistStocks(watchlistSymbols as Set<string>)
     }
