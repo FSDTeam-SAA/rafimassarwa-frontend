@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ChevronUp, Loader2, Trash, Settings } from "lucide-react"
+import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil } from "lucide-react"
 import { IoWarningOutline } from "react-icons/io5"
 import { FiEdit2 } from "react-icons/fi"
 
@@ -554,14 +554,22 @@ export default function PortfolioTable() {
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex justify-center cursor-pointer">
+        <div className="flex items-center justify-center gap-2">
+          <Button variant="ghost" size="icon" className="h-4 w-4">
+            <Pencil className="h-4 w-4 text-green-500 transition-colors" />
+          </Button>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Trash className="h-4 w-4 text-red-500 hover:text-red-700 transition-colors" />
+              <Button variant="ghost" size="icon" className="h-4 w-4">
+                <Trash className="h-4 w-4 text-red-500 hover:text-red-700 transition-colors" />
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to delete {item.symbol}?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  Are you sure you want to delete {item.symbol}?
+                </AlertDialogTitle>
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently remove {item.symbol} from your portfolio.
                 </AlertDialogDescription>
@@ -580,6 +588,7 @@ export default function PortfolioTable() {
           </AlertDialog>
         </div>
       </TableCell>
+
     </TableRow>
   )
 
@@ -989,17 +998,28 @@ export default function PortfolioTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-center cursor-pointer">
+                      <div className="flex items-center justify-center gap-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+                        >
+                          <Plus className="h-5 w-5" />
+                        </Button>
+
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Trash className="h-4 w-4 text-red-500 hover:text-red-700 transition-colors" />
+                            <Button variant="ghost" size="icon">
+                              <Trash className="h-4 w-4 text-red-500 hover:text-red-700 transition-colors" />
+                            </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure you want to delete {item.symbol}?</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Are you sure you want to delete {item.symbol}?
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently remove {item.symbol} from your
-                                portfolio.
+                                This action cannot be undone. This will permanently remove {item.symbol} from your portfolio.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
