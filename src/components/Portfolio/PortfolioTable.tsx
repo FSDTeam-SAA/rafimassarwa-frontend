@@ -1,11 +1,15 @@
 "use client"
 
 import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil } from "lucide-react"
+
 import { IoWarningOutline } from "react-icons/io5"
+
 import { FiEdit2 } from "react-icons/fi"
 
 import Image from "next/image"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 import {
@@ -30,17 +34,29 @@ import {
 } from "@/components/ui/dialog"
 
 import { Switch } from "@/components/ui/switch"
+
 import { Checkbox } from "@/components/ui/checkbox"
+
 import { Label } from "@/components/ui/label"
+
 import Link from "next/link"
+
 import { Input } from "../ui/input"
+
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+
 import { useSession } from "next-auth/react"
+
 import { useEffect, useMemo, useState } from "react"
+
 import { FaCaretDown, FaCaretUp } from "react-icons/fa"
+
 import { usePortfolio } from "./portfolioContext"
+
 import { toast } from "sonner"
+
 import Portfolio from "../olivestocks_portfolio/Portfolio"
+
 import { Button } from "../ui/button"
 
 interface AddHoldingData {
@@ -56,6 +72,30 @@ interface ColumnVisibility {
   weight: boolean
   valuation: boolean
   priceTarget: boolean
+}
+
+interface HoldingItem {
+  avgBuyPrice: number
+  change: number
+  costBasis: number
+  holdingGain: string
+  holdingPrice: string
+  logo: string
+  name: string
+  olives: {
+    financialHealth: string
+    competitiveAdvantage: string
+    valuation: string
+  }
+  oneMonthReturn: string
+  pL: number
+  percent: number
+  price: number
+  quadrant: string
+  shares: number
+  symbol: string
+  unrealized: number
+  value: string
 }
 
 export default function PortfolioTable() {
@@ -91,6 +131,7 @@ export default function PortfolioTable() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: portfolioId }),
       })
+
       if (!res.ok) throw new Error("Failed to fetch portfolio overview")
       return res.json()
     },
@@ -101,10 +142,9 @@ export default function PortfolioTable() {
       const sharesMap: Record<string, number> = {}
       const priceMap: Record<string, number> = {}
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      overviewData.holdings.forEach((item: any) => {
+      overviewData.holdings.forEach((item: HoldingItem) => {
         sharesMap[item.symbol] = item.shares
-        priceMap[item.symbol] = item.holdingPrice
+        priceMap[item.symbol] = Number.parseFloat(item.holdingPrice)
       })
 
       setEditableShares(sharesMap)
@@ -128,6 +168,7 @@ export default function PortfolioTable() {
         },
         body: JSON.stringify({ symbol, portfolioId }),
       })
+
       return res.json()
     },
     onSuccess: () => {
@@ -154,10 +195,12 @@ export default function PortfolioTable() {
           price: data.price,
         }),
       })
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.message || "Failed to add stock to portfolio.")
       }
+
       return response.json()
     },
     onSuccess: (data) => {
@@ -183,10 +226,12 @@ export default function PortfolioTable() {
         },
         body: JSON.stringify({ symbol }),
       })
+
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data?.error || "Failed to add to watchlist")
       }
+
       return data
     },
     onSuccess: (data, symbol) => {
@@ -208,10 +253,12 @@ export default function PortfolioTable() {
         },
         body: JSON.stringify({ symbol }),
       })
+
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data?.error || "Failed to remove from watchlist")
       }
+
       return data
     },
     onSuccess: (data, symbol) => {
@@ -228,12 +275,11 @@ export default function PortfolioTable() {
   })
 
   const handleUpdateHolding = (symbol: string, field: "shares" | "price", newValue: number) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const current = overviewData?.holdings?.find((h: any) => h.symbol === symbol)
+    const current = overviewData?.holdings?.find((h: HoldingItem) => h.symbol === symbol)
     if (!current) return
 
     const quantity = field === "shares" ? newValue : (editableShares[symbol] ?? current.shares)
-    const price = field === "price" ? newValue : (editablePrices[symbol] ?? current.holdingPrice)
+    const price = field === "price" ? newValue : (editablePrices[symbol] ?? Number.parseFloat(current.holdingPrice))
 
     addHolding({ symbol, quantity, price })
   }
@@ -270,47 +316,63 @@ export default function PortfolioTable() {
     }))
   }
 
+  console.log(overviewData?.holdings);
+
   const sortedHoldings = useMemo(() => {
     if (!overviewData?.holdings || !sortConfig.key || !sortConfig.direction) {
       return overviewData?.holdings || []
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return [...overviewData.holdings].sort((a: any, b: any) => {
-      const valueA = a[sortConfig.key!]
-      const valueB = b[sortConfig.key!]
+
+    return [...overviewData.holdings].sort((a: HoldingItem, b: HoldingItem) => {
+      let valueA: any = a[sortConfig.key as keyof HoldingItem]
+      let valueB: any = b[sortConfig.key as keyof HoldingItem]
+
+      // Handle special cases for nested properties
+      if (sortConfig.key === "avgBuyPrice") {
+        valueA = a.avgBuyPrice
+        valueB = b.avgBuyPrice
+      }
 
       if (valueA === undefined || valueB === undefined) return 0
 
       if (typeof valueA === "number" && typeof valueB === "number") {
         return sortConfig.direction === "asc" ? valueA - valueB : valueB - valueA
       }
+
       return sortConfig.direction === "asc"
         ? String(valueA).localeCompare(String(valueB))
         : String(valueB).localeCompare(String(valueA))
     })
   }, [overviewData?.holdings, sortConfig])
 
+  // Calculate totals using real data
   const totals = useMemo(() => {
     if (!sortedHoldings.length) return null
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const marketValue = sortedHoldings.reduce((sum: number, item: any) => sum + (Number.parseFloat(item.value) || 0), 0)
-    const costBasisTotal = sortedHoldings.reduce((sum: number) => sum + 5000, 0) // $5000 per stock
-    const unrealizedPLTotal = sortedHoldings.reduce(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (sum: number, item: any) => sum + (item.price * item.shares || 0),
-      0,
-    )
-    const plPercentTotal = sortedHoldings.reduce((sum: number) => sum + 4000, 0) // $4000 per stock
+    const totalMarketValue = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
+      return sum + (Number.parseFloat(item.value) || 0)
+    }, 0)
 
-    // Calculate average weight (assuming each stock has 23.33% weight)
-    const totalWeight = sortedHoldings.length > 0 ? 100 : 0
+    const totalCostBasis = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
+      return sum + (item.costBasis || 0)
+    }, 0)
+
+    const totalUnrealizedPL = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
+      return sum + (item.unrealized || 0)
+    }, 0)
+
+    const totalPL = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
+      return sum + (item.pL || 0)
+    }, 0)
+
+    // Calculate total weight (should be 100% for all holdings)
+    const totalWeight = 100
 
     return {
-      costBasis: costBasisTotal,
-      marketValue: marketValue,
-      unrealizedPL: unrealizedPLTotal,
-      plPercent: plPercentTotal,
+      costBasis: totalCostBasis,
+      marketValue: totalMarketValue,
+      unrealizedPL: totalUnrealizedPL,
+      plPercent: totalPL,
       weight: totalWeight,
     }
   }, [sortedHoldings])
@@ -321,15 +383,16 @@ export default function PortfolioTable() {
       {[
         { label: "Company Name", key: "name" },
         { label: "Number of Shares", key: "shares" },
-        { label: "Avg. Cost Price", key: "buyPrice" },
+        { label: "Avg. Cost Price", key: "avgBuyPrice" },
         { label: "Market Price", key: "price" },
         { label: "Price Change", key: "change" },
-        { label: "Olive's Rating", key: "value" },
-        { label: "Holding Gain", key: "percent" },
+        { label: "Olive's Rating", key: "quadrant" },
+        { label: "Holding Gain", key: "holdingGain" },
       ].map(({ label, key }) => {
         const isActive = sortConfig.key === key
         const isAsc = isActive && sortConfig.direction === "asc"
         const isDesc = isActive && sortConfig.direction === "desc"
+
         return (
           <TableHead key={key} onClick={() => handleSort(key)} className="text-center cursor-pointer select-none">
             <div className="inline-flex items-center space-x-1">
@@ -342,8 +405,8 @@ export default function PortfolioTable() {
           </TableHead>
         )
       })}
-      <TableHead className="text-center">Holding Value</TableHead>
       <TableHead className="text-center">Monthly Return</TableHead>
+      <TableHead className="text-center">Holding Value</TableHead>
       {columnVisibility.costBasis && <TableHead className="text-center">Cost Basis</TableHead>}
       {columnVisibility.unrealizedPL && <TableHead className="text-center">Unrealized (P&L)</TableHead>}
       {columnVisibility.plPercent && <TableHead className="text-center">P&L%</TableHead>}
@@ -355,8 +418,7 @@ export default function PortfolioTable() {
     </TableRow>
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderTableRow = (item: any, index: number) => (
+  const renderTableRow = (item: HoldingItem, index: number) => (
     <TableRow key={index} className="">
       <TableCell className="font-medium">
         <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
@@ -424,11 +486,11 @@ export default function PortfolioTable() {
           }}
         />
       </TableCell>
-      <TableCell>${item.price}</TableCell>
+      <TableCell>${item.price.toFixed(2)}</TableCell>
       <TableCell className="">
         <div className="">
           <p className="flex flex-col">
-            <span className={`${item.change > 0 ? "text-green-500" : "text-red-500"}`}>${item.change}</span>
+            <span className={`${item.change > 0 ? "text-green-500" : "text-red-500"}`}>${item.change.toFixed(2)}</span>
             <p className="flex items-center">
               <span>
                 {item.change > 0 ? (
@@ -437,7 +499,7 @@ export default function PortfolioTable() {
                   <FaCaretDown className="text-red-500 text-2xl" />
                 )}
               </span>
-              <span className={item.change > 0 ? "text-green-500" : "text-red-500"}>${item.percent.toFixed(2)}%</span>
+              <span className={item.change > 0 ? "text-green-500" : "text-red-500"}>{item.percent.toFixed(2)}%</span>
             </p>
           </p>
         </div>
@@ -452,12 +514,12 @@ export default function PortfolioTable() {
           className="mx-auto mt-4"
         >
           <path
-            d="M322.624 39.3246H324.382V40.9746H322.624V39.3246ZM323.796 29.9746C326.932 30.0956 328.297 33.0656 326.434 35.2931C325.947 35.8431 325.162 36.2061 324.775 36.6681C324.382 37.1246 324.382 37.6746 324.382 38.2246H322.624C322.624 37.3061 622.624 36.5306 323.016 35.9806C323.403 35.4306 324.189 35.1061 324.675 34.7431C326.094 33.5111 325.742 31.7676 323.796 31.6246C323.33 31.6246 322.882 31.7984 322.553 32.1079C322.223 32.4173 322.038 32.837 322.038 33.2746H320.279C320.279 32.3994 320.65 31.56 321.309 30.9412C321.969 30.3223 322.863 29.9746 323.796 29.9746Z"
+            d="M322.624 39.3246H324.382V40.9746H322.624V39.3246ZM323.796 29.9746C326.932 30.0956 328.297 33.0656 326.434 35.2931C325.947 35.8431 325.162 36.2061 324.775 36.6681C324.382 37.1246 324.382 37.6746 324.382 38.2246H322.624C322.624 37.3061 322.624 36.5306 323.016 35.9806C323.403 35.4306 324.189 35.1061 324.675 34.7431C326.094 33.5111 325.742 31.7676 323.796 31.6246C323.33 31.6246 322.882 31.7984 322.553 32.1079C322.223 32.4173 322.038 32.837 322.038 33.2746H320.279C320.279 32.3994 320.65 31.56 321.309 30.9412C321.969 30.3223 322.863 29.9746 323.796 29.9746Z"
             fill="white"
           />
           <path
             d="M225.361 33.3092L225.484 28.8699L227.931 28.87L227.93 33.2973C244.486 37.2315 246.519 66.8143 237.377 80.1525C229.77 91.2512 221.267 88.4465 217.967 85.6568C207.491 77.3919 207.835 60.9144 209.317 53.7087C211.795 37.6732 221.045 33.4276 225.361 33.3092Z"
-            fill={item.olives?.valuation}
+            fill={item.olives?.valuation || "#gray"}
           />
           <path
             d="M232.203 38.033L230.362 37.9533C236.306 42.4438 237.066 51.0313 237.196 55.5522C238.263 63.8277 236.653 76.9332 230.008 83.6572C229.187 84.6992 227.581 85.3951 226.98 85.668C237.785 86.163 240.331 62.7676 238.823 52.5304C238.049 43.6958 234.087 39.1844 232.203 38.033Z"
@@ -469,7 +531,7 @@ export default function PortfolioTable() {
           />
           <path
             d="M188.163 36.2371L186.92 31.944L186.876 31.8099L189.446 31.4629L190.603 35.4322C207.551 34.0906 218.547 61.8171 213.94 77.4244C210.107 90.4112 201.162 90.3486 197.169 88.6939C184.675 84.0072 179.955 68.1077 179.156 60.7438C176.601 44.6088 184.096 37.6831 188.163 36.2371Z"
-            fill={item.olives?.competitiveAdvantage}
+            fill={item.olives?.competitiveAdvantage || "#gray"}
           />
           <path
             d="M196.304 38.9141L194.527 39.4026C201.562 41.854 204.919 49.7945 206.429 54.0579C209.982 61.6075 212.469 74.5753 208.206 83.0131C207.744 84.2566 206.429 85.4113 205.941 85.8554C216.377 83.0131 211.625 59.9644 207.051 50.6827C203.605 42.5113 198.45 39.4322 196.304 38.9141Z"
@@ -477,7 +539,7 @@ export default function PortfolioTable() {
           />
           <path
             d="M169.566 37.823L170.951 34.0273H173.722L172.033 38.3465C175.046 38.6999 177.935 41.9549 179.003 43.5382C173.358 55.9634 178.569 70.8056 181.167 75.9537C171.947 99.1201 157.1 91.3107 153.983 84.8538C148.832 76.0409 149.64 63.767 151.04 58.1972C155.23 41.7233 165.137 37.7503 169.566 37.823Z"
-            fill={item.olives?.financialHealth}
+            fill={item.olives?.financialHealth || "#gray"}
           />
           <path
             d="M293.557 25.8881L294.197 40.1143C253.538 19.0028 172.949 32.2187 137.737 41.4655C135.8 41.8069 102.382 51.9455 85.9151 56.972L127.913 45.9468L128.269 46.4447C124.966 58.5085 116.405 66.9304 112.538 69.6333C92.2647 81.4695 63.6111 74.5651 51.8184 69.6333C83.139 25.7598 112.419 33.5701 123.144 42.9595C213.063 15.19 274.219 20.0079 293.557 25.8881Z"
@@ -486,23 +548,22 @@ export default function PortfolioTable() {
         </svg>
       </TableCell>
       <TableCell>
-        {item.holdingGain > 0 ? (
-          <div className={`flex items-center gap-2 ${item.holdingGain > 0 ? "text-[#28A745]" : ""}`}>
+        {Number.parseFloat(item.holdingGain) > 0 ? (
+          <div className={`flex items-center gap-2 text-[#28A745]`}>
             <span className="text-[#28A745]">
               <FaCaretUp />
             </span>
-            {item.holdingGain?.toFixed(2)}%
+            {item.holdingGain}%
           </div>
         ) : (
-          <div className={`flex items-center gap-2 ${item.holdingGain < 0 ? "text-red-500" : ""}`}>
+          <div className={`flex items-center gap-2 text-red-500`}>
             <span className="text-red-500">
               <FaCaretDown />
             </span>
-            {item.holdingGain?.toFixed(2)}%
+            {item.holdingGain}%
           </div>
         )}
       </TableCell>
-      <TableCell className="text-center">${item.value}</TableCell>
       <TableCell className="">
         <div className={`${item.percent < 0 ? "text-red-500" : "text-[#28A745]"} flex items-center gap-2`}>
           <span>
@@ -512,38 +573,43 @@ export default function PortfolioTable() {
               <FaCaretUp className="text-xl text-[#28A745]" />
             )}
           </span>
-          {item.percent?.toFixed(2)}%
+          {item.oneMonthReturn}
         </div>
       </TableCell>
+      <TableCell className="text-center">${Number.parseFloat(item.value).toFixed(2)}</TableCell>
       {columnVisibility.costBasis && (
         <TableCell className="">
           $
-          {(5000).toLocaleString("en-US", {
+          {item.costBasis.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
         </TableCell>
       )}
       {columnVisibility.unrealizedPL && (
-        <TableCell className="">
+        <TableCell className={`${item.unrealized >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {(item.price * item.shares).toLocaleString("en-US", {
+          {item.unrealized.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
         </TableCell>
       )}
       {columnVisibility.plPercent && (
-        <TableCell className="">
+        <TableCell className={`${item.pL >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {(4000).toLocaleString("en-US", {
+          {item.pL.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
         </TableCell>
       )}
-      {columnVisibility.weight && <TableCell className="">23.33%</TableCell>}
-      {columnVisibility.valuation && <TableCell className="">N/A</TableCell>}
+      {columnVisibility.weight && (
+        <TableCell className="">
+          {((Number.parseFloat(item.value) / (totals?.marketValue || 1)) * 100).toFixed(2)}%
+        </TableCell>
+      )}
+      {columnVisibility.valuation && <TableCell className="">{item.quadrant}</TableCell>}
       {columnVisibility.priceTarget && <TableCell className="">N/A</TableCell>}
       <TableCell>
         <div className="flex justify-center">
@@ -558,7 +624,6 @@ export default function PortfolioTable() {
           <Button variant="ghost" size="icon" className="h-4 w-4">
             <Pencil className="h-4 w-4 text-green-500 transition-colors" />
           </Button>
-
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="h-4 w-4">
@@ -567,9 +632,7 @@ export default function PortfolioTable() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Are you sure you want to delete {item.symbol}?
-                </AlertDialogTitle>
+                <AlertDialogTitle>Are you sure you want to delete {item.symbol}?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently remove {item.symbol} from your portfolio.
                 </AlertDialogDescription>
@@ -588,21 +651,18 @@ export default function PortfolioTable() {
           </AlertDialog>
         </div>
       </TableCell>
-
     </TableRow>
   )
 
   const getTableMinWidth = () => {
     const baseWidth = 1200 // Base width for standard columns
     let additionalWidth = 0
-
     if (columnVisibility.costBasis) additionalWidth += 120
     if (columnVisibility.unrealizedPL) additionalWidth += 140
     if (columnVisibility.plPercent) additionalWidth += 100
     if (columnVisibility.weight) additionalWidth += 100
     if (columnVisibility.valuation) additionalWidth += 120
     if (columnVisibility.priceTarget) additionalWidth += 130
-
     return baseWidth + additionalWidth
   }
 
@@ -630,6 +690,7 @@ export default function PortfolioTable() {
               Holdings
             </TabsTrigger>
           </TabsList>
+
           <div className="pr-2">
             <Dialog>
               <DialogTrigger asChild>
@@ -715,12 +776,12 @@ export default function PortfolioTable() {
               <Table className="min-w-max" style={{ minWidth: `${getTableMinWidth()}px` }}>
                 <TableHeader>{renderTableHeaders()}</TableHeader>
                 <TableBody className="text-center">
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {sortedHoldings.map((item: any, index: number) => renderTableRow(item, index))}
+                  {sortedHoldings.map((item: HoldingItem, index: number) => renderTableRow(item, index))}
                   {/* Totals Row */}
                   {totals && (
                     <TableRow className="bg-gray-50 font-semibold border-t-2">
                       <TableCell className="text-center">Total</TableCell>
+                      <TableCell></TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>
@@ -735,7 +796,6 @@ export default function PortfolioTable() {
                           maximumFractionDigits: 2,
                         })}
                       </TableCell>
-                      <TableCell></TableCell>
                       {columnVisibility.costBasis && (
                         <TableCell className="text-center">
                           $
@@ -791,15 +851,16 @@ export default function PortfolioTable() {
                   {[
                     { label: "Company Name", key: "name" },
                     { label: "Number of Shares", key: "shares" },
-                    { label: "Share Price", key: "buyPrice" },
+                    { label: "Share Price", key: "avgBuyPrice" },
                     { label: "Curr. Price", key: "price" },
                     { label: "Price Change", key: "change" },
-                    { label: "Olive's Rating", key: "value" },
-                    { label: "Holding Gain", key: "percent" },
+                    { label: "Olive's Rating", key: "quadrant" },
+                    { label: "Holding Gain", key: "holdingGain" },
                   ].map(({ label, key }) => {
                     const isActive = sortConfig.key === key
                     const isAsc = isActive && sortConfig.direction === "asc"
                     const isDesc = isActive && sortConfig.direction === "desc"
+
                     return (
                       <TableHead
                         key={key}
@@ -823,8 +884,7 @@ export default function PortfolioTable() {
                 </TableRow>
               </TableHeader>
               <TableBody className="text-center">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {sortedHoldings.map((item: any, index: number) => (
+                {sortedHoldings.map((item: HoldingItem, index: number) => (
                   <TableRow key={index} className="h-24">
                     <TableCell className="font-medium">
                       <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
@@ -892,12 +952,12 @@ export default function PortfolioTable() {
                         }}
                       />
                     </TableCell>
-                    <TableCell>${item.price}</TableCell>
+                    <TableCell>${item.price.toFixed(2)}</TableCell>
                     <TableCell className="">
                       <div className="">
                         <p className="flex flex-col">
                           <span className={`${item.change > 0 ? "text-green-500" : "text-red-500"}`}>
-                            ${item.change}
+                            ${item.change.toFixed(2)}
                           </span>
                           <p className="flex items-center">
                             <span>
@@ -908,7 +968,7 @@ export default function PortfolioTable() {
                               )}
                             </span>
                             <span className={item.change > 0 ? "text-green-500" : "text-red-500"}>
-                              ${item.percent.toFixed(2)}%
+                              {item.percent.toFixed(2)}%
                             </span>
                           </p>
                         </p>
@@ -929,7 +989,7 @@ export default function PortfolioTable() {
                         />
                         <path
                           d="M225.361 33.3092L225.484 28.8699L227.931 28.87L227.93 33.2973C244.486 37.2315 246.519 66.8143 237.377 80.1525C229.77 91.2512 221.267 88.4465 217.967 85.6568C207.491 77.3919 207.835 60.9144 209.317 53.7087C211.795 37.6732 221.045 33.4276 225.361 33.3092Z"
-                          fill={item.olives?.valuation}
+                          fill={item.olives?.valuation || "#gray"}
                         />
                         <path
                           d="M232.203 38.033L230.362 37.9533C236.306 42.4438 237.066 51.0313 237.196 55.5522C238.263 63.8277 236.653 76.9332 230.008 83.6572C229.187 84.6992 227.581 85.3951 226.98 85.668C237.785 86.163 240.331 62.7676 238.823 52.5304C238.049 43.6958 234.087 39.1844 232.203 38.033Z"
@@ -941,7 +1001,7 @@ export default function PortfolioTable() {
                         />
                         <path
                           d="M188.163 36.2371L186.92 31.944L186.876 31.8099L189.446 31.4629L190.603 35.4322C207.551 34.0906 218.547 61.8171 213.94 77.4244C210.107 90.4112 201.162 90.3486 197.169 88.6939C184.675 84.0072 179.955 68.1077 179.156 60.7438C176.601 44.6088 184.096 37.6831 188.163 36.2371Z"
-                          fill={item.olives?.competitiveAdvantage}
+                          fill={item.olives?.competitiveAdvantage || "#gray"}
                         />
                         <path
                           d="M196.304 38.9141L194.527 39.4026C201.562 41.854 204.919 49.7945 206.429 54.0579C209.982 61.6075 212.469 74.5753 208.206 83.0131C207.744 84.2566 206.429 85.4113 205.941 85.8554C216.377 83.0131 211.625 59.9644 207.051 50.6827C203.605 42.5113 198.45 39.4322 196.304 38.9141Z"
@@ -949,7 +1009,7 @@ export default function PortfolioTable() {
                         />
                         <path
                           d="M169.566 37.823L170.951 34.0273H173.722L172.033 38.3465C175.046 38.6999 177.935 41.9549 179.003 43.5382C173.358 55.9634 178.569 70.8056 181.167 75.9537C171.947 99.1201 157.1 91.3107 153.983 84.8538C148.832 76.0409 149.64 63.767 151.04 58.1972C155.23 41.7233 165.137 37.7503 169.566 37.823Z"
-                          fill={item.olives?.financialHealth}
+                          fill={item.olives?.financialHealth || "#gray"}
                         />
                         <path
                           d="M293.557 25.8881L294.197 40.1143C253.538 19.0028 172.949 32.2187 137.737 41.4655C135.8 41.8069 102.382 51.9455 85.9151 56.972L127.913 45.9468L128.269 46.4447C124.966 58.5085 116.405 66.9304 112.538 69.6333C92.2647 81.4695 63.6111 74.5651 51.8184 69.6333C83.139 25.7598 112.419 33.5701 123.144 42.9595C213.063 15.19 274.219 20.0079 293.557 25.8881Z"
@@ -958,23 +1018,23 @@ export default function PortfolioTable() {
                       </svg>
                     </TableCell>
                     <TableCell>
-                      {item.holdingGain > 0 ? (
-                        <div className={`flex items-center gap-2 ${item.holdingGain > 0 ? "text-[#28A745]" : ""}`}>
+                      {Number.parseFloat(item.holdingGain) > 0 ? (
+                        <div className={`flex items-center gap-2 text-[#28A745]`}>
                           <span className="text-[#28A745]">
                             <FaCaretUp />
                           </span>
-                          {item.holdingGain?.toFixed(2)}%
+                          {item.holdingGain}%
                         </div>
                       ) : (
-                        <div className={`flex items-center gap-2 ${item.holdingGain < 0 ? "text-red-500" : ""}`}>
+                        <div className={`flex items-center gap-2 text-red-500`}>
                           <span className="text-red-500">
                             <FaCaretDown />
                           </span>
-                          {item.holdingGain?.toFixed(2)}%
+                          {item.holdingGain}%
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">${item.value}</TableCell>
+                    <TableCell className="text-center">${Number.parseFloat(item.value).toFixed(2)}</TableCell>
                     <TableCell className="">
                       <div
                         className={`${item.percent < 0 ? "text-red-500" : "text-[#28A745]"} flex items-center gap-2`}
@@ -986,7 +1046,7 @@ export default function PortfolioTable() {
                             <FaCaretUp className="text-xl text-[#28A745]" />
                           )}
                         </span>
-                        {item.percent?.toFixed(2)}%
+                        {item.oneMonthReturn}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -1006,7 +1066,6 @@ export default function PortfolioTable() {
                         >
                           <Plus className="h-5 w-5" />
                         </Button>
-
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -1015,11 +1074,10 @@ export default function PortfolioTable() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you sure you want to delete {item.symbol}?
-                              </AlertDialogTitle>
+                              <AlertDialogTitle>Are you sure you want to delete {item.symbol}?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently remove {item.symbol} from your portfolio.
+                                This action cannot be undone. This will permanently remove {item.symbol} from your
+                                portfolio.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
