@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { useEffect } from "react";
 import { usePortfolio } from "./portfolioContext";
+import { Trash } from "lucide-react";
 
 
 
@@ -124,6 +125,10 @@ export function PortfolioSidebar() {
     }
   }, [portfolioData, selectedPortfolioId, setSelectedPortfolioId])
 
+  const handleDeletePortfolio = () => {
+    console.log("Deleting")
+  }
+
   return (
     <Sidebar className="max-h-lvh z-40  shadow-[2px_0px_8px_0px_#00000029]">
       <SidebarContent>
@@ -152,16 +157,19 @@ export function PortfolioSidebar() {
                   {portfolioData?.length > 0 ? (
                     portfolioData?.map((portfolio: { _id: string, name: string }) => (
                       <SelectItem key={portfolio._id} value={portfolio._id} className="text-base cursor-pointer">
-                        {portfolio.name}
+                        <div className="flex items-center gap-6 text-base">
+                          <span>{portfolio.name}</span>
+                          <Trash onClick={handleDeletePortfolio} className="h-3 w-3 text-red-500" />
+                        </div>
                       </SelectItem>
-                    )) ): "No portfolio available"} 
+                    ))) : "No portfolio available"}
                 </SelectContent>
               </Select>
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
                   <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild className="">
                       <Link href={item.href}
                         className={cn(
                           "flex items-center gap-3 px-7 py-8 text-xl rounded-none",
