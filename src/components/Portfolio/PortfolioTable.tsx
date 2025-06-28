@@ -324,8 +324,8 @@ export default function PortfolioTable() {
     }
 
     return [...overviewData.holdings].sort((a: HoldingItem, b: HoldingItem) => {
-      let valueA: any = a[sortConfig.key as keyof HoldingItem]
-      let valueB: any = b[sortConfig.key as keyof HoldingItem]
+      let valueA: unknown = a[sortConfig.key as keyof HoldingItem]
+      let valueB: unknown = b[sortConfig.key as keyof HoldingItem]
 
       // Handle special cases for nested properties
       if (sortConfig.key === "avgBuyPrice") {
