@@ -43,7 +43,7 @@ export function AssetAllocation() {
     if (selectedPortfolioId) {
       getAssetAllocation()
     }
-  }, [selectedPortfolioId])
+  }, [selectedPortfolioId, getAssetAllocation])
 
   const allocationData = assetAllocation?.assetAllocation
 

@@ -145,7 +145,7 @@ export default function PerformanceGrid() {
             setIsLoading(true)
             getAssetAllocation()
         }
-    }, [selectedPortfolioId])
+    }, [selectedPortfolioId, getAssetAllocation])
 
     if (isLoading) {
         return <div className="w-full">Loading performance data...</div>

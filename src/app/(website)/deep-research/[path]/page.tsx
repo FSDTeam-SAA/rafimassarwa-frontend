@@ -2,8 +2,6 @@
 import BannerAds from "@/components/News/BannerAds";
 import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";
-import StockNewsMain from "@/components/News/StoctNewsMain";
-import TipRanksLabs from "@/components/News/TipRanksLabs";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -24,17 +22,14 @@ const NewsPage = () => {
   });
 
   const { data: stockNews = [] } = useQuery({
-    queryKey: ["stock-news"],
+    queryKey: ["deep-research-news"],
     queryFn: async () => {
-      const res = await axiosInstance(`/admin/news/deep-research?symbol=${path}`);
+      const res = await axiosInstance(
+        `/admin/news/deep-research?symbol=${path}`
+      );
       return res.data.data;
     },
   });
-
-  const firstNews = allNews[10];
-  const rightSide = stockNews[1];
-  const leftSide1 = stockNews[2];
-  const leftSide2 = stockNews[3];
 
   if (isLoading) {
     return (
@@ -55,15 +50,7 @@ const NewsPage = () => {
   return (
     <div className="lg:my-20 my-5">
       <BannerAds />
-      {/* <ExpertSpotlight /> */}
-      <TipRanksLabs
-        rightSide={rightSide}
-        leftSide1={leftSide1}
-        leftSide2={leftSide2}
-      />
       <MoreFromTip stockNews={stockNews} />
-      {/* <EarningsReportsInsights /> */}
-      <StockNewsMain firstNews={firstNews} />
       <StockMarketNews allNews={allNews} />
     </div>
   );

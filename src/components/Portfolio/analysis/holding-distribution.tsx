@@ -3,7 +3,6 @@
 import * as React from "react"
 import { Pie, PieChart, Cell, ResponsiveContainer } from "recharts"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -43,7 +42,7 @@ export function HoldingsDistribution() {
         if (selectedPortfolioId) {
             getAssetAllocation()
         }
-    }, [selectedPortfolioId])
+    }, [selectedPortfolioId, getAssetAllocation])
 
     const holdingDistData: SectorItem[] = assetAllocation?.holdingsBySector || []
 
@@ -96,6 +95,7 @@ export function HoldingsDistribution() {
                                         ))}
                                     </Pie>
                                     <ChartTooltip
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                         formatter={(value: any) => [`${value}%`, "Percentage"]}
                                         content={({ active, payload }) => {
                                             if (active && payload && payload.length) {

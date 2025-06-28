@@ -297,7 +297,7 @@ export default function StockHeader({
                                                 ))
                                         ) : searchQuery.length > 1 ? (
                                             <DropdownMenuItem disabled className="text-center text-gray-500 py-4">
-                                                No stocks found for "{searchQuery}"
+                                                No stocks found for {searchQuery}
                                             </DropdownMenuItem>
                                         ) : null}
                                     </>
