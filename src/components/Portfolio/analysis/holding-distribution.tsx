@@ -8,6 +8,9 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChartTooltip } from "@/components/ui/chart"
+import { useSession } from "next-auth/react"
+import { usePortfolio } from "../portfolioContext"
+import { useMutation } from "@tanstack/react-query"
 
 // Define types for our data
 type HoldingItem = {
@@ -52,6 +55,26 @@ type TabType = "sector" | "marketCap" | "dividend" | "beta" | "peRatio"
 
 export function HoldingsDistribution() {
     const [activeTab, setActiveTab] = React.useState<TabType>("sector")
+
+    const { data: session } = useSession()
+    const { selectedPortfolioId } = usePortfolio()
+
+    const { mutate: getAssetAllocation, data: assetAllocation } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/portfolio/allocation?portfolioId=${selectedPortfolioId}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${session?.user?.accessToken}`,
+                    },
+                }
+            )
+            return response.json()
+        },
+    })
+
 
     // Get the appropriate data based on active tab
     const getChartConfig = () => {
@@ -202,7 +225,7 @@ export function HoldingsDistribution() {
                                         ))}
                                     </Pie>
                                     <ChartTooltip
-                                    /* eslint-disable @typescript-eslint/no-explicit-any */
+                                        /* eslint-disable @typescript-eslint/no-explicit-any */
                                         formatter={(value: any) => [`${value}%`, "Percentage"]}
                                         content={({ active, payload }) => {
                                             if (active && payload && payload.length) {
