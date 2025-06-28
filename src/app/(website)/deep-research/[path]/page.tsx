@@ -1,0 +1,72 @@
+"use client";
+import BannerAds from "@/components/News/BannerAds";
+import MoreFromTip from "@/components/News/MoreFromTip";
+import StockMarketNews from "@/components/News/StockMarketNews";
+import StockNewsMain from "@/components/News/StoctNewsMain";
+import TipRanksLabs from "@/components/News/TipRanksLabs";
+import useAxios from "@/hooks/useAxios";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import React from "react";
+
+const NewsPage = () => {
+  const axiosInstance = useAxios();
+
+  const params = useParams();
+  const path = params.path;
+
+  const { data: allNews = [], isLoading } = useQuery({
+    queryKey: ["all-news"],
+    queryFn: async () => {
+      const res = await axiosInstance("/admin/news/market-news");
+      return res.data.data;
+    },
+  });
+
+  const { data: stockNews = [] } = useQuery({
+    queryKey: ["stock-news"],
+    queryFn: async () => {
+      const res = await axiosInstance(`/admin/news/deep-research?symbol=${path}`);
+      return res.data.data;
+    },
+  });
+
+  const firstNews = allNews[10];
+  const rightSide = stockNews[1];
+  const leftSide1 = stockNews[2];
+  const leftSide2 = stockNews[3];
+
+  if (isLoading) {
+    return (
+      <div className="text-center text-gray-500 min-h-screen flex flex-col items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!allNews || allNews.length === 0) {
+    return (
+      <div className="text-2xl text-red-500 min-h-screen flex flex-col items-center justify-center">
+        No news available
+      </div>
+    );
+  }
+
+  return (
+    <div className="lg:my-20 my-5">
+      <BannerAds />
+      {/* <ExpertSpotlight /> */}
+      <TipRanksLabs
+        rightSide={rightSide}
+        leftSide1={leftSide1}
+        leftSide2={leftSide2}
+      />
+      <MoreFromTip stockNews={stockNews} />
+      {/* <EarningsReportsInsights /> */}
+      <StockNewsMain firstNews={firstNews} />
+      <StockMarketNews allNews={allNews} />
+    </div>
+  );
+};
+
+export default NewsPage;
