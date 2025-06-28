@@ -39,6 +39,7 @@ import { usePortfolio } from "./portfolioContext"
 import { toast } from "sonner"
 import Portfolio from "../olivestocks_portfolio/Portfolio"
 import { Button } from "../ui/button"
+import { min } from "date-fns"
 
 interface AddHoldingData {
   symbol: string
@@ -185,6 +186,7 @@ export default function PortfolioTable() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
       queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
+      getOverview(selectedPortfolioId as string)
       if (selectedPortfolioId) {
         getOverview(selectedPortfolioId)
       }
@@ -213,12 +215,12 @@ export default function PortfolioTable() {
       return response.json()
     },
     onSuccess: (data) => {
-      toast.success(data.message || `Added stock to portfolio!`)
-      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
-      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
       if (selectedPortfolioId) {
         getOverview(selectedPortfolioId)
       }
+      toast.success(data.message || `Added stock to portfolio!`)
+      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
+      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
     },
     onError: (error) => {
       toast.error(error.message || "Error adding stock to portfolio.")
@@ -649,7 +651,12 @@ export default function PortfolioTable() {
           {item.oneMonthReturn}
         </div>
       </TableCell>
-      <TableCell className="text-center">${Number.parseFloat(item.value).toFixed(2)}</TableCell>
+      <TableCell className="text-center">
+        {`$${Number(item.value).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
+      </TableCell>
       {columnVisibility.costBasis && (
         <TableCell className="">
           $
@@ -1182,7 +1189,14 @@ export default function PortfolioTable() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">${Number.parseFloat(item.value).toFixed(2)}</TableCell>
+                    <TableCell className="text-center">
+                      <h1 className="text-[40px] text-[#595959] font-bold">
+                        {`$${Number(item.value).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}`}
+                      </h1>
+                    </TableCell>
                     <TableCell className="">
                       <div
                         className={`${item.percent < 0 ? "text-red-500" : "text-[#28A745]"} flex items-center gap-2`}
