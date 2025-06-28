@@ -1,17 +1,11 @@
 "use client"
 
 import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil } from "lucide-react"
-
 import { IoWarningOutline } from "react-icons/io5"
-
 import { FiEdit2 } from "react-icons/fi"
-
 import Image from "next/image"
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +17,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
 import {
   Dialog,
   DialogContent,
@@ -32,37 +25,34 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { Label } from "@/components/ui/label"
-
 import Link from "next/link"
-
 import { Input } from "../ui/input"
-
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
-
 import { useEffect, useMemo, useState } from "react"
-
 import { FaCaretDown, FaCaretUp } from "react-icons/fa"
-
 import { usePortfolio } from "./portfolioContext"
-
 import { toast } from "sonner"
-
 import Portfolio from "../olivestocks_portfolio/Portfolio"
-
 import { Button } from "../ui/button"
+import { min } from "date-fns"
 
 interface AddHoldingData {
   symbol: string
   quantity: number
   price: number
+}
+
+interface TransactionData {
+  portfolioId: string
+  symbol: string
+  price: number
+  event: "buy" | "sell"
+  quantity: number
 }
 
 interface ColumnVisibility {
@@ -102,6 +92,10 @@ export default function PortfolioTable() {
   const [editableShares, setEditableShares] = useState<Record<string, number>>({})
   const [editablePrices, setEditablePrices] = useState<Record<string, number>>({})
   const [watchlistStocks, setWatchlistStocks] = useState<Set<string>>(new Set())
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false)
+  const [selectedStock, setSelectedStock] = useState<HoldingItem | null>(null)
+  const [transactionType, setTransactionType] = useState<"buy" | "sell">("buy")
+  const [transactionQuantity, setTransactionQuantity] = useState<number>(0)
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     costBasis: false,
     unrealizedPL: false,
@@ -114,11 +108,33 @@ export default function PortfolioTable() {
   const { data: session } = useSession()
   const { selectedPortfolioId } = usePortfolio()
   const queryClient = useQueryClient()
-
   const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: "asc" | "desc" | null }>({
     key: null,
     direction: null,
   })
+
+  // Fetch watchlist data
+  const { data: watchlistData } = useQuery({
+    queryKey: ["watchlist-stock"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+      })
+      const data = await res.json()
+      return data.data
+    },
+    enabled: !!session?.user?.accessToken,
+  })
+
+  // Initialize watchlist stocks
+  useEffect(() => {
+    if (watchlistData) {
+      const watchlistSymbols = new Set(watchlistData.map((stock: any) => stock.symbol))
+      setWatchlistStocks(watchlistSymbols as Set<string>)
+    }
+  }, [watchlistData])
 
   const {
     mutate: getOverview,
@@ -131,7 +147,6 @@ export default function PortfolioTable() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: portfolioId }),
       })
-
       if (!res.ok) throw new Error("Failed to fetch portfolio overview")
       return res.json()
     },
@@ -141,12 +156,10 @@ export default function PortfolioTable() {
     if (overviewData?.holdings) {
       const sharesMap: Record<string, number> = {}
       const priceMap: Record<string, number> = {}
-
       overviewData.holdings.forEach((item: HoldingItem) => {
         sharesMap[item.symbol] = item.shares
         priceMap[item.symbol] = Number.parseFloat(item.holdingPrice)
       })
-
       setEditableShares(sharesMap)
       setEditablePrices(priceMap)
     }
@@ -168,12 +181,12 @@ export default function PortfolioTable() {
         },
         body: JSON.stringify({ symbol, portfolioId }),
       })
-
       return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
       queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
+      getOverview(selectedPortfolioId as string)
       if (selectedPortfolioId) {
         getOverview(selectedPortfolioId)
       }
@@ -195,24 +208,55 @@ export default function PortfolioTable() {
           price: data.price,
         }),
       })
-
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.message || "Failed to add stock to portfolio.")
       }
-
       return response.json()
     },
     onSuccess: (data) => {
+      if (selectedPortfolioId) {
+        getOverview(selectedPortfolioId)
+      }
       toast.success(data.message || `Added stock to portfolio!`)
+      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
+      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error adding stock to portfolio.")
+    },
+  })
+
+  // New transaction mutation
+  const { mutate: addTransaction, isPending: isAddingTransaction } = useMutation({
+    mutationFn: async (data: TransactionData) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+        body: JSON.stringify(data),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Failed to add transaction.")
+      }
+      return response.json()
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || `Transaction added successfully!`)
       queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
       queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
       if (selectedPortfolioId) {
         getOverview(selectedPortfolioId)
       }
+      setIsTransactionDialogOpen(false)
+      setSelectedStock(null)
+      setTransactionQuantity(0)
     },
     onError: (error) => {
-      toast.error(error.message || "Error adding stock to portfolio.")
+      toast.error(error.message || "Error adding transaction.")
     },
   })
 
@@ -226,12 +270,10 @@ export default function PortfolioTable() {
         },
         body: JSON.stringify({ symbol }),
       })
-
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data?.error || "Failed to add to watchlist")
       }
-
       return data
     },
     onSuccess: (data, symbol) => {
@@ -253,12 +295,10 @@ export default function PortfolioTable() {
         },
         body: JSON.stringify({ symbol }),
       })
-
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data?.error || "Failed to remove from watchlist")
       }
-
       return data
     },
     onSuccess: (data, symbol) => {
@@ -276,12 +316,30 @@ export default function PortfolioTable() {
 
   const handleUpdateHolding = (symbol: string, field: "shares" | "price", newValue: number) => {
     const current = overviewData?.holdings?.find((h: HoldingItem) => h.symbol === symbol)
-    if (!current) return
+    if (!current || !selectedPortfolioId) return
 
-    const quantity = field === "shares" ? newValue : (editableShares[symbol] ?? current.shares)
-    const price = field === "price" ? newValue : (editablePrices[symbol] ?? Number.parseFloat(current.holdingPrice))
+    if (field === "shares") {
+      const currentShares = current.shares
+      const newShares = newValue
+      const difference = Math.abs(newShares - currentShares)
 
-    addHolding({ symbol, quantity, price })
+      if (difference === 0) return
+
+      const event = newShares > currentShares ? "buy" : "sell"
+      const price = editablePrices[symbol] ?? Number.parseFloat(current.holdingPrice)
+
+      addTransaction({
+        portfolioId: selectedPortfolioId,
+        symbol,
+        price,
+        event,
+        quantity: difference,
+      })
+    } else {
+      // Handle price update (existing functionality)
+      const quantity = editableShares[symbol] ?? current.shares
+      addHolding({ symbol, quantity, price: newValue })
+    }
   }
 
   const handleDelete = async (stockSymbol: string) => {
@@ -316,7 +374,26 @@ export default function PortfolioTable() {
     }))
   }
 
-  console.log(overviewData?.holdings);
+  const handleTransactionSubmit = () => {
+    if (!selectedStock || !selectedPortfolioId || transactionQuantity <= 0) return
+
+    const price = editablePrices[selectedStock.symbol] ?? Number.parseFloat(selectedStock.holdingPrice)
+
+    addTransaction({
+      portfolioId: selectedPortfolioId,
+      symbol: selectedStock.symbol,
+      price,
+      event: transactionType,
+      quantity: transactionQuantity,
+    })
+  }
+
+  const openTransactionDialog = (stock: HoldingItem) => {
+    setSelectedStock(stock)
+    setIsTransactionDialogOpen(true)
+    setTransactionQuantity(1)
+    setTransactionType("buy")
+  }
 
   const sortedHoldings = useMemo(() => {
     if (!overviewData?.holdings || !sortConfig.key || !sortConfig.direction) {
@@ -327,7 +404,6 @@ export default function PortfolioTable() {
       let valueA: any = a[sortConfig.key as keyof HoldingItem]
       let valueB: any = b[sortConfig.key as keyof HoldingItem]
 
-      // Handle special cases for nested properties
       if (sortConfig.key === "avgBuyPrice") {
         valueA = a.avgBuyPrice
         valueB = b.avgBuyPrice
@@ -365,7 +441,6 @@ export default function PortfolioTable() {
       return sum + (item.pL || 0)
     }, 0)
 
-    // Calculate total weight (should be 100% for all holdings)
     const totalWeight = 100
 
     return {
@@ -576,7 +651,12 @@ export default function PortfolioTable() {
           {item.oneMonthReturn}
         </div>
       </TableCell>
-      <TableCell className="text-center">${Number.parseFloat(item.value).toFixed(2)}</TableCell>
+      <TableCell className="text-center">
+        {`$${Number(item.value).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
+      </TableCell>
       {columnVisibility.costBasis && (
         <TableCell className="">
           $
@@ -616,12 +696,13 @@ export default function PortfolioTable() {
           <Switch
             checked={watchlistStocks.has(item.symbol)}
             onCheckedChange={(checked) => handleWatchlistToggle(item.symbol, checked)}
+            className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300"
           />
         </div>
       </TableCell>
       <TableCell>
         <div className="flex items-center justify-center gap-2">
-          <Button variant="ghost" size="icon" className="h-4 w-4">
+          <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => openTransactionDialog(item)}>
             <Pencil className="h-4 w-4 text-green-500 transition-colors" />
           </Button>
           <AlertDialog>
@@ -668,6 +749,81 @@ export default function PortfolioTable() {
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-[100px] lg:mb-20 mb-5 overflow-hidden">
+      {/* Transaction Dialog */}
+      <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Transaction for {selectedStock?.symbol}</DialogTitle>
+            <DialogDescription>Add a buy or sell transaction for this stock.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="transaction-type" className="text-right">
+                Type
+              </Label>
+              <Select value={transactionType} onValueChange={(value: "buy" | "sell") => setTransactionType(value)}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select transaction type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buy">Buy</SelectItem>
+                  <SelectItem value="sell">Sell</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="quantity" className="text-right">
+                Quantity
+              </Label>
+              <Input
+                id="quantity"
+                type="number"
+                value={transactionQuantity}
+                onChange={(e) => setTransactionQuantity(Number(e.target.value))}
+                className="col-span-3"
+                min="1"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="price" className="text-right">
+                Price
+              </Label>
+              <Input
+                id="price"
+                type="number"
+                value={
+                  selectedStock
+                    ? (editablePrices[selectedStock.symbol] ?? Number.parseFloat(selectedStock.holdingPrice))
+                    : 0
+                }
+                onChange={(e) => {
+                  if (selectedStock) {
+                    setEditablePrices((prev) => ({
+                      ...prev,
+                      [selectedStock.symbol]: Number(e.target.value),
+                    }))
+                  }
+                }}
+                className="col-span-3"
+                step="0.01"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsTransactionDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTransactionSubmit}
+              disabled={isAddingTransaction || transactionQuantity <= 0}
+              className="bg-[#28A745] hover:bg-[#228B3B]"
+            >
+              {isAddingTransaction ? "Adding..." : "Add Transaction"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Tabs defaultValue="overview" className="w-full">
         <div className="flex justify-between items-center">
           <TabsList className="gap-2 my-3 bg-transparent text-white justify-start lg:justify-start max-w-[100vw] lg:max-w-full overflow-x-scroll lg:overflow-hidden">
@@ -690,7 +846,6 @@ export default function PortfolioTable() {
               Holdings
             </TabsTrigger>
           </TabsList>
-
           <div className="pr-2">
             <Dialog>
               <DialogTrigger asChild>
@@ -806,7 +961,7 @@ export default function PortfolioTable() {
                         </TableCell>
                       )}
                       {columnVisibility.unrealizedPL && (
-                        <TableCell className="text-center text-green-600">
+                        <TableCell className={`text-center ${totals.unrealizedPL >= 0 ? "text-green-600" : "text-red-600"}`}>
                           $
                           {totals.unrealizedPL.toLocaleString("en-US", {
                             minimumFractionDigits: 2,
@@ -815,7 +970,7 @@ export default function PortfolioTable() {
                         </TableCell>
                       )}
                       {columnVisibility.plPercent && (
-                        <TableCell className="text-center text-green-600">
+                        <TableCell className={`text-center ${totals.plPercent >= 0 ? "text-green-600" : "text-red-600"}`}>
                           $
                           {totals.plPercent.toLocaleString("en-US", {
                             minimumFractionDigits: 2,
@@ -1034,7 +1189,14 @@ export default function PortfolioTable() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">${Number.parseFloat(item.value).toFixed(2)}</TableCell>
+                    <TableCell className="text-center">
+                      <h1 className="text-[40px] text-[#595959] font-bold">
+                        {`$${Number(item.value).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}`}
+                      </h1>
+                    </TableCell>
                     <TableCell className="">
                       <div
                         className={`${item.percent < 0 ? "text-red-500" : "text-[#28A745]"} flex items-center gap-2`}
@@ -1063,6 +1225,7 @@ export default function PortfolioTable() {
                           variant="ghost"
                           size="icon"
                           className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+                          onClick={() => openTransactionDialog(item)}
                         >
                           <Plus className="h-5 w-5" />
                         </Button>
