@@ -356,17 +356,17 @@ export default function Home() {
                         <span className="text-lg font-semibold">{overviewData?.monthlyReturnPercent}%</span>
                       </div>
                       <div className="text-xs text-center">
-                        30 Day Return
+                        30 Days Return
                       </div>
                     </div>
 
                     {/* 30 Day Return */}
                     <div className="flex-1 px-4 mt-9">
                       <div className="h-8 flex items-center justify-center">
-                        ---
+                        00%
                       </div>
                       <div className="text-xs text-center">
-                        30 Day Return
+                        Overall Return
                       </div>
                     </div>
                   </div>

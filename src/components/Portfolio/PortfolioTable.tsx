@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil } from "lucide-react"
+import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil, CalendarIcon } from "lucide-react"
 import { IoWarningOutline } from "react-icons/io5"
 import { FiEdit2 } from "react-icons/fi"
 import Image from "next/image"
@@ -30,15 +30,20 @@ import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { Input } from "../ui/input"
+import { Input } from "@/components/ui/input"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { useEffect, useMemo, useState } from "react"
 import { FaCaretDown, FaCaretUp } from "react-icons/fa"
 import { usePortfolio } from "./portfolioContext"
 import { toast } from "sonner"
-import Portfolio from "../olivestocks_portfolio/Portfolio"
-import { Button } from "../ui/button"
+import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
+import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { format } from "date-fns"
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface AddHoldingData {
   symbol: string
@@ -52,6 +57,7 @@ interface TransactionData {
   price: number
   event: "buy" | "sell"
   quantity: number
+  date: Date
 }
 
 interface ColumnVisibility {
@@ -111,6 +117,11 @@ export default function PortfolioTable() {
     key: null,
     direction: null,
   })
+
+  // Add state for date picker
+  const [date, setDate] = useState<Date>()
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+  const [startDate, setStartDate] = useState(new Date());
 
   // Fetch watchlist data
   const { data: watchlistData } = useQuery({
@@ -314,33 +325,6 @@ export default function PortfolioTable() {
     },
   })
 
-  const handleUpdateHolding = (symbol: string, field: "shares" | "price", newValue: number) => {
-    const current = overviewData?.holdings?.find((h: HoldingItem) => h.symbol === symbol)
-    if (!current || !selectedPortfolioId) return
-
-    if (field === "shares") {
-      const currentShares = current.shares
-      const newShares = newValue
-      const difference = Math.abs(newShares - currentShares)
-
-      if (difference === 0) return
-
-      const event = newShares > currentShares ? "buy" : "sell"
-      const price = editablePrices[symbol] ?? Number.parseFloat(current.holdingPrice)
-
-      addTransaction({
-        portfolioId: selectedPortfolioId,
-        symbol,
-        price,
-        event,
-        quantity: difference,
-      })
-    } else {
-      // Handle price update (existing functionality)
-      const quantity = editableShares[symbol] ?? current.shares
-      addHolding({ symbol, quantity, price: newValue })
-    }
-  }
 
   const handleDelete = async (stockSymbol: string) => {
     DeleteStock({
@@ -385,6 +369,7 @@ export default function PortfolioTable() {
       price,
       event: transactionType,
       quantity: transactionQuantity,
+      date: date as Date,
     })
   }
 
@@ -393,6 +378,12 @@ export default function PortfolioTable() {
     setIsTransactionDialogOpen(true)
     setTransactionQuantity(1)
     setTransactionType("buy")
+  }
+
+  // Fixed date selection handler
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate)
+    setIsDatePickerOpen(false) // Close the popover after selection
   }
 
   const sortedHoldings = useMemo(() => {
@@ -469,7 +460,7 @@ export default function PortfolioTable() {
         const isDesc = isActive && sortConfig.direction === "desc"
 
         return (
-          <TableHead key={key} onClick={() => handleSort(key)} className="text-center cursor-pointer select-none">
+          <TableHead key={key} onClick={() => handleSort(key)} className={`text-center cursor-pointer select-none`}>
             <div className="inline-flex items-center space-x-1">
               <span className="text-xs">{label}</span>
               <div className="flex flex-col">
@@ -486,7 +477,7 @@ export default function PortfolioTable() {
       {columnVisibility.unrealizedPL && <TableHead className="text-center">Unrealized (P&L)</TableHead>}
       {columnVisibility.plPercent && <TableHead className="text-center">P&L%</TableHead>}
       {columnVisibility.weight && <TableHead className="text-center">Weight</TableHead>}
-      {columnVisibility.valuation && <TableHead className="text-center">Valuation</TableHead>}
+      {columnVisibility.valuation && <TableHead className="text-center">Fair Value</TableHead>}
       {columnVisibility.priceTarget && <TableHead className="text-center">Price Target</TableHead>}
       <TableHead className="text-center">Watchlist</TableHead>
       <TableHead className="text-center">Actions</TableHead>
@@ -495,71 +486,36 @@ export default function PortfolioTable() {
 
   const renderTableRow = (item: HoldingItem, index: number) => (
     <TableRow key={index} className="">
-      <TableCell className="font-medium">
-        <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2">
-              <div className="flex w-8 h-8 rounded-full bg-black justify-center items-center p-2">
-                <Image
-                  src={item.logo || "/placeholder.svg"}
-                  alt={item.name}
-                  width={350}
-                  height={200}
-                  className="w-5 h-5 object-cover"
-                />
-              </div>
+      <TableCell className="font-medium w-[150px]">
+        <div className="flex justify-center">
+          <div className="flex items-center gap-2">
+            <div className="flex w-8 h-8 rounded-full bg-black justify-center items-center p-2">
+              <Image
+                src={item.logo || "/placeholder.svg"}
+                alt={item.name}
+                width={350}
+                height={200}
+                className="w-5 h-5 object-cover"
+              />
+            </div>
+            <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
               <div className="">
                 <span className="hover:underline hover:text-blue-400">{item.symbol}</span>
               </div>
-            </div>
+            </Link>
+            <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => openTransactionDialog(item)}>
+              <Pencil className="h-4 w-4 text-green-500 transition-colors" />
+            </Button>
           </div>
-        </Link>
-      </TableCell>
-      <TableCell>{item.name}</TableCell>
-      <TableCell>
-        <div className="flex gap-1 text-center items-center">
-          <span>
-            <IoWarningOutline className="text-[#FFD700]" />
-          </span>
-          <Input
-            value={editableShares[item.symbol] ?? ""}
-            className="text-center w-14"
-            onChange={(e) =>
-              setEditableShares((prev) => ({
-                ...prev,
-                [item.symbol]: Number(e.target.value),
-              }))
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleUpdateHolding(item.symbol, "shares", editableShares[item.symbol])
-              }
-            }}
-          />
-          <span>
-            <FiEdit2
-              onClick={() => handleUpdateHolding(item.symbol, "shares", editableShares[item.symbol])}
-              className="text-[#28A745] cursor-pointer"
-            />
-          </span>
         </div>
       </TableCell>
+      <TableCell>{item.name}</TableCell>
+      <TableCell>{item.shares}</TableCell>
       <TableCell className="flex justify-center items-center h-32">
-        <Input
-          value={editablePrices[item.symbol] ?? ""}
-          className="text-center w-16"
-          onChange={(e) =>
-            setEditablePrices((prev) => ({
-              ...prev,
-              [item.symbol]: Number(e.target.value),
-            }))
-          }
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleUpdateHolding(item.symbol, "price", editablePrices[item.symbol])
-            }
-          }}
-        />
+        {`$${Number(item.avgBuyPrice).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
       </TableCell>
       <TableCell>${item.price.toFixed(2)}</TableCell>
       <TableCell className="">
@@ -689,7 +645,7 @@ export default function PortfolioTable() {
           {((Number.parseFloat(item.value) / (totals?.marketValue || 1)) * 100).toFixed(2)}%
         </TableCell>
       )}
-      {columnVisibility.valuation && <TableCell className="">{item.quadrant}</TableCell>}
+      {columnVisibility.valuation && <TableCell className="">${Number(item.quadrant).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>}
       {columnVisibility.priceTarget && <TableCell className="">N/A</TableCell>}
       <TableCell>
         <div className="flex justify-center">
@@ -702,9 +658,6 @@ export default function PortfolioTable() {
       </TableCell>
       <TableCell>
         <div className="flex items-center justify-center gap-2">
-          <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => openTransactionDialog(item)}>
-            <Pencil className="h-4 w-4 text-green-500 transition-colors" />
-          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="h-4 w-4">
@@ -756,13 +709,26 @@ export default function PortfolioTable() {
             <DialogTitle>Add New Transaction for {selectedStock?.symbol}</DialogTitle>
             <DialogDescription>Add a buy or sell transaction for this stock.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-4">
+            {/* Fixed Date Picker */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="transaction-type" className="text-right">
-                Type
+              <Label htmlFor="transaction-date" className="text-right">
+                Date
               </Label>
+              <DatePicker
+                selected={startDate}
+                showIcon
+                dateFormat="dd MMMM, yyyy"
+                onChange={(date) => setStartDate(date as Date)}
+                maxDate={new Date()}
+                className="border border-gray-300 py-1 px-2 w-[275px] rounded-md" />
+            </div>
+
+            {/* Transaction Type */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Type</Label>
               <Select value={transactionType} onValueChange={(value: "buy" | "sell") => setTransactionType(value)}>
-                <SelectTrigger className="col-span-3">
+                <SelectTrigger className="col-span-3 w-full">
                   <SelectValue placeholder="Select transaction type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -771,6 +737,8 @@ export default function PortfolioTable() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Quantity */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="quantity" className="text-right">
                 Quantity
@@ -784,6 +752,8 @@ export default function PortfolioTable() {
                 min="1"
               />
             </div>
+
+            {/* Price */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="price" className="text-right">
                 Price
@@ -809,7 +779,7 @@ export default function PortfolioTable() {
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-center gap-2">
             <Button variant="outline" onClick={() => setIsTransactionDialogOpen(false)}>
               Cancel
             </Button>
@@ -846,6 +816,7 @@ export default function PortfolioTable() {
               Holdings
             </TabsTrigger>
           </TabsList>
+
           <div className="pr-2">
             <Dialog>
               <DialogTrigger asChild>
@@ -903,7 +874,7 @@ export default function PortfolioTable() {
                       onCheckedChange={(checked) => handleColumnVisibilityChange("valuation", !!checked)}
                       className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                     />
-                    <Label htmlFor="valuation">Valuation</Label>
+                    <Label htmlFor="valuation">Fair Value</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -961,7 +932,9 @@ export default function PortfolioTable() {
                         </TableCell>
                       )}
                       {columnVisibility.unrealizedPL && (
-                        <TableCell className={`text-center ${totals.unrealizedPL >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        <TableCell
+                          className={`text-center ${totals.unrealizedPL >= 0 ? "text-green-600" : "text-red-600"}`}
+                        >
                           $
                           {totals.unrealizedPL.toLocaleString("en-US", {
                             minimumFractionDigits: 2,
@@ -970,7 +943,9 @@ export default function PortfolioTable() {
                         </TableCell>
                       )}
                       {columnVisibility.plPercent && (
-                        <TableCell className={`text-center ${totals.plPercent >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        <TableCell
+                          className={`text-center ${totals.plPercent >= 0 ? "text-green-600" : "text-red-600"}`}
+                        >
                           $
                           {totals.plPercent.toLocaleString("en-US", {
                             minimumFractionDigits: 2,
@@ -1063,49 +1038,13 @@ export default function PortfolioTable() {
                     </TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
-                      <div className="flex gap-1 text-center items-center">
-                        <span>
-                          <IoWarningOutline className="text-[#FFD700]" />
-                        </span>
-                        <Input
-                          value={editableShares[item.symbol] ?? ""}
-                          className="text-center w-14"
-                          onChange={(e) =>
-                            setEditableShares((prev) => ({
-                              ...prev,
-                              [item.symbol]: Number(e.target.value),
-                            }))
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleUpdateHolding(item.symbol, "shares", editableShares[item.symbol])
-                            }
-                          }}
-                        />
-                        <span>
-                          <FiEdit2
-                            onClick={() => handleUpdateHolding(item.symbol, "shares", editableShares[item.symbol])}
-                            className="text-[#28A745] cursor-pointer"
-                          />
-                        </span>
-                      </div>
+                    {item.shares}
                     </TableCell>
                     <TableCell>
-                      <Input
-                        value={editablePrices[item.symbol] ?? ""}
-                        className="text-center w-16"
-                        onChange={(e) =>
-                          setEditablePrices((prev) => ({
-                            ...prev,
-                            [item.symbol]: Number(e.target.value),
-                          }))
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleUpdateHolding(item.symbol, "price", editablePrices[item.symbol])
-                          }
-                        }}
-                      />
+                      {`$${Number(item.avgBuyPrice).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`}
                     </TableCell>
                     <TableCell>${item.price.toFixed(2)}</TableCell>
                     <TableCell className="">
