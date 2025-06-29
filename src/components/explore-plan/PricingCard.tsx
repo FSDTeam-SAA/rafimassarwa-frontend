@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Info, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -113,7 +113,7 @@ export default function SubscriptionPricing() {
         };
 
         createPaymentIntent();
-    }, [checkoutOpen, selectedPlan]);
+    }, [checkoutOpen, selectedPlan, session?.user?.accessToken, session?.user?.id]);
 
     console.log(selectedPlan?.price)
 

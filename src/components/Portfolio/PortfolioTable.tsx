@@ -474,7 +474,7 @@ export default function PortfolioTable() {
           </div>
         </div>
       </TableHead>
-      <TableHead className="w-[172px] text-center font-semibold">Olive's Rating</TableHead>
+      <TableHead className="w-[172px] text-center font-semibold">Olive&apos;s Rating</TableHead>
       <TableHead
         className="w-[120px] text-center font-semibold cursor-pointer"
         onClick={() => handleSort("holdingGain")}
