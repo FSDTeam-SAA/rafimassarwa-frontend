@@ -1,8 +1,6 @@
 "use client"
 
-import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil, CalendarIcon } from "lucide-react"
-import { IoWarningOutline } from "react-icons/io5"
-import { FiEdit2 } from "react-icons/fi"
+import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Plus, Pencil } from "lucide-react"
 import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -39,9 +37,6 @@ import { usePortfolio } from "./portfolioContext"
 import { toast } from "sonner"
 import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
