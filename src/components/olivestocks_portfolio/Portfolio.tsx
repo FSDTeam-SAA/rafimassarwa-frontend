@@ -7,7 +7,7 @@ import {
   ChevronLeft,
   ChevronUp,
   ChevronDown,
-  Copy,
+  // Copy,
 } from "lucide-react";
 import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
@@ -25,6 +25,8 @@ import {
 import Link from "next/link";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Stock = {
   symbol: string;
@@ -51,6 +53,11 @@ const columnHelper = createColumnHelper<Stock>();
 
 export default function Portfolio({ title }: { title: string }) {
   const [sorting, setSorting] = useState<SortingState>([]);
+
+  const router = useRouter();
+  const session = useSession();
+
+  const userStatus = session?.status;
 
   // API calling
   const axiosInstance = useAxios();
@@ -79,6 +86,9 @@ export default function Portfolio({ title }: { title: string }) {
   });
 
   const handleWatchlist = async (rowData: Stock) => {
+    if (userStatus === "unauthenticated") {
+      return router.push("/login");
+    }
     await mutateAsync(rowData);
   };
 
@@ -356,8 +366,13 @@ export default function Portfolio({ title }: { title: string }) {
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 border mt-10">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl sm:text-2xl font-medium">{title}</h2>
-        
-        <button className=" bg-green-400 text-white font-bold py-2 px-3 rounded-lg flex gap-2 items-center"><span><Copy /></span> <span>Copy To Portfolio</span></button>
+
+        {/* <button className=" bg-green-400 text-white font-bold py-2 px-3 rounded-lg flex gap-2 items-center">
+          <span>
+            <Copy />
+          </span>{" "}
+          <span>Copy To Portfolio</span>
+        </button> */}
       </div>
 
       <div className="overflow-x-auto">
