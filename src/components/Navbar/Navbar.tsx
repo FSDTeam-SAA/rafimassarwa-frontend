@@ -349,7 +349,7 @@ export default function Navbar() {
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        "relative cursor-pointer text-[10px] font-semibold px-3 py-2 rounded-full transition-colors",
+                        "relative cursor-pointer text-[12px] font-semibold px-3 py-2 rounded-full transition-colors",
                         "text-gray-700 hover:text-green-600",
                         isActive && "bg-green-50 text-green-600",
                         scrolled ? "px-4" : "px-4"
@@ -396,7 +396,7 @@ export default function Navbar() {
 
               {/* 🌟 Search Bar */}
               <div
-                className="hidden lg:block relative w-[260px] mx-4"
+                className="hidden lg:block relative w-[200px] mx-4"
                 ref={searchRef}
               >
                 <input
