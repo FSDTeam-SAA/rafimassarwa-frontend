@@ -954,7 +954,6 @@ export default function PortfolioTable() {
                       {columnVisibility.priceTarget && <TableCell className="w-[140px]"></TableCell>}
                       <TableCell className="w-[100px]"></TableCell>
                       <TableCell className="w-[100px]"></TableCell>
-
                     </TableRow>
                   )}
                 </TableBody>
