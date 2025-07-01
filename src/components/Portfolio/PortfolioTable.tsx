@@ -493,9 +493,6 @@ export default function PortfolioTable() {
       </TableHead>
       <TableHead className="w-[120px] text-center font-semibold">Monthly Return</TableHead>
       <TableHead className="w-[130px] text-center font-semibold">Holding Value</TableHead>
-      <TableHead className="w-[100px] text-center font-semibold">Watchlist</TableHead>
-      <TableHead className="w-[100px] text-center font-semibold">Actions</TableHead>
-
       {/* Additional columns */}
       {columnVisibility.costBasis && <TableHead className="w-[140px] text-center font-semibold">Cost Basis</TableHead>}
       {columnVisibility.unrealizedPL && (
@@ -507,6 +504,8 @@ export default function PortfolioTable() {
       {columnVisibility.priceTarget && (
         <TableHead className="w-[140px] text-center font-semibold">Price Target</TableHead>
       )}
+      <TableHead className="w-[100px] text-center font-semibold">Watchlist</TableHead>
+      <TableHead className="w-[100px] text-center font-semibold">Actions</TableHead>
     </TableRow>
   )
 
@@ -621,43 +620,6 @@ export default function PortfolioTable() {
           maximumFractionDigits: 2,
         })}
       </TableCell>
-
-      <TableCell className="w-[100px] text-center">
-        <Switch
-          checked={watchlistStocks.has(item.symbol)}
-          onCheckedChange={(checked) => handleWatchlistToggle(item.symbol, checked)}
-          className="data-[state=checked]:bg-green-500"
-        />
-      </TableCell>
-
-      <TableCell className="w-[100px] text-center">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Trash className="h-4 w-4 text-red-500 hover:text-red-700" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete {item.symbol}?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently remove {item.symbol} from your portfolio.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => handleDelete(item.symbol)}
-                disabled={isDeletingStock}
-                className="bg-red-500 hover:bg-red-600"
-              >
-                {isDeletingStock ? "Deleting..." : "Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </TableCell>
-
       {/* Additional columns */}
       {columnVisibility.costBasis && (
         <TableCell className="w-[140px] text-center">
@@ -701,6 +663,42 @@ export default function PortfolioTable() {
         </TableCell>
       )}
       {columnVisibility.priceTarget && <TableCell className="w-[140px] text-center">${Number(item.priceTarget.high).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>}
+
+      <TableCell className="w-[100px] text-center">
+        <Switch
+          checked={watchlistStocks.has(item.symbol)}
+          onCheckedChange={(checked) => handleWatchlistToggle(item.symbol, checked)}
+          className="data-[state=checked]:bg-green-500"
+        />
+      </TableCell>
+
+      <TableCell className="w-[100px] text-center">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Trash className="h-4 w-4 text-red-500 hover:text-red-700" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {item.symbol}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently remove {item.symbol} from your portfolio.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleDelete(item.symbol)}
+                disabled={isDeletingStock}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                {isDeletingStock ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </TableCell>
     </TableRow>
   )
 
@@ -917,8 +915,6 @@ export default function PortfolioTable() {
                           maximumFractionDigits: 2,
                         })}
                       </TableCell>
-                      <TableCell className="w-[100px]"></TableCell>
-                      <TableCell className="w-[100px]"></TableCell>
 
                       {columnVisibility.costBasis && (
                         <TableCell className="w-[140px] text-center">
@@ -956,6 +952,8 @@ export default function PortfolioTable() {
                       )}
                       {columnVisibility.valuation && <TableCell className="w-[140px]"></TableCell>}
                       {columnVisibility.priceTarget && <TableCell className="w-[140px]"></TableCell>}
+                      <TableCell className="w-[100px]"></TableCell>
+                      <TableCell className="w-[100px]"></TableCell>
                     </TableRow>
                   )}
                 </TableBody>
