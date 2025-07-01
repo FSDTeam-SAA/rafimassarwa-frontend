@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input"
 // import { Label } from "@/components/ui/label"
 // import { Switch } from "@/components/ui/switch"
 // import { Textarea } from "@/components/ui/textarea"
@@ -11,10 +11,11 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Facebook, Instagram, Linkedin, Send, Twitter } from "lucide-react"
+} from "@/components/ui/tooltip";
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import Link from "next/link";
 
-const  Footer = () => {
+const Footer = () => {
   // const [isDarkMode, setIsDarkMode] = React.useState(true)
   // const [isChatOpen, setIsChatOpen] = React.useState(false)
 
@@ -31,11 +32,13 @@ const  Footer = () => {
       <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="relative">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight">Stay Connected</h2>
+            <h2 className="mb-4 text-3xl font-bold tracking-tight">
+              Stay Connected
+            </h2>
             <p className="mb-6 text-muted-foreground">
               Join our newsletter for the latest updates and exclusive offers.
             </p>
-            <form className="relative">
+            {/* <form className="relative">
               <Input
                 type="email"
                 placeholder="Enter your email"
@@ -49,13 +52,13 @@ const  Footer = () => {
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Subscribe</span>
               </Button>
-            </form>
-            <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+            </form> */}
+            {/* <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" /> */}
           </div>
           <div>
             <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
             <nav className="space-y-2 text-sm">
-              <a href="#" className="block transition-colors hover:text-primary">
+              {/* <a href="#" className="block transition-colors hover:text-primary">
                 Home
               </a>
               <a href="#" className="block transition-colors hover:text-primary">
@@ -69,7 +72,13 @@ const  Footer = () => {
               </a>
               <a href="#" className="block transition-colors hover:text-primary">
                 Contact
-              </a>
+              </a> */}
+              <Link href={"/terms-conditions"}>
+                <h3>Terms and conditions</h3>
+              </Link>
+              <Link href={"/privacy-policy"}>
+                <h3>Privacy Policy</h3>
+              </Link>
             </nav>
           </div>
           <div>
@@ -87,7 +96,11 @@ const  Footer = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full"
+                    >
                       <Facebook className="h-4 w-4" />
                       <span className="sr-only">Facebook</span>
                     </Button>
@@ -100,7 +113,11 @@ const  Footer = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full"
+                    >
                       <Twitter className="h-4 w-4" />
                       <span className="sr-only">Twitter</span>
                     </Button>
@@ -113,7 +130,11 @@ const  Footer = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full"
+                    >
                       <Instagram className="h-4 w-4" />
                       <span className="sr-only">Instagram</span>
                     </Button>
@@ -126,7 +147,11 @@ const  Footer = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full"
+                    >
                       <Linkedin className="h-4 w-4" />
                       <span className="sr-only">LinkedIn</span>
                     </Button>
@@ -169,7 +194,7 @@ const  Footer = () => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
