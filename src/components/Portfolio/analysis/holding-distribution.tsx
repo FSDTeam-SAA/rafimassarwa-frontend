@@ -75,8 +75,8 @@ export function HoldingsDistribution() {
                 <div className="flex flex-col md:flex-row items-start justify-between gap-6">
                     {/* Chart and Legend */}
                     <div className="w-full md:w-1/2 flex flex-col">
-                        <div className="h-[200px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="h-[238px] w-full flex items-center">
+                            <ResponsiveContainer width="50%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={chartData}
@@ -95,7 +95,7 @@ export function HoldingsDistribution() {
                                         ))}
                                     </Pie>
                                     <ChartTooltip
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                         formatter={(value: any) => [`${value}%`, "Percentage"]}
                                         content={({ active, payload }) => {
                                             if (active && payload && payload.length) {
@@ -112,23 +112,22 @@ export function HoldingsDistribution() {
                                     />
                                 </PieChart>
                             </ResponsiveContainer>
-                        </div>
-
-                        {/* Legend */}
-                        <div className="mt-4">
-                            <ul className="space-y-2">
-                                {chartData.map((item, index) => (
-                                    <li key={index} className="flex items-center gap-2">
-                                        <div
-                                            className="w-4 h-4 flex-shrink-0"
-                                            style={{ backgroundColor: item.color }}
-                                        ></div>
-                                        <span className="text-black text-sm">
-                                            {item.percentage.toFixed(2)}% {item.name}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
+                            {/* Legend */}
+                            <div className="mt-4">
+                                <ul className="space-y-2">
+                                    {chartData.map((item, index) => (
+                                        <li key={index} className="flex items-center gap-2">
+                                            <div
+                                                className="w-4 h-4 flex-shrink-0"
+                                                style={{ backgroundColor: item.color }}
+                                            ></div>
+                                            <span className="text-black text-sm">
+                                                {item.percentage.toFixed(2)}% {item.name}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
