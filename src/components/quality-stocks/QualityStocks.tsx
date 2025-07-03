@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronUp,
   ChevronDown,
+  Copy,
 } from "lucide-react";
 import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
@@ -48,6 +49,23 @@ type Stock = {
   };
 };
 
+interface Portfolio {
+  symbol: string;
+  price: number;
+  event: string;
+  quantity: number;
+}
+
+interface PortfolioData {
+  _id: string;
+  name?: string;
+}
+
+interface CopyPortfolio {
+  portfolioId: string;
+  symbols: Portfolio[];
+}
+
 const columnHelper = createColumnHelper<Stock>();
 
 export default function StockTable() {
@@ -56,6 +74,11 @@ export default function StockTable() {
   const session = useSession();
 
   const userStatus = session?.status;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(
+    null
+  );
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // API calling
   const axiosInstance = useAxios();
@@ -64,6 +87,14 @@ export default function StockTable() {
     queryKey: ["quality-stock"],
     queryFn: async () => {
       const res = await axiosInstance("/stocks/quality-stocks");
+      return res.data;
+    },
+  });
+
+  const { data: allPortfolio } = useQuery({
+    queryKey: ["portfolio-data-quality-stock"],
+    queryFn: async () => {
+      const res = await axiosInstance("/portfolio/get");
       return res.data;
     },
   });
@@ -83,11 +114,46 @@ export default function StockTable() {
     },
   });
 
+  const { mutateAsync: copyToPortfolio } = useMutation({
+    mutationFn: async (payload: CopyPortfolio) => {
+      const res = await axiosInstance.post("/protfolio/add-stock", payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Portfolio copied successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to copy portfolio.");
+    },
+  });
+
   const handleWatchlist = async (rowData: Stock) => {
     if (userStatus === "unauthenticated") {
       return router.push("/login");
     }
     await mutateAsync(rowData);
+  };
+
+  const handleCopyPortfolio = async (portfolioId: string) => {
+    if (userStatus === "unauthenticated") {
+      return router.push("/login");
+    }
+
+    const symbols = data.map((stock: Portfolio) => ({
+      symbol: stock.symbol,
+      price: 0,
+      event: "buy",
+      quantity: 0,
+    }));
+
+    console.log(symbols);
+
+    if (symbols.length === 0) {
+      toast.error("No stocks to copy.");
+      return;
+    }
+
+    await copyToPortfolio({ portfolioId, symbols });
   };
 
   const columns = useMemo(
@@ -362,7 +428,43 @@ export default function StockTable() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-      <h2 className="text-xl sm:text-2xl font-medium mb-4">Quality Stocks</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl sm:text-2xl font-medium">{"Quality Stock"}</h2>
+
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen((prev) => !prev)}
+            className="bg-green-400 text-white font-bold py-2 px-3 rounded-lg flex gap-2 items-center"
+          >
+            <Copy />
+            <span>Copy To Portfolio</span>
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-10">
+              {allPortfolio?.length > 0 ? (
+                allPortfolio.map((portfolio: PortfolioData) => (
+                  <button
+                    key={portfolio._id}
+                    onClick={() => {
+                      setSelectedPortfolioId(portfolio._id);
+                      setDropdownOpen(false);
+                      handleCopyPortfolio(portfolio._id);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                  >
+                    {portfolio.name}
+                  </button>
+                ))
+              ) : (
+                <div className="px-4 py-2 text-sm text-gray-500">
+                  No portfolios found
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[800px]">
