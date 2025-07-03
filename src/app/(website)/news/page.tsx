@@ -6,12 +6,15 @@ import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";
 import StockNewsMain from "@/components/News/StoctNewsMain";
 import TipRanksLabs from "@/components/News/TipRanksLabs";
+import { usePortfolio } from "@/components/Portfolio/portfolioContext";
 import useAxios from "@/hooks/useAxios";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import React, { useEffect } from "react";
 
 const NewsPage = () => {
   const axiosInstance = useAxios();
+  const session = useSession();
 
   const { data: allNews = [], isLoading } = useQuery({
     queryKey: ["all-news"],
@@ -21,6 +24,37 @@ const NewsPage = () => {
     },
   });
 
+  const { selectedPortfolioId } = usePortfolio();
+
+  console.log(selectedPortfolioId)
+
+  const {
+    mutate: getMyNews,
+    data: myNews = [],
+  } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/news/get-protfolio-news`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data?.user?.accessToken}`,
+          },
+          body: JSON.stringify({ protfolioId: "685e7dd716e4516fae31cc3e" }),
+        }
+      );
+      const data = await res.json();
+      return data;
+    },
+  });
+
+  useEffect(() => {
+      getMyNews();
+  }, [getMyNews]);
+
+  console.log(myNews)
+
   const { data: stockNews = [] } = useQuery({
     queryKey: ["stock-news"],
     queryFn: async () => {
@@ -29,7 +63,7 @@ const NewsPage = () => {
     },
   });
 
-  const firstNews = allNews[10];
+  const firstNews = myNews[10];
   const rightSide = stockNews[1];
   const leftSide1 = stockNews[2];
   const leftSide2 = stockNews[3];
@@ -54,7 +88,7 @@ const NewsPage = () => {
     <div className="lg:my-20 my-5">
       <BannerAds />
       <StockNewsMain firstNews={firstNews} />
-      <StockMarketNews allNews={allNews} />
+      <StockMarketNews allNews={myNews} />
       <TipRanksLabs
         rightSide={rightSide}
         leftSide1={leftSide1}

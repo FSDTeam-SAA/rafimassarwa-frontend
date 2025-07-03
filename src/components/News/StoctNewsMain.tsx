@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { shortTimeAgo } from "../../../utils/shortTimeAgo";
 
 interface FirstNews {
   url: string;
@@ -27,7 +28,7 @@ export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
             <Link href={`${firstNews?.url}`} target="_blank">
               {firstNews?.image && (
                 <Image
-                  src={firstNews?.image}
+                  src={firstNews?.image || `${"/images/news-placeholder.png"}`}
                   alt="Stock market chart"
                   width={400}
                   height={300}
@@ -47,10 +48,9 @@ export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
             <p className="text-gray-700 mb-4">{firstNews?.summary}</p>
             <hr className="my-8" />
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">{`${(
-                firstNews?.datetime /
-                (1000 * 60 * 60 * 24)
-              ).toFixed(1)}d ago`}</span>
+              <span className="text-sm text-gray-500">
+                {shortTimeAgo(firstNews?.datetime)}
+              </span>
               <div>
                 <Link href={`${firstNews?.url}`} target="_blank">
                   <Button

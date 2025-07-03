@@ -10,13 +10,14 @@ interface StockNewsItem {
   newsImage: string;
   newsTitle: string;
   time: string;
+  createdAt: string;
 }
 
 interface MoreFromTipProps {
   stockNews: StockNewsItem[];
 }
 
-export default function MoreFromTip({ stockNews } : MoreFromTipProps) {
+export default function MoreFromTip({ stockNews }: MoreFromTipProps) {
   const [moreStockNews, setMoreStockNews] = useState(9);
 
   const visibleNews = stockNews.slice(0, moreStockNews);
@@ -34,10 +35,12 @@ export default function MoreFromTip({ stockNews } : MoreFromTipProps) {
 
   return (
     <div className="mb-[80px] container mx-auto">
-      <h1 className="text-[32px] font-semibold mb-6">{pathName === "/news" ? "More From Olive Stock" : "Deep Research"}</h1>
+      <h1 className="text-[32px] font-semibold mb-6">
+        {pathName === "/news" ? "More From Olive Stock" : "Deep Research"}
+      </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {visibleNews.map((news : StockNewsItem) => (
+        {visibleNews.map((news: StockNewsItem) => (
           <div key={news?._id} className="border rounded-xl pb-2">
             <div>
               <Image
@@ -55,13 +58,15 @@ export default function MoreFromTip({ stockNews } : MoreFromTipProps) {
               <h3 className="text-sm font-medium mb-2 px-2">
                 {news.newsTitle}
               </h3>
-              <div className="flex items-center justify-between mt-auto px-2 py-3">
-                <span className="text-xs text-gray-500">{news.time}</span>
+              <div className="flex items-center justify-between mt-auto px-2">
+                <span className="text-xs text-gray-500">
+                  {new Date(news?.createdAt).toLocaleDateString()}
+                </span>
                 <Link href={`/news/${news?._id}`} target="_blank">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-full text-xs h-7 px-3 border-[#2695FF] text-[#2695FF]"
+                    className="rounded-full text-xs h-7 px-3"
                   >
                     READ
                   </Button>

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
+import { shortTimeAgo } from "../../../utils/shortTimeAgo";
 
 interface AllNews {
   _id: string;
@@ -10,7 +11,7 @@ interface AllNews {
   image: string;
   category: string;
   headline: string;
-  datetime: number; 
+  datetime: number;
 }
 
 interface StockMarketNewsProps {
@@ -35,11 +36,11 @@ export default function StockMarketNews({ allNews }: StockMarketNewsProps) {
       <h1 className="text-[32px] font-semibold mb-6">Stock Market News</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {visibleNews.map((article : AllNews) => (
+        {visibleNews.map((article: AllNews) => (
           <div key={article._id} className="border rounded-xl pb-2">
             <div>
               <Image
-                src={article.image}
+                src={article.image || `${"/images/news-placeholder.png"}`}
                 alt="Stock market chart"
                 width={300}
                 height={200}
@@ -54,10 +55,9 @@ export default function StockMarketNews({ allNews }: StockMarketNewsProps) {
                 {article.headline}
               </h3>
               <div className="flex items-center justify-between mt-auto px-2 py-3">
-                <span className="text-sm text-gray-500">{`${(
-                  article?.datetime /
-                  (1000 * 60 * 60 * 24)
-                ).toFixed(1)}d ago`}</span>
+                <span className="text-sm text-gray-500">
+                  {shortTimeAgo(article?.datetime)}
+                </span>
                 <Link href={`${article.url}`} target="_blank">
                   <Button
                     variant="outline"

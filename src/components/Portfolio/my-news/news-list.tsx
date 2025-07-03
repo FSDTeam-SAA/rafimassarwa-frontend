@@ -17,6 +17,7 @@ import { usePortfolio } from '../portfolioContext';
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { shortTimeAgo } from '../../../../utils/shortTimeAgo';
 
 
 interface News {
@@ -53,29 +54,6 @@ export default function NewsList() {
             getMyNews()
         }
     }, [selectedPortfolioId, getMyNews])
-
-    function shortTimeAgo(unixTimestamp: number): string {
-        const seconds = Math.floor((Date.now() - unixTimestamp * 1000) / 1000);
-
-        const units = [
-            { label: "y", seconds: 31536000 },
-            { label: "mo", seconds: 2592000 },
-            { label: "w", seconds: 604800 },
-            { label: "d", seconds: 86400 },
-            { label: "h", seconds: 3600 },
-            { label: "m", seconds: 60 },
-            { label: "s", seconds: 1 },
-        ];
-
-        for (const unit of units) {
-            const value = Math.floor(seconds / unit.seconds);
-            if (value >= 1) {
-                return `${value}${unit.label} ago`;
-            }
-        }
-
-        return "just now";
-    }
 
     return (
         <div className='p-2 shadow-[0px_0px_8px_0px_#00000029]'>
