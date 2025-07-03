@@ -24,10 +24,12 @@ interface Transaction {
     transactions: number;
     logo: string;
     portfolioPercentage: number;
+    monthlyGains: {
+        gainPercent: number;
+    }[]
 }
 
 export default function RecentActivityTable() {
-
 
     const { selectedPortfolioId } = usePortfolio()
 
@@ -89,7 +91,7 @@ export default function RecentActivityTable() {
                                         <TableCell className='text-sm text-red-500'>
                                             <div className=" flex items-center justify-center gap-1">
                                                 <FiArrowDown />
-                                                {transaction.return}%
+                                                {transaction.monthlyGains[0].gainPercent || 0}
                                             </div>
                                         </TableCell>
                                         <TableCell className='text-center text-sm'>{transaction.transactions}</TableCell>

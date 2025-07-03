@@ -229,8 +229,8 @@ export default function Home() {
   const dailyReturnPercent = overviewData?.dailyReturnPercent ?? 0;
   const isReturnPositive = dailyReturn >= 0;
   const isReturnPercentPositive = dailyReturnPercent >= 0;
-
   const isMonthlyReturnPercentPositive = overviewData?.monthlyReturnPrecent >= 0;
+  const isOverallReturnPositive = overviewData?.overallReturnPercent >= 0;
 
 
   const queryClient = useQueryClient();
@@ -364,7 +364,10 @@ export default function Home() {
                     {/* 30 Day Return */}
                     <div className="flex-1 lg:mt-10 mt-7 lg:px-4 px-1">
                       <div className="flex items-center justify-center">
-                        00%
+                        <div className={`flex items-center ${isOverallReturnPositive ? "text-green-500" : "text-red-500"}`}>
+                          {isOverallReturnPositive ? <FaCaretUp className="g:w-6 w-4 h-4 lg:h-6 mr-1" /> : <FaCaretDown className="g:w-6 w-4 h-4 lg:h-6 mr-1" />}
+                          <span className="lg:text-lg text-sm font-semibold">{overviewData?.overallReturnPercent}%</span>
+                        </div>
                       </div>
                       <div className="text-xs text-center">
                         Overall Return
