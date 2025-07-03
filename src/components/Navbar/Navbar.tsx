@@ -38,12 +38,14 @@ import { useDebounce } from "@/hooks/useDebounce";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 
+// Define the shape of navigation items
 interface NavItem {
   name: string;
   href: string;
   icon: LucideIcon;
 }
 
+// Type for stock search results
 interface StockResult {
   symbol: string;
   description: string;
@@ -55,11 +57,13 @@ interface StockResult {
   logo?: string;
 }
 
+// Response format for search API
 interface SearchResponse {
   success: boolean;
   results: StockResult[];
 }
 
+// Main navigation links - these appear in both desktop and mobile views
 const navigationLinks: NavItem[] = [
   { name: "Home", href: "/", icon: Home },
   {
@@ -75,33 +79,51 @@ const navigationLinks: NavItem[] = [
 ];
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const pathname = usePathname(); // Current route path
+  const [scrolled, setScrolled] = useState(false); // Track if page is scrolled
+  const [open, setOpen] = useState(false); // Mobile menu open state
+  const { data: session, status } = useSession(); // User session data
 
+  // Search functionality
   const axiosInstance = useAxios();
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const debouncedQuery = useDebounce(searchQuery, 500);
+  const debouncedQuery = useDebounce(searchQuery, 500); // Debounce search input
 
+  // Fetch user details from our backend (only if session exists)
+  const { data: userData } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/get-user/${session?.user?.id}`
+      );
+      const data = await res.json();
+      return data;
+    },
+    select: (data) => data?.data, // Extract the data property from response
+    enabled: !!session?.user?.id, // Only fetch if we have a user session
+  });
+
+  // Stock search query
   const { data: searchData, isLoading } = useQuery<SearchResponse>({
     queryKey: ["navbar-stock-search", debouncedQuery],
     queryFn: async () => {
       const res = await axiosInstance.get(`/stocks/search?q=${debouncedQuery}`);
       return res.data;
     },
-    enabled: debouncedQuery.length > 0,
-    staleTime: 30000,
+    enabled: debouncedQuery.length > 0, // Only search when we have a query
+    staleTime: 30000, // Cache results for 30 seconds
   });
 
+  // Effect to handle scroll behavior - adds shadow when scrolled
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -115,26 +137,33 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle search input changes
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     setShowResults(value.length > 0);
   };
 
+  // Reset search when a stock is selected
   const handleStockSelect = () => {
     setShowResults(false);
     setSearchQuery("");
   };
 
-  const getInitials = (name: string) =>
-    name
+  // Helper to get initials from name for avatar fallback
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    const initials = name
       .split(" ")
       .map((n) => n[0])
       .join("")
-      .toUpperCase()
-      .slice(0, 2);
+      .toUpperCase();
+    return initials.slice(0, 2); // Max 2 letters
+  };
 
+  // Desktop auth section (right side of navbar)
   const renderAuthSection = () => {
+    // Show loading state while session is being checked
     if (status === "loading") {
       return (
         <div className="hidden lg:block flex-shrink-0">
@@ -148,12 +177,16 @@ export default function Navbar() {
       );
     }
 
+    // Logged in state - shows user dropdown
     if (session?.user) {
       return (
         <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
+          {/* Notification bell icon */}
           <Link href="/notification">
             <Bell className="text-green-600" />
           </Link>
+
+          {/* User dropdown menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div
@@ -162,6 +195,7 @@ export default function Navbar() {
                   scrolled ? "gap-1" : "gap-2"
                 )}
               >
+                {/* User avatar - uses profile photo if available */}
                 <Avatar
                   className={cn(
                     "transition-all duration-300",
@@ -170,15 +204,18 @@ export default function Navbar() {
                 >
                   <AvatarImage
                     src={
-                      session.user.image ||
-                      "/placeholder.svg?height=32&width=32"
+                      userData?.profilePhoto || // First try backend profile photo
+                      session.user.image ||     // Then auth provider image
+                      "/placeholder.svg"      // Fallback placeholder
                     }
-                    alt={session.user.name || "User"}
+                    alt={userData?.userName || session.user.name || "User"}
                   />
                   <AvatarFallback className="text-xs font-semibold bg-green-500 text-white">
-                    {session.user.name ? getInitials(session.user.name) : "U"}
+                    {getInitials(userData?.userName || session.user.name)}
                   </AvatarFallback>
                 </Avatar>
+
+                {/* User name and role - collapses on smaller screens */}
                 <div
                   className={cn(
                     "text-left transition-all duration-300",
@@ -191,7 +228,7 @@ export default function Navbar() {
                       scrolled ? "text-xs" : "text-sm"
                     )}
                   >
-                    {session.user.name || "User"}
+                    {userData?.userName || session.user.name || "User"}
                   </p>
                   <p
                     className={cn(
@@ -199,19 +236,21 @@ export default function Navbar() {
                       "text-xs"
                     )}
                   >
-                    {session.user.role || "Member"}
+                    {userData?.role || session.user.role || "Member"}
                   </p>
                 </div>
               </div>
             </DropdownMenuTrigger>
+
+            {/* Dropdown content */}
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {session.user.name || "User"}
+                    {userData?.userName || session.user.name || "User"}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {session.user.email || "No email"}
+                    {userData?.email || session.user.email || "No email"}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -229,6 +268,7 @@ export default function Navbar() {
       );
     }
 
+    // Logged out state - shows login button
     return (
       <Link href="/login" className="hidden lg:block flex-shrink-0">
         <Button
@@ -256,37 +296,47 @@ export default function Navbar() {
     );
   };
 
+  // Mobile auth section (shown in sidebar menu)
   const renderMobileAuthSection = () => {
     if (session?.user) {
       return (
         <div className="mt-4 px-2 border-t pt-4">
+          {/* User info section */}
           <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg mb-3">
             <Link href="/notification">
               <BiNotification className="text-green-600" />
             </Link>
+
+            {/* Mobile avatar */}
             <Avatar className="h-10 w-10">
               <AvatarImage
                 src={
-                  session.user.image || "/placeholder.svg?height=40&width=40"
+                  userData?.profilePhoto ||
+                  session.user.image ||
+                  "/placeholder.svg"
                 }
-                alt={session.user.name || "User"}
+                alt={userData?.userName || session.user.name || "User"}
               />
               <AvatarFallback className="bg-green-500 text-white font-semibold">
-                {session.user.name ? getInitials(session.user.name) : "U"}
+                {getInitials(userData?.userName || session.user.name)}
               </AvatarFallback>
             </Avatar>
+
+            {/* Mobile user details */}
             <div className="flex-1">
               <p className="font-semibold text-gray-900">
-                {session.user.name || "User"}
+                {userData?.userName || session.user.name || "User"}
               </p>
               <p className="text-sm text-gray-600">
-                {session.user.email || "No email"}
+                {userData?.email || session.user.email || "No email"}
               </p>
               <p className="text-xs text-green-600 capitalize">
-                {session.user.role || "Member"}
+                {userData?.role || session.user.role || "Member"}
               </p>
             </div>
           </div>
+
+          {/* Logout button */}
           <Button
             variant="outline"
             className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50"
@@ -300,32 +350,38 @@ export default function Navbar() {
       );
     }
 
+    // Mobile login button
     return (
       <div className="mt-4 px-2">
-        <Button className="w-full bg-green-500 hover:bg-green-600 rounded-full">
-          <LogIn className="mr-2 h-4 w-4" />
-          Log in
-        </Button>
+        <Link href="/login" className="block w-full">
+          <Button className="w-full bg-green-500 hover:bg-green-600 rounded-full">
+            <LogIn className="mr-2 h-4 w-4" />
+            Log in
+          </Button>
+        </Link>
       </div>
     );
   };
 
   return (
     <>
+      {/* Fixed header that stays at top of page */}
       <header
         className={cn(
           "fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full transition-all duration-700 ease-in-out",
-          scrolled ? "pt-1" : "pt-6"
+          scrolled ? "pt-1" : "pt-6" // Less padding when scrolled
         )}
       >
         <div
           className={cn(
             "transition-all duration-700 ease-in-out mx-auto px-4",
-            scrolled ? "container" : "max-w-[80rem]"
+            scrolled ? "container" : "max-w-[80rem]" // Full width when not scrolled
           )}
         >
+          {/* Main navbar container with glass effect */}
           <div className="bg-white/10 border border-gray-200/50 backdrop-blur-lg rounded-full shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between px-4 py-3">
+              {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0">
                 <Image
                   src="/images/Stock-logo-1.png"
@@ -334,11 +390,12 @@ export default function Navbar() {
                   height={40}
                   className={cn(
                     "transition-all duration-300",
-                    scrolled ? "h-8 w-6" : "h-10 w-8"
+                    scrolled ? "h-8 w-6" : "h-10 w-8" // Shrink when scrolled
                   )}
                 />
               </Link>
 
+              {/* Desktop navigation links */}
               <div className="hidden lg:flex items-center gap-1 flex-1 justify-center mx-4">
                 {navigationLinks.map((item) => {
                   const Icon = item.icon;
@@ -355,6 +412,7 @@ export default function Navbar() {
                         scrolled ? "px-4" : "px-4"
                       )}
                     >
+                      {/* Show text on larger screens, icon on smaller */}
                       <span
                         className={cn(
                           "transition-all duration-300",
@@ -371,6 +429,8 @@ export default function Navbar() {
                       >
                         <Icon size={scrolled ? 16 : 18} strokeWidth={2.5} />
                       </span>
+
+                      {/* Active state indicator animation */}
                       {isActive && (
                         <motion.div
                           layoutId="lamp"
@@ -394,7 +454,7 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* 🌟 Search Bar */}
+              {/* Stock search bar - desktop only */}
               <div
                 className="hidden lg:block relative w-[200px] mx-4"
                 ref={searchRef}
@@ -408,6 +468,8 @@ export default function Navbar() {
                   className="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+
+                {/* Search results dropdown */}
                 {showResults && (
                   <div className="absolute top-11 -left-20 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 mt-2 max-h-96 w-[500px] overflow-y-auto">
                     {isLoading ? (
@@ -478,11 +540,10 @@ export default function Navbar() {
                                   ${stock.price?.toFixed(2)}
                                 </p>
                                 <p
-                                  className={`text-xs font-medium ${
-                                    stock.change >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                                  className={`text-xs font-medium ${stock.change >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
                                 >
                                   {stock.change >= 0 ? "+" : ""}
                                   {stock.change?.toFixed(2)} (
@@ -504,8 +565,10 @@ export default function Navbar() {
                 )}
               </div>
 
+              {/* Render auth section (right side) */}
               {renderAuthSection()}
 
+              {/* Mobile menu button - hidden on desktop */}
               <div className="lg:hidden">
                 <Sheet open={open} onOpenChange={setOpen}>
                   <SheetTrigger asChild>
@@ -520,6 +583,7 @@ export default function Navbar() {
                   </SheetTrigger>
                   <SheetContent side="left" className="w-[80%] sm:w-[350px]">
                     <div className="mt-6 flex flex-col space-y-4">
+                      {/* Mobile navigation links */}
                       {navigationLinks.map((link) => {
                         const Icon = link.icon;
                         const isActive = pathname === link.href;
@@ -527,11 +591,10 @@ export default function Navbar() {
                           <Link
                             key={link.name}
                             href={link.href}
-                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${
-                              isActive
-                                ? "text-green-600 bg-green-50"
-                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                            }`}
+                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${isActive
+                              ? "text-green-600 bg-green-50"
+                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                              }`}
                             onClick={() => setOpen(false)}
                           >
                             <Icon size={20} />
@@ -539,6 +602,7 @@ export default function Navbar() {
                           </Link>
                         );
                       })}
+                      {/* Mobile auth section */}
                       {renderMobileAuthSection()}
                     </div>
                   </SheetContent>
@@ -548,6 +612,8 @@ export default function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* Spacer to prevent content from being hidden behind fixed header */}
       <div
         className={cn(
           "transition-all duration-700",
