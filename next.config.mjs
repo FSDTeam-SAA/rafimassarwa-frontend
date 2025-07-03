@@ -42,7 +42,11 @@ const nextConfig = {
         hostname: "static.seekingalpha.com",
         pathname: "/**",
       },
-      
+      {
+        protocol: "https",
+        hostname: "static.finnhub.io",
+        pathname: "/**",
+      },
     ],
   },
 };

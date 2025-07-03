@@ -1,7 +1,7 @@
 "use client";
 import BannerAds from "@/components/News/BannerAds";
-import EarningsReportsInsights from "@/components/News/EarningsReportsInsights";
-import ExpertSpotlight from "@/components/News/ExpertSpotlight";
+// import EarningsReportsInsights from "@/components/News/EarningsReportsInsights";
+// import ExpertSpotlight from "@/components/News/ExpertSpotlight";
 import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";
 import StockNewsMain from "@/components/News/StoctNewsMain";
@@ -55,14 +55,14 @@ const NewsPage = () => {
       <BannerAds />
       <StockNewsMain firstNews={firstNews} />
       <StockMarketNews allNews={allNews} />
-      <ExpertSpotlight />
       <TipRanksLabs
         rightSide={rightSide}
         leftSide1={leftSide1}
         leftSide2={leftSide2}
       />
       <MoreFromTip stockNews={stockNews} />
-      <EarningsReportsInsights />
+      {/* <EarningsReportsInsights /> */}
+      {/* <ExpertSpotlight /> */}
     </div>
   );
 };
