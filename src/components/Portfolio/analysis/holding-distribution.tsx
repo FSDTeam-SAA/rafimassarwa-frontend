@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChartTooltip } from "@/components/ui/chart"
 import { useSession } from "next-auth/react"
-import { usePortfolio } from "../portfolioContext"
+import { usePortfolio } from "../../context/portfolioContext"
 import { useMutation } from "@tanstack/react-query"
 
 // Types

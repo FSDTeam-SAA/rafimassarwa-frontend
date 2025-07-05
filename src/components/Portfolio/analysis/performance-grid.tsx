@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import PerformanceCard from "./performance-card"
 import { useSession } from "next-auth/react"
-import { usePortfolio } from "../portfolioContext"
+import { usePortfolio } from "../../context/portfolioContext"
 import { useMutation } from "@tanstack/react-query"
 import {
     Table,

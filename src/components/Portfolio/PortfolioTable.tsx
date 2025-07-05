@@ -38,7 +38,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { usePortfolio } from "./portfolioContext"
+import { usePortfolio } from "../context/portfolioContext"
 import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
 
 interface TransactionData {
@@ -716,14 +716,18 @@ export default function PortfolioTable() {
               <Label htmlFor="transaction-date" className="text-right">
                 Date
               </Label>
-              <DatePicker
-                selected={transactionDate}
-                showIcon
-                dateFormat="dd MMMM, yyyy"
-                onChange={(date) => setTransactionDate(date as Date)}
-                maxDate={new Date()}
-                className="border border-gray-300 py-1 px-2 w-[275px] rounded-md"
-              />
+              <div className="col-span-3">
+                <DatePicker
+                  selected={transactionDate}
+                  onChange={(date) => setTransactionDate(date as Date)}
+                  showPopperArrow={false}
+                  placeholderText="Select date"
+                  dateFormat="dd MMMM, yyyy"
+                  maxDate={new Date()}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none"
+                  popperPlacement="bottom-start"
+                />
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Type</Label>

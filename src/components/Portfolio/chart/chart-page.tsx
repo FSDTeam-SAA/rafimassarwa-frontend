@@ -6,7 +6,7 @@ import StockChart from "./stock-chart";
 import StockHeader from "./stock-header";
 import StockList from "./stock-list";
 import StockPremiumBanner from "./chart-bottom";
-import { usePortfolio } from "../portfolioContext";
+import { usePortfolio } from "../../context/portfolioContext";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";

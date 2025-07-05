@@ -2,15 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer/Footer";
-
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
 import Navbar from "@/components/Navbar/Navbar";
-import { PortfolioProvider } from "@/components/Portfolio/portfolioContext";
+import { PortfolioProvider } from "@/components/context/portfolioContext";
 
-const queryClient = new QueryClient();
 
 export default function LayoutWrapper({
   children,
@@ -24,19 +18,18 @@ export default function LayoutWrapper({
     pathname === "/login" ||
     pathname === "/forgot-password" ||
     pathname === "/enter-otp" ||
-    pathname === "/reset-password";
+    pathname === "/reset-password" ||
+    pathname === "/verify-email";
 
   const shouldHideFooterSpecific =
     pathname.includes("my-portfolio") || pathname.includes("stock");
   return (
     <>
-      
+
 
       <PortfolioProvider>
-        <QueryClientProvider client={queryClient}>
-          {!isAuthRoute && !isDashboardRoute && <Navbar />}
-          <main>{children}</main>
-        </QueryClientProvider>
+        {!isAuthRoute && !isDashboardRoute && <Navbar />}
+        <main>{children}</main>
       </PortfolioProvider>
 
       {!isAuthRoute && !isDashboardRoute && !shouldHideFooterSpecific && <Footer />}

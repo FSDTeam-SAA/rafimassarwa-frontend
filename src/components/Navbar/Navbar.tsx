@@ -37,6 +37,8 @@ import { usePathname } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
+import { MdDashboard } from "react-icons/md";
+import { useUserPayment } from "../context/paymentContext";
 
 // Define the shape of navigation items
 interface NavItem {
@@ -63,32 +65,40 @@ interface SearchResponse {
   results: StockResult[];
 }
 
-// Main navigation links - these appear in both desktop and mobile views
-const navigationLinks: NavItem[] = [
-  { name: "Home", href: "/", icon: Home },
-  {
-    name: "Olive Stock's Portfolio",
-    href: "/olivestocks-portfolio",
-    icon: TrendingUp,
-  },
-  { name: "Quality Stocks", href: "/quality-stocks", icon: Star },
-  { name: "Stock of the Month", href: "/stock-of-month", icon: Calendar },
-  { name: "My Portfolio", href: "/my-portfolio", icon: Briefcase },
-  { name: "Watchlist", href: "/watchlist", icon: Eye },
-  { name: "News", href: "/news", icon: Newspaper },
-];
 
 export default function Navbar() {
   const pathname = usePathname(); // Current route path
   const [open, setOpen] = useState(false); // Mobile menu open state
   const { data: session, status } = useSession(); // User session data
 
+  const { paymentType } = useUserPayment();
+
+  console.log(paymentType)
+
+  const navigationLinks: NavItem[] = [
+    { name: "Home", href: "/", icon: Home },
+    {
+      name: "Olive Stock's Portfolio",
+      href: `${paymentType === "Premium" || paymentType === "Ultimate" ? "/olivestocks-portfolio" : "/explore-plan"}`,
+      icon: TrendingUp,
+    },
+    {
+      name: "Quality Stocks",
+      href: `${paymentType === "Premium" || paymentType === "Ultimate" ? "/quality-stocks" : "/explore-plan"}`,
+      icon: Star
+    },
+    { name: "Stock of the Month", href: "/stock-of-month", icon: Calendar },
+    { name: "My Portfolio", href: "/my-portfolio", icon: Briefcase },
+    { name: "Watchlist", href: "/watchlist", icon: Eye },
+    { name: "News", href: "/news", icon: Newspaper },
+  ];
+
   // Search functionality
   const axiosInstance = useAxios();
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const debouncedQuery = useDebounce(searchQuery, 500); // Debounce search input
+  const debouncedQuery = useDebounce(searchQuery, 500);
 
   // Fetch user details from our backend (only if session exists)
   const { data: userData } = useQuery({
@@ -176,6 +186,7 @@ export default function Navbar() {
           {/* Notification bell icon */}
           <Link href="/notification">
             <Bell className="text-green-600" />
+
           </Link>
 
           {/* User dropdown menu */}
@@ -235,6 +246,19 @@ export default function Navbar() {
                   <p className="text-xs leading-none text-muted-foreground">
                     {userData?.email || session.user.email || "No email"}
                   </p>
+                  {
+                    userData?.role === "admin" && (
+                      <Link href="/dashboard">
+                        <Button
+                          className="w-full justify-start text-white hover:bg-green-600 bg-green-500 my-2"
+                          size="sm"
+                        >
+                          <MdDashboard className="mr-2 h-4 w-4" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )
+                  }
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -312,6 +336,20 @@ export default function Navbar() {
               </p>
             </div>
           </div>
+
+          {
+            userData?.role === "admin" && (
+              <Link href="/dashboard">
+                <Button
+                  className="w-full justify-start text-green-600 hover:text-green-600 hover:bg-green-50"
+                  size="sm"
+                >
+                  <MdDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Button>
+              </Link>
+            )
+          }
 
           {/* Logout button */}
           <Button

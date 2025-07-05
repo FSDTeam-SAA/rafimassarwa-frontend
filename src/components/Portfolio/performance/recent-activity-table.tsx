@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import Image from 'next/image';
 import { FiArrowDown } from 'react-icons/fi'; // Assuming you have react-icons installed
-import { usePortfolio } from '../portfolioContext';
+import { usePortfolio } from '../../context/portfolioContext';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 

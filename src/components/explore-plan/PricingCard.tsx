@@ -1,97 +1,139 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { FaCheckSquare } from "react-icons/fa";
-import { ImCross } from "react-icons/im";
-import { IoTriangleSharp } from "react-icons/io5";
-import CheckoutDialog from "./payment-dialog";
-import StripeProvider from "@/providers/stripe-provider";
-import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react"
+import { Star } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { FaCheckSquare } from "react-icons/fa"
+import { ImCross } from "react-icons/im"
+import { IoTriangleSharp } from "react-icons/io5"
+import CheckoutDialog from "./payment-dialog"
+import StripeProvider from "@/providers/stripe-provider"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
+
+interface ApiFeature {
+    name: string
+    active: boolean
+}
+
+interface ApiFeatureGroup {
+    featuresType: string
+    type: ApiFeature[]
+}
+
+interface ApiSubscriptionPlan {
+    _id: string
+    title: string
+    description: string
+    monthly_price: number
+    yearly_price: number
+    features: ApiFeatureGroup[]
+    duration: string
+    createdAt: string
+    updatedAt: string
+}
 
 interface SubscriptionPlan {
-    title: string;
-    description: string;
-    price: number;
+    id: string
+    title: string
+    description: string
+    price: number
     features: {
-        featuresType: string;
-        type: string[];
-    };
-    duration: "monthly" | "yearly";
+        featuresType: string
+        type: string[]
+    }
+    duration: "monthly" | "yearly"
+    allFeatures: ApiFeatureGroup[]
+    originalData: ApiSubscriptionPlan // Store original API data
 }
 
 export default function SubscriptionPricing() {
-    const [isAnnual, setIsAnnual] = useState(true);
-    const [checkoutOpen, setCheckoutOpen] = useState(false);
-    const [clientSecret, setClientSecret] = useState("");
-    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-    const { data: session } = useSession();
+    const [isAnnual, setIsAnnual] = useState(true)
+    const [checkoutOpen, setCheckoutOpen] = useState(false)
+    const [clientSecret, setClientSecret] = useState("")
+    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
+    const [plans, setPlans] = useState<SubscriptionPlan[]>([])
+    const [originalApiData, setOriginalApiData] = useState<ApiSubscriptionPlan[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const { data: session } = useSession()
 
-    const premiumFeatures = [
-        "Olive Stocks' ratings",
-        "Shariah compliance filter",
-        "Deep research reports",
-        "PDF export",
-        "Advanced analytics",
-    ];
+    // Fetch subscription plans from API
+    useEffect(() => {
+        const fetchPlans = async () => {
+            try {
+                setLoading(true)
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscription`)
+                if (!response.ok) {
+                    throw new Error("Failed to fetch subscription plans")
+                }
+                const data = await response.json()
+                if (data.success && data.data) {
+                    // Store original API data
+                    setOriginalApiData(data.data)
 
-    const ultimateFeatures = [
-        "Olive Stocks' official portfolio",
-        "Under the Radar' stock picks",
-        "AI-guided recommendations",
-        "Billionaire portfolios",
-        "Priority support",
-    ];
+                    const transformedPlans = data.data.map((plan: ApiSubscriptionPlan) => ({
+                        id: plan._id,
+                        title: plan.title.toUpperCase(),
+                        description: plan.description,
+                        price: isAnnual ? plan.yearly_price : plan.monthly_price,
+                        features: {
+                            featuresType: "CORE FEATURES",
+                            type:
+                                plan.features
+                                    .find((f) => f.featuresType.toLowerCase() === "core")
+                                    ?.type.filter((feature) => feature.active)
+                                    .map((feature) => feature.name) || [],
+                        },
+                        duration: isAnnual ? "yearly" : ("monthly" as "monthly" | "yearly"),
+                        allFeatures: plan.features,
+                        originalData: plan, // Store reference to original data
+                    }))
+                    setPlans(transformedPlans)
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "An error occurred")
+                console.error("Error fetching subscription plans:", err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchPlans()
+    }, []) // Remove isAnnual dependency to avoid refetching
 
-    const plans: SubscriptionPlan[] = [
-        {
-            title: "FREE",
-            description: "Perfect for new investors starting their journey",
-            price: 0,
-            features: {
-                featuresType: "CORE FEATURES",
-                type: ["Portfolio tracking", "Watchlist management", "Market news", "Basic insights"],
-            },
-            duration: "monthly",
-        },
-        {
-            title: "PREMIUM",
-            description: "Built for serious investors seeking expert guidance",
-            price: isAnnual ? 199 : 19,
-            features: {
-                featuresType: "PREMIUM FEATURES",
-                type: [...premiumFeatures],
-            },
-            duration: isAnnual ? "yearly" : "monthly",
-        },
-        {
-            title: "ULTIMATE",
-            description: "Unlock exclusive strategies, billionaire portfolios, and elite insights",
-            price: isAnnual ? 399 : 39,
-            features: {
-                featuresType: "ULTIMATE FEATURES",
-                type: [...ultimateFeatures],
-            },
-            duration: isAnnual ? "yearly" : "monthly",
-        },
-    ];
+    // Update plans when billing cycle changes
+    useEffect(() => {
+        if (originalApiData.length > 0) {
+            const updatedPlans = originalApiData.map((apiPlan) => ({
+                id: apiPlan._id,
+                title: apiPlan.title.toUpperCase(),
+                description: apiPlan.description,
+                price: isAnnual ? apiPlan.yearly_price : apiPlan.monthly_price, // Use actual API prices
+                features: {
+                    featuresType: "CORE FEATURES",
+                    type:
+                        apiPlan.features
+                            .find((f) => f.featuresType.toLowerCase() === "core")
+                            ?.type.filter((feature) => feature.active)
+                            .map((feature) => feature.name) || [],
+                },
+                duration: isAnnual ? "yearly" : ("monthly" as "monthly" | "yearly"),
+                allFeatures: apiPlan.features,
+                originalData: apiPlan,
+            }))
+            setPlans(updatedPlans)
+        }
+    }, [isAnnual, originalApiData])
 
     useEffect(() => {
-        if (!checkoutOpen || !selectedPlan || selectedPlan.price === 0) return;
+        if (!checkoutOpen || !selectedPlan || selectedPlan.price === 0) return
 
         const createPaymentIntent = async () => {
             try {
+                if (!session?.user?.accessToken) return toast.error("User not logged in")
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-payment`, {
                     method: "POST",
                     headers: {
@@ -100,32 +142,65 @@ export default function SubscriptionPricing() {
                     },
                     body: JSON.stringify({
                         userId: session?.user?.id,
-                        subscriptionId: "68379f4302d7a91542b5a5e4",
+                        subscriptionId: selectedPlan.id,
                         price: selectedPlan.price,
                     }),
-                });
-
-                const data = await res.json();
-                setClientSecret(data.clientSecret);
+                })
+                const data = await res.json()
+                setClientSecret(data.clientSecret)
             } catch (err) {
-                console.error("Error creating payment intent:", err);
+                console.error("Error creating payment intent:", err)
             }
-        };
+        }
+        createPaymentIntent()
+    }, [checkoutOpen, selectedPlan, session?.user?.accessToken, session?.user?.id])
 
-        createPaymentIntent();
-    }, [checkoutOpen, selectedPlan, session?.user?.accessToken, session?.user?.id]);
+    // Helper function to get features by type
+    const getFeaturesByType = (plan: SubscriptionPlan, featureType: string) => {
+        const featureGroup = plan.allFeatures?.find((f) => f.featuresType.toLowerCase() === featureType.toLowerCase())
+        return featureGroup?.type || []
+    }
 
-    console.log(selectedPlan?.price)
+    // Helper function to check if feature is active for plan
+    const isFeatureActive = (plan: SubscriptionPlan, featureName: string) => {
+        for (const featureGroup of plan.allFeatures || []) {
+            const feature = featureGroup.type.find((f) => f.name === featureName)
+            if (feature) {
+                return feature.active
+            }
+        }
+        return false
+    }
+
+    if (loading) {
+        return (
+            <div className="py-8 lg:py-20 container mx-auto px-3 lg:px-0">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading subscription plans...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="py-8 lg:py-20 container mx-auto px-3 lg:px-0">
+                <div className="text-center">
+                    <p className="text-red-600">Error loading subscription plans: {error}</p>
+                    <Button onClick={() => window.location.reload()} className="mt-4">
+                        Try Again
+                    </Button>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="py-8 lg:py-20 container mx-auto px-3 lg:px-0">
             <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                    Invest Smarter. Choose Your Edge.
-                </h1>
-                <p className="text-lg text-gray-600 mb-2">
-                    Choose the plan that matches your ambition.
-                </p>
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Invest Smarter. Choose Your Edge.</h1>
+                <p className="text-lg text-gray-600 mb-2">Choose the plan that matches your ambition.</p>
                 <p className="text-sm text-gray-500 max-w-4xl mx-auto">
                     Every plan includes expert-grade tools, intelligent insights, and powerful portfolio-building features.
                 </p>
@@ -145,7 +220,7 @@ export default function SubscriptionPricing() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {plans.map((plan) => (
                     <Card
-                        key={plan.title}
+                        key={plan.id}
                         className={`relative ${plan.title === "PREMIUM"
                             ? "border-2 border-blue-500 shadow-xl lg:scale-105"
                             : plan.title === "ULTIMATE"
@@ -164,7 +239,6 @@ export default function SubscriptionPricing() {
                                 </Badge>
                             </div>
                         )}
-
                         {plan.title === "ULTIMATE" && (
                             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                                 <Badge className="bg-green-500 text-white">🏆 All Access</Badge>
@@ -176,7 +250,6 @@ export default function SubscriptionPricing() {
                             <CardDescription className="text-sm text-gray-600 min-h-[3rem] flex items-center">
                                 {plan.description}
                             </CardDescription>
-
                             <div className="mt-4">
                                 <div className="flex items-baseline justify-center">
                                     <span className="text-4xl font-bold">${plan.price}</span>
@@ -184,71 +257,65 @@ export default function SubscriptionPricing() {
                                 </div>
                                 <p className="text-sm text-gray-500 mt-1">billed {isAnnual ? "annually" : "monthly"}</p>
                             </div>
-
-                            {plan.title === "FREE" && (
-                                <p className="text-sm text-gray-600 mt-2">No credit card required</p>
-                            )}
+                            {plan.title === "FREE" && <p className="text-sm text-gray-600 mt-2">No credit card required</p>}
                         </CardHeader>
 
                         <CardContent className="space-y-6">
-                            {/* Shared core features */}
+                            {/* Core Features */}
                             <div>
                                 <h4 className="font-semibold text-sm text-gray-900 mb-3">CORE FEATURES</h4>
                                 <ul className="space-y-2">
-                                    {["Portfolio tracking", "Watchlist management", "Market news", "Basic insights"].map((feature) => (
-                                        <li key={feature} className="flex items-center text-sm">
+                                    {getFeaturesByType(plan, "core").map((feature) => (
+                                        <li key={feature.name} className="flex items-center text-sm">
                                             <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                                            <span>{feature}</span>
+                                            <span>{feature.name}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
 
                             {/* Premium Features */}
-                            {(plan.title === "PREMIUM" || plan.title === "ULTIMATE") && (
-                                <div>
-                                    <h4 className="font-semibold text-sm text-blue-600 mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md">
-                                        PREMIUM FEATURES
-                                    </h4>
-                                    <ul className="space-y-2">
-                                        {premiumFeatures.map((feature) => (
-                                            <li key={feature} className="flex items-center text-sm">
-                                                <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                                                <span>{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {plan.title === "FREE" && (
-                                <div>
-                                    <h4 className="font-semibold text-sm text-blue-400 mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md">
-                                        PREMIUM FEATURES
-                                    </h4>
-                                    <ul className="space-y-2">
-                                        {premiumFeatures.map((feature) => (
-                                            <li key={feature} className="flex items-center text-sm text-gray-400">
-                                                <ImCross className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
-                                                <span>{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                            <div>
+                                <h4
+                                    className={`font-semibold text-sm mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md ${plan.title === "PREMIUM" || plan.title === "ULTIMATE" ? "text-blue-600" : "text-blue-400"
+                                        }`}
+                                >
+                                    PREMIUM FEATURES
+                                </h4>
+                                <ul className="space-y-2">
+                                    {getFeaturesByType(plan, "premium").map((feature) => (
+                                        <li key={feature.name} className="flex items-center text-sm">
+                                            {isFeatureActive(plan, feature.name) ? (
+                                                <>
+                                                    <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                                                    <span>{feature.name}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ImCross className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
+                                                    <span className="text-gray-400">{feature.name}</span>
+                                                </>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
 
                             {/* Ultimate Features */}
                             <div>
-                                <h4 className={`font-semibold text-sm mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md ${plan.title === "ULTIMATE" ? "text-green-600" : "text-green-400"}`}>
+                                <h4
+                                    className={`font-semibold text-sm mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md ${plan.title === "ULTIMATE" ? "text-green-600" : "text-green-400"
+                                        }`}
+                                >
                                     {plan.title === "ULTIMATE" ? "👑 ULTIMATE FEATURES" : "ULTIMATE FEATURES"}
                                 </h4>
                                 <ul className="space-y-2">
-                                    {ultimateFeatures.map((feature) => (
-                                        <li key={feature} className="flex items-center text-sm">
-                                            {plan.title === "ULTIMATE" ? (
+                                    {getFeaturesByType(plan, "ultimate").map((feature) => (
+                                        <li key={feature.name} className="flex items-center text-sm">
+                                            {isFeatureActive(plan, feature.name) ? (
                                                 <>
                                                     <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                                                    <span>{feature}</span>
+                                                    <span>{feature.name}</span>
                                                     <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-800">
                                                         Exclusive
                                                     </Badge>
@@ -256,7 +323,7 @@ export default function SubscriptionPricing() {
                                             ) : (
                                                 <>
                                                     <ImCross className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
-                                                    <span className="text-gray-400">{feature}</span>
+                                                    <span className="text-gray-400">{feature.name}</span>
                                                 </>
                                             )}
                                         </li>
@@ -269,8 +336,8 @@ export default function SubscriptionPricing() {
                             <div className="w-full space-y-4">
                                 <Button
                                     onClick={() => {
-                                        setSelectedPlan(plan);
-                                        setCheckoutOpen(true);
+                                        setSelectedPlan(plan)
+                                        setCheckoutOpen(true)
                                     }}
                                     className={`w-full ${plan.title === "FREE"
                                         ? "bg-gray-600 hover:bg-gray-700"
@@ -297,5 +364,5 @@ export default function SubscriptionPricing() {
                 </StripeProvider>
             )}
         </div>
-    );
+    )
 }

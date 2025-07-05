@@ -5,7 +5,7 @@ import { ArrowRight, Edit2, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { FaCaretUp, FaCaretDown } from "react-icons/fa";
-import { usePortfolio } from "./portfolioContext";
+import { usePortfolio } from "../context/portfolioContext";
 import { AddPortfolioDialog } from "./add-portfolio-dialog";
 import AddToPortfolioDialog from "./add-holding-dialog";
 import { Input } from "../ui/input";

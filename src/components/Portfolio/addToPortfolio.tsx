@@ -7,7 +7,7 @@ import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query" // Import useQueryClient
 import useAxios from "@/hooks/useAxios"
-import { usePortfolio } from "./portfolioContext"
+import { usePortfolio } from "../context/portfolioContext"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner" // Assuming you have sonner for toasts
 import { useSocketContext } from "@/providers/SocketProvider"

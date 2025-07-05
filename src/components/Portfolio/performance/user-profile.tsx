@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
-import { usePortfolio } from "../portfolioContext"
+import { usePortfolio } from "../../context/portfolioContext"
 
 export function UserProfile() {
 

@@ -1,4 +1,4 @@
-import { PortfolioProvider } from '@/components/Portfolio/portfolioContext';
+import { PortfolioProvider } from '@/components/context/portfolioContext';
 import { PortfolioSidebar } from '@/components/Portfolio/PortfolioSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import type React from 'react';

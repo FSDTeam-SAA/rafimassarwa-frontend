@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image'
 import { CiEdit } from "react-icons/ci";
-import { usePortfolio } from '../portfolioContext';
+import { usePortfolio } from '../../context/portfolioContext';
 import { useEffect } from 'react'; // No need for useState here now
 import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
 import { Loader2 } from 'lucide-react';

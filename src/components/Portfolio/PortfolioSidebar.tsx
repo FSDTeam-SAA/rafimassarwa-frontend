@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect } from "react";
-import { usePortfolio } from "./portfolioContext";
+import { usePortfolio } from "../context/portfolioContext";
 import { Trash } from "lucide-react";
 import {
   AlertDialog,

@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import AddToPortfolio from "./addToPortfolio"
 import { AddPortfolioDialog } from "./add-portfolio-dialog"
-import { usePortfolio } from "./portfolioContext"
+import { usePortfolio } from "../context/portfolioContext"
 import { SocketProvider } from "@/providers/SocketProvider"
 import { Loader2 } from "lucide-react"
 

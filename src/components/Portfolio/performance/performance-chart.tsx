@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { usePortfolio } from "../portfolioContext";
+import { usePortfolio } from "../../context/portfolioContext";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 

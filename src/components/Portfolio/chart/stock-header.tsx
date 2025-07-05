@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react"
 
 import { useMutation, useQuery } from "@tanstack/react-query"
 
-import { usePortfolio } from "../portfolioContext"
+import { usePortfolio } from "../../context/portfolioContext"
 
 import Image from "next/image"
 

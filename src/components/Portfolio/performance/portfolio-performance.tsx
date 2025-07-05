@@ -4,7 +4,7 @@ import { UserProfile } from "./user-profile"
 import { PerformanceMetrics } from "./performance-metrics"
 import PerformanceDashboard from "./performance-chart"
 import { useQuery } from "@tanstack/react-query"
-import { usePortfolio } from "../portfolioContext"
+import { usePortfolio } from "../../context/portfolioContext"
 
 
 export function PortfolioPerformance() {

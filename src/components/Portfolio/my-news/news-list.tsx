@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { LuSearch } from "react-icons/lu";
 import { useSession } from 'next-auth/react';
-import { usePortfolio } from '../portfolioContext';
+import { usePortfolio } from '../../context/portfolioContext';
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';

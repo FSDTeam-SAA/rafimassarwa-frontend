@@ -11,6 +11,7 @@ import {
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import PaymentSuccessModal from "./PaymentSuccessModal";
 import PaymentFailureModal from "./PaymentFailureModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CheckoutDialog({
     open,
@@ -24,6 +25,8 @@ export default function CheckoutDialog({
     const [loading, setLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailureModal, setShowFailureModal] = useState(false);
+
+    const queryClient = useQueryClient()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,6 +54,7 @@ export default function CheckoutDialog({
                     paymentIntentId: paymentIntent.id
                 }),
             });
+            queryClient.invalidateQueries({ queryKey: ["user"] })
             onOpenChange(false); // Close payment dialog
             setShowSuccessModal(true); // Show success
         } else {

@@ -6,7 +6,7 @@ import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";
 import StockNewsMain from "@/components/News/StoctNewsMain";
 import TipRanksLabs from "@/components/News/TipRanksLabs";
-import { usePortfolio } from "@/components/Portfolio/portfolioContext";
+import { usePortfolio } from "@/components/context/portfolioContext";
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";

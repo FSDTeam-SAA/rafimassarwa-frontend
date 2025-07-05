@@ -101,8 +101,8 @@ export default function RegistrationForm() {
 
       if (result.success) {
         toast.success("Account successfully created!");
-        toast.success("Please login to continue");
-        router.push("/login");
+        toast.success("Please verify your email");
+        router.push(`/verify-email?email=${data.email}`);
       } else {
         toast.error(result.message || "Registration failed");
       }

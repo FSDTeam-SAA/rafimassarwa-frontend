@@ -6,6 +6,8 @@ import { Toaster } from "sonner";
 import AuthSessionProvider from "@/components/Authentication/session-provider";
 import NextTopLoader from "nextjs-toploader"; // <- Import the loader
 import { SocketProvider } from "@/providers/SocketProvider";
+import { PaymentProvider } from "@/components/context/paymentContext";
+import QueryProvider from "@/Layout/query-provider";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -31,9 +33,13 @@ export default function RootLayout({
         />
 
         <AuthSessionProvider>
-          <LayoutWrapper>
-            <SocketProvider>{children}</SocketProvider>
-          </LayoutWrapper>
+          <QueryProvider>
+            <PaymentProvider>
+              <LayoutWrapper>
+                <SocketProvider>{children}</SocketProvider>
+              </LayoutWrapper>
+            </PaymentProvider>
+          </QueryProvider>
         </AuthSessionProvider>
         <Toaster position="top-center" />
       </body>
