@@ -28,7 +28,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useUserPayment } from "../context/paymentContext";
 
 // Zod schema for form validation
 const formSchema = z.object({
@@ -41,7 +40,6 @@ export function AddPortfolioDialog() {
     const { data: session } = useSession();
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false); // dialog open state
-    const { paymentType } = useUserPayment()
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),

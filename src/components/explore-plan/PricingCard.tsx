@@ -102,7 +102,7 @@ export default function SubscriptionPricing() {
             }
         }
         fetchPlans()
-    }, []) // Remove isAnnual dependency to avoid refetching
+    }, [isAnnual]) // Remove isAnnual dependency to avoid refetching
 
     // Update plans when billing cycle changes
     useEffect(() => {

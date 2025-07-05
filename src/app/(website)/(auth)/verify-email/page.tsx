@@ -1,13 +1,15 @@
 "use client"
 
 import EmailVerification from '@/components/Authentication/verify-email'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 export default function page() {
 
     return (
         <main>
-            <EmailVerification />
+            <Suspense fallback={<div>Loading...</div>}>
+                <EmailVerification />
+            </Suspense>
         </main>
     )
 }
