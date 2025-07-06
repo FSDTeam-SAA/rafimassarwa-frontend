@@ -99,26 +99,25 @@ const SearchResult = () => {
       <div className="w-full shadow-lg p-6 border rounded-xl bg-white">
         <div className="flex flex-col lg:flex-row gap-6 h-auto lg:h-[500px]">
           {/* Quadrant Section */}
-          <div className="w-full lg:w-1/2 shadow-md p-16 rounded-xl relative overflow-hidden border">
+          <div className="w-full lg:w-1/2 shadow-md p-4 sm:p-8 md:p-12 lg:p-16 rounded-xl relative overflow-hidden border h-[500px]">
             {/* Axis Labels */}
-            <div className="absolute top-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
+            <div className="absolute top-[8px] sm:top-[12px] md:top-[16px] left-1/2 -translate-x-1/2 text-center text-xs sm:text-sm text-gray-700 font-medium">
               Strong Financial Health
             </div>
-            <div className="absolute bottom-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
+            <div className="absolute bottom-[8px] sm:bottom-[12px] md:bottom-[16px] left-1/2 -translate-x-1/2 text-center text-xs sm:text-sm text-gray-700 font-medium">
               Poor Financial Health
             </div>
-            <div className="absolute top-1/2 left-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform -rotate-90 origin-center text-center">
+            <div className="absolute top-1/2 left-[-30px] sm:left-[-40px] md:left-[-45px] -translate-y-1/2 text-xs sm:text-sm text-gray-700 font-medium transform -rotate-90 origin-center text-center">
               Low Competitive Advantage
             </div>
-            <div className="absolute top-1/2 right-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform rotate-90 origin-center text-center">
+            <div className="absolute top-1/2 right-[-30px] sm:right-[-40px] md:right-[-45px] -translate-y-1/2 text-xs sm:text-sm text-gray-700 font-medium transform rotate-90 origin-center text-center">
               High Competitive Advantage
             </div>
 
             {/* Dual-sided Vertical Arrow */}
             <svg
-              className="absolute left-1/2 top-12 -translate-x-1/2"
+              className="absolute left-1/2 top-12 -translate-x-1/2 h-[70%] sm:h-[80%]"
               width="20"
-              height="80%"
               viewBox="0 0 20 500"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -136,9 +135,7 @@ const SearchResult = () => {
 
             {/* Dual-sided Horizontal Arrow */}
             <svg
-              className="absolute top-1/2 left-0 -translate-y-1/2"
-              width="100%"
-              height="20"
+              className="absolute top-1/2 left-0 -translate-y-1/2 lg:w-full w-[80%] right-1/2 h-5"
               viewBox="0 0 500 20"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -155,27 +152,27 @@ const SearchResult = () => {
             </svg>
 
             {/* Grid Items */}
-            <div className="grid grid-cols-2 gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%]">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] sm:w-[70%] md:w-[60%] lg:w-[50%]">
               {[
                 { title: "Lime Green", color: "bg-green-300" },
                 { title: "Olive Green", color: "bg-[#c7ffe5]" },
+                { title: "Orange", color: "#FFA500" },
                 { title: "Yellow", color: "bg-yellow-500" },
-                { title: "Orange", color: "bg-orange-600" },
               ].map((item, i) => (
                 <div
                   key={i}
-                  className={`border px-4 py-10 rounded-lg text-center shadow-md ${
+                  className={`border px-2 py-4 sm:px-4 sm:py-10 rounded-lg text-center shadow-md ${
                     stockData?.quadrant === item.title && item.color
                   }`}
                 >
                   <Image
                     src="/images/tree.png"
                     alt={item.title}
-                    width={60}
-                    height={60}
-                    className="mx-auto"
+                    width={40}
+                    height={40}
+                    className="mx-auto sm:w-[60px] sm:h-[60px]"
                   />
-                  <h1 className="mt-4 text-lg font-semibold text-gray-800">
+                  <h1 className="mt-2 sm:mt-4 text-sm sm:text-base md:text-lg font-semibold text-gray-800">
                     {item.title}
                   </h1>
                 </div>
@@ -220,8 +217,11 @@ const SearchResult = () => {
                   width={40}
                   height={40}
                 />
-                
-                <div title={stockData?.reason} className="h-5 w-5 rounded-full bg-gray-500 text-white flex justify-center items-center flex-col cursor-pointe">
+
+                <div
+                  title={stockData?.reason}
+                  className="h-5 w-5 rounded-full bg-gray-500 text-white flex justify-center items-center flex-col cursor-pointe"
+                >
                   ?
                 </div>
               </div>

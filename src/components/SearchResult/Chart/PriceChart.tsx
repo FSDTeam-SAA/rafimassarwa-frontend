@@ -76,7 +76,7 @@ const PriceChart = () => {
       .filter((item) => item.time >= startTime && !isNaN(item.close))
       .map((item) => ({
         time: new Date(item.time).toLocaleDateString(),
-        price: Number(item.close) || 0, // Ensure price is a number, fallback 0 if invalid
+        price: parseFloat(item.close.toFixed(2)), // Ensure price is a number, fallback 0 if invalid
         volume: item.volume,
       }));
   };
@@ -84,20 +84,12 @@ const PriceChart = () => {
   return (
     <div>
       <div className="flex space-x-2 sm:text-[32px] text-xl">
-        <span className="font-bold">{priceData?.priceInfo?.currentPrice}</span>
+        <span className="font-bold">{priceData?.priceInfo?.currentPrice.toFixed(2)}</span>
         <span className="text-green-600 font-semibold">
-          +{priceData?.priceInfo?.change} ({priceData?.priceInfo?.percentChange}
+          +{priceData?.priceInfo?.change.toFixed(2)} ({priceData?.priceInfo?.percentChange.toFixed(2)}
           %)
         </span>
       </div>
-
-      {/* <div className="text-sm text-gray-500 mt-1">
-        <span className="mr-2">221.22</span>
-        <span className="text-red-600 font-semibold">▼ 1.22 (1.2%)</span>
-        <span className="ml-2">
-          After Hours · 17 March 7:02 pm EDT · Market Closed
-        </span>
-      </div> */}
 
       <div className=" mt-4 overflow-x-auto">
         <div className="flex gap-2 w-max min-w-full px-2">
@@ -157,45 +149,10 @@ const PriceChart = () => {
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 overflow-x-auto w-full">
         <Card>
           <CardContent>
             <ChartContainer config={chartConfig} className="w-full h-[400px]">
-              {/* <AreaChart
-                accessibilityLayer
-                data={getFilteredChartData(priceData?.chart || [], isActive)}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="time"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    // Show abbreviated date format
-                    const date = new Date(value);
-                    return date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" hideLabel />}
-                />
-                <Area
-                  dataKey="price"
-                  type="linear"
-                  fill="green"
-                  fillOpacity={0.3}
-                  stroke="#139430"
-                />
-              </AreaChart> */}
               <AreaChart
                 accessibilityLayer
                 data={getFilteredChartData(priceData?.chart || [], isActive)}
@@ -212,30 +169,55 @@ const PriceChart = () => {
                   tickMargin={8}
                   tickFormatter={(value) => {
                     const date = new Date(value);
-                    return date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
+                    switch (isActive) {
+                      case "Day":
+                        return date.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                      case "Week":
+                        return date.toLocaleDateString("en-US", {
+                          weekday: "short",
+                        });
+                      case "Month":
+                        return date.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        });
+                      case "Year":
+                        return date.toLocaleDateString("en-US", {
+                          month: "short",
+                        });
+                      case "5 Year":
+                      case "Max":
+                        return date.toLocaleDateString("en-US", {
+                          year: "numeric",
+                        });
+                      default:
+                        return date.toLocaleDateString();
+                    }
                   }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   tickMargin={10}
-                  domain={(
-                    [dataMin, dataMax]: [number, number],
-                    // allowDataOverflow: boolean
-                  ) => {
-                    if (isNaN(dataMin) || isNaN(dataMax)) {
-                      // fallback domain if invalid values detected
-                      return [0, 1];
-                    }
-                      if (!isFinite(dataMin) || !isFinite(dataMax)) {
-    return [0, 100]; // or any default range you prefer
-  }
-                    const center = (dataMin + dataMax) / 2;
-                    const range = Math.max((dataMax - dataMin) * 1.2, 1);
-                    return [center - range / 2, center + range / 2];
+                  width={60}
+                  domain={([dataMin, dataMax]: [number, number]) => {
+                    if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1];
+                    const buffer = (dataMax - dataMin) * 0.1 || 1;
+                    return [
+                      Math.floor(dataMin - buffer),
+                      Math.ceil(dataMax + buffer),
+                    ];
+                  }}
+                  tickFormatter={(value) => {
+                    if (value >= 1_000_000_000)
+                      return (value / 1_000_000_000).toFixed(1) + "B";
+                    if (value >= 1_000_000)
+                      return (value / 1_000_000).toFixed(1) + "M";
+                    if (value >= 1_000) return (value / 1_000).toFixed(1) + "K";
+                    return value.toFixed(2);
                   }}
                 />
 
@@ -251,46 +233,6 @@ const PriceChart = () => {
                   stroke="#139430"
                 />
               </AreaChart>
-
-              {/* <AreaChart
-                data={getFilteredChartData(priceData?.chart || [], isActive)}
-                margin={{ left: 12, right: 12 }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="time"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={10}
-                  domain={(dataMin: number, dataMax: number) => {
-                    const padding = Math.max((dataMax - dataMin) * 0.1, 1); // Add padding to make it look more like stock chart
-                    return [dataMin - padding, dataMax + padding];
-                  }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" hideLabel />}
-                />
-                <Area
-                  dataKey="price"
-                  type="monotone" // Smooth line
-                  fill="green"
-                  fillOpacity={0.3}
-                  stroke="#139430"
-                />
-              </AreaChart> */}
             </ChartContainer>
           </CardContent>
         </Card>

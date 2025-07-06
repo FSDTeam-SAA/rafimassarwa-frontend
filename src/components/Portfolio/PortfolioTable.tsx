@@ -633,7 +633,7 @@ export default function PortfolioTable() {
       {columnVisibility.unrealizedPL && (
         <TableCell className={`w-[160px] text-center ${item.unrealized >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {item.unrealized.toLocaleString("en-US", {
+          {item?.unrealized?.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -642,7 +642,7 @@ export default function PortfolioTable() {
       {columnVisibility.plPercent && (
         <TableCell className={`w-[120px] text-center ${item.pL >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {item.pL.toLocaleString("en-US", {
+          {item?.pL?.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}

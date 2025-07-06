@@ -1,7 +1,5 @@
 "use client";
 import BannerAds from "@/components/News/BannerAds";
-// import EarningsReportsInsights from "@/components/News/EarningsReportsInsights";
-// import ExpertSpotlight from "@/components/News/ExpertSpotlight";
 import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";
 import StockNewsMain from "@/components/News/StoctNewsMain";
@@ -26,12 +24,9 @@ const NewsPage = () => {
 
   const { selectedPortfolioId } = usePortfolio();
 
-  console.log(selectedPortfolioId)
+  console.log(selectedPortfolioId);
 
-  const {
-    mutate: getMyNews,
-    data: myNews = [],
-  } = useMutation({
+  const { mutate: getMyNews, data: myNews = [] } = useMutation({
     mutationFn: async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/admin/news/get-protfolio-news`,
@@ -50,10 +45,10 @@ const NewsPage = () => {
   });
 
   useEffect(() => {
-      getMyNews();
+    getMyNews();
   }, [getMyNews]);
 
-  console.log(myNews)
+  console.log(myNews);
 
   const { data: stockNews = [] } = useQuery({
     queryKey: ["stock-news"],
@@ -87,16 +82,14 @@ const NewsPage = () => {
   return (
     <div className="lg:my-20 my-5">
       <BannerAds />
-      <StockNewsMain firstNews={firstNews} />
-      <StockMarketNews allNews={myNews} />
       <TipRanksLabs
         rightSide={rightSide}
         leftSide1={leftSide1}
         leftSide2={leftSide2}
       />
       <MoreFromTip stockNews={stockNews} />
-      {/* <EarningsReportsInsights /> */}
-      {/* <ExpertSpotlight /> */}
+      <StockNewsMain firstNews={firstNews} />
+      <StockMarketNews allNews={myNews} />
     </div>
   );
 };
