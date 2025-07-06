@@ -26,6 +26,7 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { formatCompactCurrency } from "../../../utils/formatCompactCurrency";
 
 type Stock = {
   symbol: string;
@@ -351,7 +352,7 @@ export default function StockOfMonth() {
       }),
       columnHelper.accessor("marketCap", {
         header: "Market Cap",
-        cell: (info) => info.getValue() || "N/A",
+        cell: (info) => formatCompactCurrency(info.getValue()),
         enableSorting: true,
       }),
       columnHelper.display({
@@ -434,7 +435,9 @@ export default function StockOfMonth() {
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl sm:text-2xl font-medium">{"Stocks Of Months"}</h2>
+        <h2 className="text-xl sm:text-2xl font-medium">
+          {"Stocks Of Months"}
+        </h2>
 
         <div className="relative">
           <button

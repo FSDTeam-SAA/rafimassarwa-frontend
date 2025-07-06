@@ -97,9 +97,9 @@ const SearchResult = () => {
     <div className="container mx-auto px-4 py-6">
       {/* section 1  */}
       <div className="w-full shadow-lg p-6 border rounded-xl bg-white">
-        <div className="flex flex-col lg:flex-row gap-6 h-auto lg:h-[500px]">
+        <div className="flex flex-col lg:flex-row gap-6 lg:h-[500px]">
           {/* Quadrant Section */}
-          <div className="w-full lg:w-1/2 shadow-md p-16 rounded-xl relative overflow-hidden border">
+          <div className="w-full lg:w-1/2 shadow-md lg:p-16 rounded-xl relative overflow-hidden h-[500px] border">
             {/* Axis Labels */}
             <div className="absolute top-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
               Strong Financial Health
@@ -107,10 +107,10 @@ const SearchResult = () => {
             <div className="absolute bottom-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
               Poor Financial Health
             </div>
-            <div className="absolute top-1/2 left-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform -rotate-90 origin-center text-center">
+            <div className="absolute top-1/2 left-[-85px] lg:left-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform -rotate-90 origin-center text-center">
               Low Competitive Advantage
             </div>
-            <div className="absolute top-1/2 right-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform rotate-90 origin-center text-center">
+            <div className="absolute top-1/2 right-[-85px] lg:right-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform rotate-90 origin-center text-center">
               High Competitive Advantage
             </div>
 
@@ -136,7 +136,7 @@ const SearchResult = () => {
 
             {/* Dual-sided Horizontal Arrow */}
             <svg
-              className="absolute top-1/2 left-0 -translate-y-1/2"
+              className="absolute top-[53%] lg:top-1/2 left-7 lg:left-0 -translate-y-1/2 w-[83%] lg:w-[100%]"
               width="100%"
               height="20"
               viewBox="0 0 500 20"
@@ -155,7 +155,7 @@ const SearchResult = () => {
             </svg>
 
             {/* Grid Items */}
-            <div className="grid grid-cols-2 gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%]">
+            <div className="grid grid-cols-2 gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] lg:w-[50%]">
               {[
                 { title: "Lime Green", color: "bg-green-300" },
                 { title: "Olive Green", color: "bg-[#c7ffe5]" },
@@ -164,7 +164,7 @@ const SearchResult = () => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className={`border px-4 py-10 rounded-lg text-center shadow-md ${
+                  className={`border px-2 py-5 lg:px-4 lg:py-10 rounded-lg text-center shadow-md ${
                     stockData?.quadrant === item.title && item.color
                   }`}
                 >
@@ -185,8 +185,8 @@ const SearchResult = () => {
 
           {/* Results Section */}
           <div className="w-full lg:w-1/2 shadow-md p-6 rounded-xl border bg-white">
-            <div className="flex justify-between items-center mb-10">
-              <div className="flex items-center gap-4 w-1/3">
+            <div className="flex gap-3 lg:gap-0 justify-between items-center mb-10">
+              <div className="flex items-center gap-4 lg:w-1/3">
                 <h1 className="text-xl font-bold mb-2 text-gray-800 truncate ">
                   {stockData?.company}
                 </h1>
@@ -201,15 +201,15 @@ const SearchResult = () => {
                 )}
               </div>
 
-              <div className=" w-1/3 flex justify-end">
+              <div className=" lg:w-1/3 flex justify-end">
                 <Link href={`/deep-research/${query}`}>
-                  <button className="bg-green-500 text-white font-semibold px-3 py-2 rounded-lg">
+                  <button className="bg-green-500 text-white font-semibold lg:px-3 lg:py-2 rounded-lg">
                     Deep Research
                   </button>
                 </Link>
               </div>
 
-              <div className="w-1/3 flex items-center justify-end">
+              <div className="lg:w-1/3 flex items-center justify-end">
                 <Image
                   src={
                     stockData?.shariaCompliant
