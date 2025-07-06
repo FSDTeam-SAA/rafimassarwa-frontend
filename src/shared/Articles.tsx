@@ -4,6 +4,8 @@ import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { shortTimeAgo } from "../../utils/shortTimeAgo";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface StockNewsItem {
   category: string;
@@ -32,11 +34,24 @@ interface DeepResearchItem {
 
 export default function Articles() {
   const axiosInstance = useAxios();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const relatedStockParams = params.get("q");
 
   const { data: stockNews } = useQuery({
     queryKey: ["stocks-news"],
     queryFn: async () => {
       const res = await axiosInstance("/admin/news/market-news");
+      return res.data.data as StockNewsItem[];
+    },
+  });
+
+  const { data: relatedStockNews } = useQuery({
+    queryKey: ["related-stocks-news"],
+    queryFn: async () => {
+      const res = await axiosInstance(
+        `/admin/news/market-news?symbol=${relatedStockParams}`
+      );
       return res.data.data as StockNewsItem[];
     },
   });
@@ -49,17 +64,15 @@ export default function Articles() {
     },
   });
 
-  // Helper function to format timestamp
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-    });
-  };
+  const { data: relatedDeepResearch } = useQuery({
+    queryKey: ["related-deep-research"],
+    queryFn: async () => {
+      const res = await axiosInstance(
+        `/admin/news/deep-research?symbol=${relatedStockParams}`
+      );
+      return res.data.data as DeepResearchItem[];
+    },
+  });
 
   // Helper function to format ISO date
   const formatISODate = (isoString: string) => {
@@ -77,12 +90,18 @@ export default function Articles() {
     {
       value: "allstocks",
       title: "Market News",
-      data: stockNews || [],
+      data:
+        pathname === "/search-result"
+          ? relatedStockNews || []
+          : stockNews || [],
     },
     {
       value: "deep-research",
       title: "Olive Stock's Deep Research",
-      data: deepResearch || [],
+      data:
+        pathname === "/search-result"
+          ? relatedDeepResearch || []
+          : deepResearch || [],
     },
   ];
 
@@ -141,10 +160,7 @@ export default function Articles() {
                       <Link key={item.id} href={item?.url} target="_blank">
                         <div className="p-4 border rounded-2xl">
                           <Image
-                            src={
-                              item.image ||
-                              "/placeholder.svg?height=300&width=600"
-                            }
+                            src={item.image || "/images/news-placeholder.png"}
                             alt={item.headline}
                             width={600}
                             height={300}
@@ -154,11 +170,11 @@ export default function Articles() {
                             {item.category}
                           </h5>
                           <h2 className="text-lg font-medium pb-3">
-                            {item.headline.slice(0, 80)}.....
+                            {item.headline.slice(0, 75)}.....
                           </h2>
                           <div className="flex justify-between items-center">
                             <p className="font-normal text-[16px]">
-                              {formatDate(item.datetime)}
+                              {shortTimeAgo(item.datetime)}
                             </p>
                             <span className="uppercase text-base font-semibold px-5 py-1 border border-[#28A745] rounded-3xl">
                               {item.source}
