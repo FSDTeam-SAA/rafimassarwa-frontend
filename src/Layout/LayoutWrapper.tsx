@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer/Footer";
 import Navbar from "@/components/Navbar/Navbar";
 import { PortfolioProvider } from "@/components/context/portfolioContext";
-
+import { Suspense } from "react";
 
 export default function LayoutWrapper({
   children,
@@ -25,14 +25,17 @@ export default function LayoutWrapper({
     pathname.includes("my-portfolio") || pathname.includes("stock");
   return (
     <>
+      <Suspense>
+        {" "}
+        <PortfolioProvider>
+          {!isAuthRoute && !isDashboardRoute && <Navbar />}
+          <main>{children}</main>
+        </PortfolioProvider>
+      </Suspense>
 
-
-      <PortfolioProvider>
-        {!isAuthRoute && !isDashboardRoute && <Navbar />}
-        <main>{children}</main>
-      </PortfolioProvider>
-
-      {!isAuthRoute && !isDashboardRoute && !shouldHideFooterSpecific && <Footer />}
+      {!isAuthRoute && !isDashboardRoute && !shouldHideFooterSpecific && (
+        <Footer />
+      )}
     </>
   );
 }
