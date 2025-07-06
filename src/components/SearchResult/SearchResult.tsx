@@ -159,8 +159,8 @@ const SearchResult = () => {
               {[
                 { title: "Lime Green", color: "bg-green-300" },
                 { title: "Olive Green", color: "bg-[#c7ffe5]" },
+                { title: "Orange", color: "#FFA500" },
                 { title: "Yellow", color: "bg-yellow-500" },
-                { title: "Orange", color: "bg-orange-600" },
               ].map((item, i) => (
                 <div
                   key={i}
