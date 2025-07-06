@@ -108,26 +108,9 @@ export default function WatchlistTable() {
         ),
         enableSorting: true,
       }),
-      columnHelper.accessor("lastRatingDate", {
-        header: "Date",
-        cell: (info) => {
-          const date = new Date(info.getValue());
-          return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-        },
-        enableSorting: true,
-        sortingFn: (rowA, rowB) => {
-          const dateA = new Date(rowA.original.lastRatingDate).getTime();
-          const dateB = new Date(rowB.original.lastRatingDate).getTime();
-          return dateA - dateB;
-        },
-      }),
       columnHelper.accessor("sector", {
         header: "Sector",
-        cell: (info) => info.getValue() || "N/A",
+        cell: (info) => <h1 className="text-center">{info.getValue() || "N/A"}</h1>,
         enableSorting: true,
       }),
       columnHelper.display({
