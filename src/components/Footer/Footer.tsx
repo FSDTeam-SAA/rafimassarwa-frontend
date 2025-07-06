@@ -2,10 +2,6 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
-// import { Switch } from "@/components/ui/switch"
-// import { Textarea } from "@/components/ui/textarea"
 import {
   Tooltip,
   TooltipContent,
@@ -16,17 +12,6 @@ import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import Link from "next/link";
 
 const Footer = () => {
-  // const [isDarkMode, setIsDarkMode] = React.useState(true)
-  // const [isChatOpen, setIsChatOpen] = React.useState(false)
-
-  // React.useEffect(() => {
-  //   if (isDarkMode) {
-  //     document.documentElement.classList.add("dark")
-  //   } else {
-  //     document.documentElement.classList.remove("dark")
-  //   }
-  // }, [isDarkMode])
-
   return (
     <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
       <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
@@ -38,46 +23,18 @@ const Footer = () => {
             <p className="mb-6 text-muted-foreground">
               Join our newsletter for the latest updates and exclusive offers.
             </p>
-            {/* <form className="relative">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="pr-12 backdrop-blur-sm"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105"
-              >
-                <Send className="h-4 w-4" />
-                <span className="sr-only">Subscribe</span>
-              </Button>
-            </form> */}
-            {/* <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" /> */}
           </div>
           <div>
             <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
             <nav className="space-y-2 text-sm">
-              {/* <a href="#" className="block transition-colors hover:text-primary">
-                Home
-              </a>
-              <a href="#" className="block transition-colors hover:text-primary">
-                About Us
-              </a>
-              <a href="#" className="block transition-colors hover:text-primary">
-                Services
-              </a>
-              <a href="#" className="block transition-colors hover:text-primary">
-                Products
-              </a>
-              <a href="#" className="block transition-colors hover:text-primary">
-                Contact
-              </a> */}
               <Link href={"/terms-conditions"}>
                 <h3>Terms and conditions</h3>
               </Link>
               <Link href={"/privacy-policy"}>
                 <h3>Privacy Policy</h3>
+              </Link>
+              <Link href={"/legal-policy"}>
+                <h3>Legal Policy</h3>
               </Link>
             </nav>
           </div>
