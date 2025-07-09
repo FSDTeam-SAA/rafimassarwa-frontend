@@ -109,7 +109,7 @@ const CashFlowChart = () => {
                 fill="var(--color-operatingCashFlow)"
                 name="Operating"
               />
-              <Bar
+              {/* <Bar
                 dataKey="investingCashFlow"
                 fill="var(--color-investingCashFlow)"
                 name="Investing"
@@ -118,7 +118,7 @@ const CashFlowChart = () => {
                 dataKey="financingCashFlow"
                 fill="var(--color-financingCashFlow)"
                 name="Financing"
-              />
+              /> */}
             </BarChart>
           ) : (
             <div className="h-full flex items-center justify-center">
