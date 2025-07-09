@@ -27,6 +27,7 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { formatCompactCurrency } from "../../../utils/formatCompactCurrency";
 
 type Stock = {
   symbol: string;
@@ -352,7 +353,7 @@ export default function StockTable() {
       }),
       columnHelper.accessor("marketCap", {
         header: "Market Cap",
-        cell: (info) => info.getValue() || "N/A",
+        cell: (info) => formatCompactCurrency(info.getValue()) || "N/A",
         enableSorting: true,
       }),
       columnHelper.display({

@@ -16,6 +16,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import FinancialForecastChart from "./FinancialForecastChart";
+import useAxios from "@/hooks/useAxios";
+import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
   { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
@@ -54,10 +57,28 @@ const TargetChart = () => {
     return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
   }, []);
 
+  const axiosInstance = useAxios();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q");
+
+  const { data: targetData = {} } = useQuery({
+    queryKey: ["target-chart-data"],
+    queryFn: async () => {
+      const res = await axiosInstance(
+        `/stocks/stock/target-price?symbol=${query}`
+      );
+      return res.data;
+    },
+  });
+
+  console.log(targetData)
+
+  const targetChartData = targetData?.chart;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-6 gap-5">
       <div className="border-2 border-[#a8a8a87a] lg:col-span-4 rounded-lg">
-        <FinancialForecastChart />
+        <FinancialForecastChart targetChartData={targetChartData}/>
       </div>
 
       <div className="border-2 border-[#a8a8a87a] lg:col-span-2 rounded-lg flex flex-col justify-center">
