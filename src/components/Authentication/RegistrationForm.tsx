@@ -233,7 +233,7 @@ export default function RegistrationForm() {
                 />
                 <label htmlFor="termsCondition" className="ml-2 text-sm text-gray-900">
                   I agree to the{" "}
-                  <span className="text-green-500">Terms & Condition</span>
+                  <Link href={'/terms-conditions'}><span className="text-green-500">Terms & Condition</span></Link>
                 </label>
               </div>
 

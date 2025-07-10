@@ -3,6 +3,8 @@ export function formatCompactCurrency(input: string | number | null | undefined)
 
   let value: number;
 
+  // const value = valueInMillions * 1_000_000; // convert from millions
+
   if (typeof input === "string") {
     // Remove dollar signs, commas
     const cleaned = input.replace(/[$,]/g, "");
@@ -13,10 +15,12 @@ export function formatCompactCurrency(input: string | number | null | undefined)
 
   if (isNaN(value)) return "N/A";
 
+  value = value * 1000000
+
   if (value >= 1e12) return "$" + (value / 1e12).toFixed(2) + "T";
-  if (value >= 1e9) return "$" + (value / 1e9).toFixed(2) + "B";
-  if (value >= 1e6) return "$" + (value / 1e6).toFixed(2) + "M";
-  if (value >= 1e3) return "$" + (value / 1e3).toFixed(2) + "K";
+  if (value >= 1e9)  return "$" + (value / 1e9).toFixed(2) + "B";
+  if (value >= 1e6)  return "$" + (value / 1e6).toFixed(2) + "M";
+  if (value >= 1e3)  return "$" + (value / 1e3).toFixed(2) + "K";
 
   return "$" + value.toFixed(2);
 }

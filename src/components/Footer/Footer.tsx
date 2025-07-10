@@ -1,14 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import Link from "next/link";
 
 const Footer = () => {
@@ -45,7 +37,7 @@ const Footer = () => {
               <p>Support@olivestocks.com</p>
             </address>
           </div>
-          <div className="relative">
+          {/* <div className="relative">
             <h3 className="mb-4 text-lg font-semibold">Follow Us</h3>
             <div className="mb-6 flex space-x-4">
               <TooltipProvider>
@@ -129,9 +121,9 @@ const Footer = () => {
                 Toggle dark mode
               </Label>
             </div> */}
-          </div>
+          {/* </div> */}
         </div>
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
+        {/* <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground">
             © 2024 Your Company. All rights reserved.
           </p>
@@ -146,7 +138,7 @@ const Footer = () => {
               Cookie Settings
             </a>
           </nav>
-        </div>
+        </div> */}
       </div>
     </footer>
   );

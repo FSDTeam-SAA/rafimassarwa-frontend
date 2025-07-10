@@ -1,24 +1,31 @@
-import Image from "next/image"
+import Image from "next/image";
+import Link from "next/link";
 
 interface TrendingStock {
-  symbol: string
-  currentPrice: number
-  priceChange: number | null
-  percentChange: number | null
-  buy: number
-  hold: number
-  sell: number
-  targetMean: number | null
-  upsidePercent: string | null
+  symbol: string;
+  currentPrice: number;
+  priceChange: number | null;
+  percentChange: number | null;
+  buy: number;
+  hold: number;
+  sell: number;
+  targetMean: number | null;
+  upsidePercent: string | null;
 }
 
 interface StockTrackingTableProps {
-  trendingStocks: TrendingStock[]
+  trendingStocks: TrendingStock[];
 }
 
-export default function StockTrackingTable({ trendingStocks }: StockTrackingTableProps) {
+export default function StockTrackingTable({
+  trendingStocks,
+}: StockTrackingTableProps) {
   if (!trendingStocks || trendingStocks.length === 0) {
-    return <div className="mt-4 p-8 text-center text-gray-500">No trending stocks data available</div>
+    return (
+      <div className="mt-4 p-8 text-center text-gray-500">
+        No trending stocks data available
+      </div>
+    );
   }
 
   return (
@@ -37,31 +44,54 @@ export default function StockTrackingTable({ trendingStocks }: StockTrackingTabl
         {/* Table Rows */}
         <div className="bg-white rounded-b-md">
           {trendingStocks.map((stock, index) => {
-            const totalRatings = stock.buy + stock.hold + stock.sell
-            const smartScore = totalRatings > 0 ? Math.round((stock.buy / totalRatings) * 100) : 0
-            const isNegative = stock.percentChange !== null && stock.percentChange < 0
+            const totalRatings = stock.buy + stock.hold + stock.sell;
+            const smartScore =
+              totalRatings > 0
+                ? Math.round((stock.buy / totalRatings) * 100)
+                : 0;
+            const isNegative =
+              stock.percentChange !== null && stock.percentChange < 0;
 
             return (
               <div
                 key={`${stock.symbol}-${index}`}
                 className={`grid grid-cols-4 p-3 items-center ${
-                  index !== trendingStocks.length - 1 ? "border-b border-gray-200" : ""
+                  index !== trendingStocks.length - 1
+                    ? "border-b border-gray-200"
+                    : ""
                 }`}
               >
                 {/* Company */}
-                <div>
-                  <div className="text-[#2e7d32] font-medium">{stock.symbol}</div>
-                  <div className="text-gray-500 text-sm">Stock Symbol</div>
-                </div>
+                <Link href={`/search-result?q=${stock?.symbol}`}>
+                  {" "}
+                  <div>
+                    <div className="text-[#2e7d32] font-medium">
+                      {stock.symbol}
+                    </div>
+                    <div className="text-gray-500 text-sm">Stock Symbol</div>
+                  </div>
+                </Link>
 
                 {/* Smart Score */}
                 <div className="font-medium">
                   <p className="ml-16">{stock.currentPrice || "N/A"}</p>
                   <div className="flex items-center gap-1">
-                    {isNegative && <Image src="/images/downarrow.png" alt="downarrow" width={15} height={15} />}
-                    <span className={isNegative ? "text-red-500" : "text-green-500"}>
-                      {stock.priceChange !== null && stock.percentChange !== null
-                        ? `${stock.priceChange.toFixed(2)} (${stock.percentChange.toFixed(2)}%)`
+                    {isNegative && (
+                      <Image
+                        src="/images/downarrow.png"
+                        alt="downarrow"
+                        width={15}
+                        height={15}
+                      />
+                    )}
+                    <span
+                      className={isNegative ? "text-red-500" : "text-green-500"}
+                    >
+                      {stock.priceChange !== null &&
+                      stock.percentChange !== null
+                        ? `${stock.priceChange.toFixed(
+                            2
+                          )} (${stock.percentChange.toFixed(2)}%)`
                         : "N/A"}
                     </span>
                   </div>
@@ -76,7 +106,13 @@ export default function StockTrackingTable({ trendingStocks }: StockTrackingTabl
                       boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.3)",
                     }}
                   >
-                    <Image src="/images/lock.png" alt="lock-image" width={20} height={20} className="absolute" />
+                    <Image
+                      src="/images/lock.png"
+                      alt="lock-image"
+                      width={20}
+                      height={20}
+                      className="absolute"
+                    />
                   </div>
                 </div>
 
@@ -106,10 +142,10 @@ export default function StockTrackingTable({ trendingStocks }: StockTrackingTabl
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }
