@@ -3,30 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-const swiperImages = [
-  {
-    src: "/images/hero.png",
-    alt: "Financial data visualization with hand interacting with charts",
-    caption:
-      "**Benefit:** Stay informed with real-time stock news and analysis!", // Emphasized benefit
-    author: "@Seler/Shop-name",
-  },
-  {
-    src: "/images/hero.png",
-    alt: "Stock market analysis dashboard",
-    caption:
-      "**Service:** Access powerful real-time analytics for informed decisions.", // Emphasized service
-    author: "@Olives/Analytics",
-  },
-  {
-    src: "/images/hero.png",
-    alt: "Investment portfolio growth chart",
-    caption:
-      "**Key Differentiator:** Leverage AI-powered strategies to maximize your investment returns.", // Emphasized differentiator
-    author: "@Olives/Portfolio",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import useAxios from "@/hooks/useAxios";
 
 export default function HeroSwiper() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -44,6 +22,45 @@ export default function HeroSwiper() {
 
     return () => clearInterval(interval);
   }, [nextSlide]);
+
+  const axiosInstance = useAxios();
+
+  const { data: heroNews = [] } = useQuery({
+    queryKey: ["hero-news"],
+    queryFn: async () => {
+      const res = await axiosInstance(`/admin/news/market-news`);
+      return res.data.data;
+    },
+  });
+
+  console.log(heroNews);
+
+  const img1 = heroNews[0]?.image;
+  const caption1 = heroNews[0]?.headline;
+  const img2 = heroNews[1]?.image;
+  const caption2 = heroNews[2]?.headline;
+
+  const swiperImages = [
+    {
+      src: "/images/hero.jpg",
+      alt: "Financial data visualization with hand interacting with charts",
+      url: "/news"
+    },
+    {
+      src: img1,
+      alt: "Stock market analysis dashboard",
+      caption: caption1,
+      category: heroNews[0]?.category,
+      url: heroNews[0]?.url,
+    },
+    {
+      src: img2,
+      alt: "Investment portfolio growth chart",
+      caption: caption2,
+      category: heroNews[1]?.category,
+      url: heroNews[1]?.url,
+    },
+  ];
 
   return (
     <section className="relative overflow-hidden py-14 lg:py-24">
@@ -105,37 +122,40 @@ export default function HeroSwiper() {
               {/* Swiper */}
               <div className="relative h-full w-full">
                 {swiperImages.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? "opacity-100" : "opacity-0"
+                  <Link href={`${image.url}`} target="_blank" key={index}>
+                    <div
+                      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
+                        index === currentSlide ? "opacity-100" : "opacity-0"
                       }`}
-                  >
-                    <Image
-                      src={image.src || "/placeholder.svg"}
-                      alt={image.alt}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 to-transparent p-4 text-white ml-10">
-                      <p className="lg:text-lg hidden lg:block font-medium">
-                        {image.caption}
-                      </p>
-                      <p className="lg:text-sm hidden lg:block  text-green-400">
-                        {image.author}
-                      </p>
-                      <div className="mt-2 flex space-x-1">
-                        {swiperImages.map((_, i) => (
-                          <span
-                            key={i}
-                            className={`h-2 w-2 rounded-full ${i === currentSlide
-                              ? "bg-green-500"
-                              : "bg-white/50"
+                    >
+                      <Image
+                        src={image.src || "/images/hero.jpg"}
+                        alt={image.alt}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 to-transparent p-4 text-white ml-10">
+                        <p className="lg:text-lg hidden lg:block font-medium">
+                          {image.caption}
+                        </p>
+                        <p className="lg:text-sm hidden lg:block  text-green-400">
+                          {image.category}
+                        </p>
+                        <div className="mt-2 flex space-x-1">
+                          {swiperImages.map((_, i) => (
+                            <span
+                              key={i}
+                              className={`h-2 w-2 rounded-full ${
+                                i === currentSlide
+                                  ? "bg-green-500"
+                                  : "bg-white/50"
                               }`}
-                          />
-                        ))}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

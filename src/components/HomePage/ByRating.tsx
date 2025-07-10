@@ -1,25 +1,29 @@
-import Image from "next/image"
-import { Star } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
 
 interface TopStock {
-  symbol: string
-  currentPrice: number
-  priceChange: number | null
-  percentChange: number | null
-  buy: number
-  hold: number
-  sell: number
-  targetMean: number | null
-  upsidePercent: string | null
+  symbol: string;
+  currentPrice: number;
+  priceChange: number | null;
+  percentChange: number | null;
+  buy: number;
+  hold: number;
+  sell: number;
+  targetMean: number | null;
+  upsidePercent: string | null;
 }
 
 interface TopStocksTableProps {
-  topStocks: TopStock[]
+  topStocks: TopStock[];
 }
 
 export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
   if (!topStocks || topStocks.length === 0) {
-    return <div className="mt-4 p-8 text-center text-gray-500">No top stocks data available</div>
+    return (
+      <div className="mt-4 p-8 text-center text-gray-500">
+        No top stocks data available
+      </div>
+    );
   }
 
   return (
@@ -38,38 +42,40 @@ export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
 
         <div className="bg-white rounded-b-md">
           {topStocks.map((stock, index) => {
-            const totalRatings = stock.buy + stock.hold + stock.sell
-            const rating = totalRatings > 0 ? Math.min(5, Math.round((stock.buy / totalRatings) * 5)) : 0
-
             return (
               <div
                 key={`${stock.symbol}-${index}`}
                 className={`grid grid-cols-4 p-3 items-center ${
-                  index !== topStocks.length - 1 ? "border-b border-gray-200" : ""
+                  index !== topStocks.length - 1
+                    ? "border-b border-gray-200"
+                    : ""
                 }`}
               >
                 {/* Stock Info */}
                 <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-green-100 mr-3 flex items-center justify-center">
-                    <span className="text-green-600 font-bold text-sm">{stock.symbol}</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-[14px]">{stock.symbol}</div>
-                    <div className="text-gray-500 text-xs">Stock Symbol</div>
-                    <div className="flex mt-1">
-                      {[...Array(rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
+                  <Link href={`/search-result?q=${stock?.symbol}`}>
+                    {" "}
+                    <div>
+                      <div className="text-[#2e7d32] font-medium">
+                        {stock.symbol}
+                      </div>
+                      <div className="text-gray-500 text-sm">Stock Symbol</div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
 
                 {/* Company */}
                 <div className="ml-10">
-                  <div className="text-green-500 font-medium">${stock.currentPrice || "N/A"}</div>
+                  <div className="text-green-500 font-medium">
+                    ${stock.currentPrice || "N/A"}
+                  </div>
                   <div className="text-gray-500 text-sm">
                     {stock.priceChange !== null && stock.percentChange !== null
-                      ? `${stock.priceChange >= 0 ? "+" : ""}${stock.priceChange.toFixed(2)} (${stock.percentChange.toFixed(2)}%)`
+                      ? `${
+                          stock.priceChange >= 0 ? "+" : ""
+                        }${stock.priceChange.toFixed(
+                          2
+                        )} (${stock.percentChange.toFixed(2)}%)`
                       : "No change data"}
                   </div>
                 </div>
@@ -83,20 +89,28 @@ export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
                       boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.3)",
                     }}
                   >
-                    <Image src="/images/lock.png" alt="lock-image" width={20} height={20} className="absolute z-1000" />
+                    <Image
+                      src="/images/lock.png"
+                      alt="lock-image"
+                      width={20}
+                      height={20}
+                      className="absolute z-1000"
+                    />
                   </div>
                 </div>
 
                 {/* Upside Potential */}
                 <div className="text-green-500 font-medium mt-3 ml-3">
                   {stock.upsidePercent ? `${stock.upsidePercent}%` : "N/A"}
-                  <div className="text-green-500 text-sm">{stock.upsidePercent ? "Upside" : "No data"}</div>
+                  <div className="text-green-500 text-sm">
+                    {stock.upsidePercent ? "Upside" : "No data"}
+                  </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }
