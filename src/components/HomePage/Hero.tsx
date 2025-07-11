@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -8,20 +8,6 @@ import useAxios from "@/hooks/useAxios";
 
 export default function HeroSwiper() {
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) =>
-      prev === swiperImages.length - 1 ? 0 : prev + 1
-    );
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [nextSlide]);
 
   const axiosInstance = useAxios();
 
@@ -33,35 +19,48 @@ export default function HeroSwiper() {
     },
   });
 
-  console.log(heroNews);
+  const swiperImages = useMemo(() => {
+    const img1 = heroNews[0]?.image;
+    const caption1 = heroNews[0]?.headline;
+    const img2 = heroNews[1]?.image;
+    const caption2 = heroNews[1]?.headline;
 
-  const img1 = heroNews[0]?.image;
-  const caption1 = heroNews[0]?.headline;
-  const img2 = heroNews[1]?.image;
-  const caption2 = heroNews[2]?.headline;
+    return [
+      {
+        src: "/images/hero.jpg",
+        alt: "Financial data visualization with hand interacting with charts",
+        url: "/news",
+      },
+      {
+        src: img1,
+        alt: "Stock market analysis dashboard",
+        caption: caption1,
+        category: heroNews[0]?.category,
+        url: heroNews[0]?.url,
+      },
+      {
+        src: img2,
+        alt: "Investment portfolio growth chart",
+        caption: caption2,
+        category: heroNews[1]?.category,
+        url: heroNews[1]?.url,
+      },
+    ];
+  }, [heroNews]);
 
-  const swiperImages = [
-    {
-      src: "/images/hero.jpg",
-      alt: "Financial data visualization with hand interacting with charts",
-      url: "/news"
-    },
-    {
-      src: img1,
-      alt: "Stock market analysis dashboard",
-      caption: caption1,
-      category: heroNews[0]?.category,
-      url: heroNews[0]?.url,
-    },
-    {
-      src: img2,
-      alt: "Investment portfolio growth chart",
-      caption: caption2,
-      category: heroNews[1]?.category,
-      url: heroNews[1]?.url,
-    },
-  ];
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) =>
+      prev === swiperImages.length - 1 ? 0 : prev + 1
+    );
+  }, [swiperImages.length]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [nextSlide]);
   return (
     <section className="relative overflow-hidden py-14 lg:py-24">
       <div className="container mx-auto">
@@ -124,9 +123,8 @@ export default function HeroSwiper() {
                 {swiperImages.map((image, index) => (
                   <Link href={`${image.url}`} target="_blank" key={index}>
                     <div
-                      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
-                        index === currentSlide ? "opacity-100" : "opacity-0"
-                      }`}
+                      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? "opacity-100" : "opacity-0"
+                        }`}
                     >
                       <Image
                         src={image.src || "/images/hero.jpg"}
@@ -145,11 +143,10 @@ export default function HeroSwiper() {
                           {swiperImages.map((_, i) => (
                             <span
                               key={i}
-                              className={`h-2 w-2 rounded-full ${
-                                i === currentSlide
-                                  ? "bg-green-500"
-                                  : "bg-white/50"
-                              }`}
+                              className={`h-2 w-2 rounded-full ${i === currentSlide
+                                ? "bg-green-500"
+                                : "bg-white/50"
+                                }`}
                             />
                           ))}
                         </div>

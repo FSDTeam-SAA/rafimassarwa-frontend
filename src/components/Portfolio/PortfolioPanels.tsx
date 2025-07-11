@@ -98,7 +98,6 @@ export default function Home() {
 
   const performanceChartData = performaceData?.performanceChart
 
-  console.log(performanceChartData)
 
   const { mutate: getOverview, data: overviewData, isPending: isOverviewLoading } = useMutation({
     mutationFn: async (portfolioId: string) => {
@@ -265,7 +264,6 @@ export default function Home() {
     }
   }, [overviewData?.cash]);
 
-  console.log(overviewData)
 
   return (
     <div className="flex flex-col ">

@@ -63,10 +63,6 @@ export default function StockList({ onSelectStock, selectedStock }: StockListPro
     }, [selectedPortfolioId, getOverview]);
 
 
-
-    console.log(overviewData)
-
-
     return (
         <Card>
             <CardHeader className="pb-2">

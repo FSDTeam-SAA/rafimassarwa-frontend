@@ -102,6 +102,8 @@ export default function NotificationsPage() {
 
   const { newsNotification } = useSocketContext()
 
+  console.log(newsNotification)
+
   // Filter notifications based on active tab
   const filteredNotifications = notifications
     .filter((notification) => {
@@ -154,9 +156,6 @@ export default function NotificationsPage() {
       setActiveTab(tab)
     }
   }
-
-
-  console.log(newsNotification)
 
   return (
     <div className="container mx-auto px-6 py-4 mt-28">

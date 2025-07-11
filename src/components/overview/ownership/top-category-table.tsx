@@ -46,8 +46,6 @@ export default function TopCatDataTable<T extends Record<string, any>>({
     }
   };
 
-  console.log(data)
-
   return (
     <div className="w-full overflow-hidden mb-6">
       <h2 className="text-xl font-bold pb-4">{title}</h2>
