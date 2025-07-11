@@ -146,8 +146,6 @@ export default function StockOfMonth() {
       quantity: 1,
     }));
 
-    console.log(symbols);
-
     if (symbols.length === 0) {
       toast.error("No stocks to copy.");
       return;

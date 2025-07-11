@@ -39,7 +39,6 @@ export function UserProfile() {
         },
         enabled: !!session?.user?.accessToken && !!selectedPortfolioId,
     });
-    console.log(user)
 
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-4 bg-white rounded-lg shadow-sm ">

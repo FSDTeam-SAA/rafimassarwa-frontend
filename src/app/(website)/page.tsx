@@ -13,8 +13,6 @@ import PrivateHome from "@/components/PrivateHome/PrivateHome";
 export default function Home() {
   const { data: session } = useSession();
 
-  console.log("Session: ", session)
-
   return (
     <main>
       {

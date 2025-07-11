@@ -369,7 +369,6 @@ export default function Portfolio({ title }: { title: string }) {
       quantity: 1,
     }));
 
-    console.log(symbols);
 
     if (symbols.length === 0) {
       toast.error("No stocks to copy.");

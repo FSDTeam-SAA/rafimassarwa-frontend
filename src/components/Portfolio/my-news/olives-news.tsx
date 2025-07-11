@@ -49,8 +49,6 @@ export default function OlivesNews() {
         select: (data) => data?.data.filter((item: TrendingNews) => item.category === "top news").slice(0, 5)
     })
 
-    console.log(trendingNews)
-
 
     function shortTimeAgo(dateInput: string | number | Date): string {
         const timestamp =

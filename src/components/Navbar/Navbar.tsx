@@ -73,8 +73,6 @@ export default function Navbar() {
 
   const { paymentType } = useUserPayment();
 
-  console.log(paymentType)
-
   const navigationLinks: NavItem[] = [
     { name: "Home", href: "/", icon: Home },
     {

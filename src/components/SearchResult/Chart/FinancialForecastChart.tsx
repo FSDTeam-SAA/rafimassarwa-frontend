@@ -34,8 +34,6 @@ export default function FinancialForecastChart({ targetChartData }: FinancialFor
 
   function transformToChartData(data : ForecastData) {
 
-    console.log(data)
-
   if (!data || !data.labels) return [];
 
   const labels = data.labels;

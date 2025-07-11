@@ -40,7 +40,6 @@ const MyPortfolio = () => {
   });
 
 
-  console.log("Fuckury : ", portfolioData);
 
   // Show loading if the query is enabled and is either loading or not yet fetched
   if (isQueryEnabled && (isLoading || !isFetched)) {

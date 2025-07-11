@@ -4,7 +4,6 @@ import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";
 import StockNewsMain from "@/components/News/StoctNewsMain";
 import TipRanksLabs from "@/components/News/TipRanksLabs";
-import { usePortfolio } from "@/components/context/portfolioContext";
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -22,9 +21,6 @@ const NewsPage = () => {
     },
   });
 
-  const { selectedPortfolioId } = usePortfolio();
-
-  console.log(selectedPortfolioId);
 
   const { mutate: getMyNews, data: myNews = [] } = useMutation({
     mutationFn: async () => {
@@ -48,7 +44,6 @@ const NewsPage = () => {
     getMyNews();
   }, [getMyNews]);
 
-  console.log(myNews);
 
   const { data: stockNews = [] } = useQuery({
     queryKey: ["stock-news"],
