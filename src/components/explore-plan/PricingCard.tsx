@@ -316,7 +316,7 @@ export default function SubscriptionPricing() {
                                                 <>
                                                     <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                                                     <span>{feature.name}</span>
-                                                    <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-800">
+                                                    <Badge variant="secondary" className="ml-2 text-xs text-nowrap bg-green-100 text-green-800">
                                                         Exclusive
                                                     </Badge>
                                                 </>

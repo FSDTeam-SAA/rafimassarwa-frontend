@@ -5,54 +5,54 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 // FAQ data
 const faqData = [
     {
-        question: "What was Apple's price range in the past 12 months?",
+        question: "What is the stock market?",
         answer:
-            "Over the past 12 months, Apple's stock price has ranged from approximately $155.38 to $220.43, representing a fluctuation of about 41.9% from its lowest to highest point.",
+            "The stock market is a marketplace where investors can buy and sell shares of publicly traded companies. It helps companies raise capital and provides investors the opportunity to own a piece of a company and benefit from its growth.",
     },
     {
-        question: "What is Apple's market cap?",
+        question: "What is the difference between stocks and ETFs?",
         answer:
-            "Apple's current market capitalization is approximately $3.2 trillion, making it one of the most valuable publicly traded companies in the world alongside Microsoft and Nvidia.",
+            "Stocks represent ownership in a single company, while ETFs (Exchange-Traded Funds) are investment funds that hold a collection of assets like stocks, bonds, or commodities. ETFs allow investors to diversify easily by investing in multiple companies at once.",
     },
     {
-        question: "When is Apple's upcoming earnings report date?",
+        question: "What does market capitalization mean?",
         answer:
-            "Apple is expected to release its next quarterly earnings report on July 25, 2025. The company typically holds its earnings call at 2:00 PM Pacific Time (5:00 PM Eastern Time).",
+            "Market capitalization (market cap) is the total value of a company's outstanding shares of stock. It’s calculated by multiplying the current share price by the total number of shares. Companies are often categorized as small-cap, mid-cap, or large-cap based on this value.",
     },
     {
-        question: "How were Apple's earnings last quarter?",
+        question: "How can I start investing in stocks?",
         answer:
-            "In its last quarterly report, Apple reported revenue of $94.8 billion and earnings per share (EPS) of $1.52, exceeding analyst expectations by 3.4%. iPhone sales contributed $51.3 billion, while services revenue reached a record $22.3 billion.",
+            "To start investing, you’ll need to open a brokerage account, deposit funds, and research companies or funds you’re interested in. Many investors start by buying shares of well-known companies or broad market ETFs to diversify their portfolio.",
     },
     {
-        question: "Is Apple overvalued?",
+        question: "What are dividends?",
         answer:
-            "Opinions on Apple's valuation vary among analysts. The company currently trades at a P/E ratio of approximately 32x, which is higher than its historical average of 25x. Some analysts believe its services growth and ecosystem justify the premium, while others suggest it may be slightly overvalued at current levels.",
+            "Dividends are payments made by some companies to their shareholders, usually from profits. They are often paid quarterly and can provide investors with a steady income stream in addition to any potential stock price growth.",
     },
     {
-        question: "Does Apple pay dividends?",
+        question: "What does P/E ratio mean?",
         answer:
-            "Yes, Apple pays a quarterly dividend. The current dividend yield is approximately 0.5%. Apple has consistently increased its dividend annually since reintroducing it in 2012, and has also conducted significant share buybacks as part of its capital return program.",
+            "The price-to-earnings (P/E) ratio measures a company's current share price relative to its per-share earnings. It’s commonly used by investors to evaluate whether a stock may be overvalued or undervalued compared to its earnings.",
     },
     {
-        question: "What is Apple's EPS estimate?",
+        question: "What is a stock split?",
         answer:
-            "Analysts' consensus EPS estimate for Apple's current fiscal year is $6.58, representing a projected growth of 7.2% year-over-year. For the next fiscal year, analysts estimate an EPS of $7.12, suggesting continued growth.",
+            "A stock split occurs when a company increases the number of its outstanding shares by issuing more shares to current shareholders. For example, in a 2-for-1 split, each shareholder gets an extra share for every share they own, and the share price is halved.",
     },
     {
-        question: "How many shares outstanding does Apple have?",
+        question: "How do I know if a stock is risky?",
         answer:
-            "Apple has approximately 15.4 billion shares outstanding. This number has been decreasing over time due to Apple's aggressive share repurchase program, which has bought back over $550 billion worth of shares since the program began.",
+            "All stocks carry some level of risk. Factors to consider include the company's financial health, industry trends, past stock price volatility, and market conditions. Diversification and long-term investing can help manage risk.",
     },
     {
-        question: "What happened to Apple's price movement after its last earnings report?",
+        question: "What is a bull market and a bear market?",
         answer:
-            "Following its last earnings report, Apple's stock price initially rose by 5.3% in after-hours trading due to better-than-expected results and an additional $90 billion share repurchase authorization. The stock continued to gain momentum in the following days, rising approximately 8.7% in the week after the announcement.",
+            "A bull market refers to a period when stock prices are rising or expected to rise, usually by 20% or more from recent lows. A bear market is when prices fall by 20% or more from recent highs, often during economic downturns or negative investor sentiment.",
     },
     {
-        question: "Which hedge fund is a major shareholder of Apple?",
+        question: "How often should I check my investments?",
         answer:
-            "Warren Buffett's Berkshire Hathaway is one of the largest institutional shareholders of Apple, holding approximately 5.8% of outstanding shares. Other major hedge fund holders include Vanguard Group, BlackRock, and State Street Corporation.",
+            "It depends on your strategy, but long-term investors typically review their portfolio a few times a year to rebalance or adjust based on goals. Constantly watching daily price changes can lead to emotional decisions that may harm long-term returns.",
     },
 ]
 

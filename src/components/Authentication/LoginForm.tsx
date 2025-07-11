@@ -111,7 +111,7 @@ export default function LoginForm() {
                   height={24}
                 />
               </button>
-              <button className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+              <button onClick={() => signIn("apple", { callbackUrl: "/" })} className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
                 <Image
                   src="/images/Authentication/apple.png"
                   alt="Apple"
