@@ -157,7 +157,7 @@ export default function AddToPortfolio() {
             {
                 portfolioId: selectedPortfolioId,
                 symbol: stock.symbol,
-                quantity: 1,
+                quantity: 0,
                 price: stock.price
             }
         );

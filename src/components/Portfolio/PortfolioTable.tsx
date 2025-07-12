@@ -600,7 +600,7 @@ export default function PortfolioTable() {
           className={`flex items-center gap-1 justify-center ${Number.parseFloat(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"}`}
         >
           {Number.parseFloat(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
-          {item.holdingGain}%
+          {item.holdingGain ?? 0}%
         </div>
       </TableCell>
 
@@ -624,28 +624,46 @@ export default function PortfolioTable() {
       {columnVisibility.costBasis && (
         <TableCell className="w-[140px] text-center">
           $
-          {item.costBasis.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {
+            item.costBasis
+              ?
+              item.costBasis.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+              :
+              0
+          }
         </TableCell>
       )}
       {columnVisibility.unrealizedPL && (
         <TableCell className={`w-[160px] text-center ${item.unrealized >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {item.unrealized.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {
+            item.unrealized
+              ?
+              item.unrealized.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+              :
+              0
+          }
         </TableCell>
       )}
       {columnVisibility.plPercent && (
         <TableCell className={`w-[120px] text-center ${item.pL >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {item.pL.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {
+            item.pL
+              ?
+              item.pL.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+              :
+              0
+          }
         </TableCell>
       )}
       {columnVisibility.weight && (

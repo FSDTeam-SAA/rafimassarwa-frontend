@@ -101,7 +101,7 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
             if (!data.portfolioId) {
                 throw new Error("Portfolio ID is missing.")
             }
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, { // Ensure this is the correct endpoint
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -143,7 +143,7 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
         addHolding({
             portfolioId: selectedPortfolioId,
             symbol: stock.symbol,
-            quantity: 1,
+            quantity: 0,
             price: stock.price
         })
     }
