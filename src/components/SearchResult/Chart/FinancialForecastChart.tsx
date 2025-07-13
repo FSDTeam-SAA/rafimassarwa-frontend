@@ -20,72 +20,79 @@ type ForecastData = {
   labels: string[];
   pastPrices?: number[];
   forecast?: {
-    high?: (number[] | string[]);
-    average?: (number[] | string[]);
-    low?: (number[] | string[]);
+    high?: number[] | string[];
+    average?: number[] | string[];
+    low?: number[] | string[];
   };
 };
 
 interface FinancialForecastChartProps {
   targetChartData: ForecastData;
+  targetsData?: {
+    high?: number | string;
+    average?: number | string;
+    low?: number | string;
+  };
 }
 
-export default function FinancialForecastChart({ targetChartData }: FinancialForecastChartProps) {
+export default function FinancialForecastChart({
+  targetChartData,
+  targetsData,
+}: FinancialForecastChartProps) {
+  function transformToChartData(data: ForecastData) {
+    if (!data || !data.labels) return [];
 
-  function transformToChartData(data : ForecastData) {
+    const labels = data.labels;
+    const pastPrices = data.pastPrices || [];
+    const forecast = data.forecast || {};
 
-  if (!data || !data.labels) return [];
+    const chartData = [];
 
-  const labels = data.labels;
-  const pastPrices = data.pastPrices || [];
-  const forecast = data.forecast || {};
+    const forecastStartIndex = pastPrices.length;
 
-  const chartData = [];
+    // Step 1: Add past price data
+    for (let i = 0; i < pastPrices.length; i++) {
+      chartData.push({
+        month: labels[i],
+        price: pastPrices[i],
+      });
+    }
 
-  const forecastStartIndex = pastPrices.length;
+    // Step 2: Add transition month (same as last known price but with forecast info)
+    if (
+      forecast.high &&
+      forecast.high.length > 0 &&
+      forecast.average &&
+      forecast.average.length > 0 &&
+      forecast.low &&
+      forecast.low.length > 0 &&
+      labels[forecastStartIndex]
+    ) {
+      chartData.push({
+        month: labels[forecastStartIndex],
+        forecast: true,
+        price: pastPrices[pastPrices.length - 1],
+        high: parseFloat(forecast.high[0].toString()),
+        average: parseFloat(forecast.average[0].toString()),
+        low: parseFloat(forecast.low[0].toString()),
+      });
+    }
 
-  // Step 1: Add past price data
-  for (let i = 0; i < pastPrices.length; i++) {
-    chartData.push({
-      month: labels[i],
-      price: pastPrices[i],
-    });
+    // Step 3: Add remaining forecast months
+    for (let i = 1; i < (forecast.high?.length ?? 0); i++) {
+      chartData.push({
+        month: labels[forecastStartIndex + i],
+        forecast: true,
+        high: parseFloat(forecast.high![i].toString()),
+        average: parseFloat(forecast.average![i].toString()),
+        low: parseFloat(forecast.low![i].toString()),
+      });
+    }
+
+    return chartData;
   }
 
-  // Step 2: Add transition month (same as last known price but with forecast info)
-  if (
-    forecast.high && forecast.high.length > 0 &&
-    forecast.average && forecast.average.length > 0 &&
-    forecast.low && forecast.low.length > 0 &&
-    labels[forecastStartIndex]
-  ) {
-    chartData.push({
-      month: labels[forecastStartIndex],
-      forecast: true,
-      price: pastPrices[pastPrices.length - 1],
-      high: parseFloat(forecast.high[0].toString()),
-      average: parseFloat(forecast.average[0].toString()),
-      low: parseFloat(forecast.low[0].toString()),
-    });
-  }
-
-  // Step 3: Add remaining forecast months
-  for (let i = 1; i < (forecast.high?.length ?? 0); i++) {
-    chartData.push({
-      month: labels[forecastStartIndex + i],
-      forecast: true,
-      high: parseFloat(forecast.high![i].toString()),
-      average: parseFloat(forecast.average![i].toString()),
-      low: parseFloat(forecast.low![i].toString()),
-    });
-  }
-
-  return chartData;
-}
-
-
-const chartData = transformToChartData(targetChartData);
-
+  const chartData = transformToChartData(targetChartData);
 
   // Current price and upside percentage
   const currentPrice = 400;
@@ -215,15 +222,21 @@ const chartData = transformToChartData(targetChartData);
           <div className="flex flex-col justify-between gap-4 py-6 px-4">
             <div className="text-right">
               <div className="text-gray-500 text-xs">High</div>
-              <div className="font-semibold text-green-500">$325.00</div>
+              <div className="font-semibold text-green-500 text-[10px]">
+                {targetsData?.high}
+              </div>
             </div>
             <div className="text-right">
-              <div className="text-gray-500 text-xs">Average</div>
-              <div className="font-semibold">$250.20</div>
+              <div className="text-gray-500 text-[10px]">Average</div>
+              <div className="font-semibold text-[10px]">
+                {targetsData?.average}
+              </div>
             </div>
             <div className="text-right">
               <div className="text-gray-500 text-xs">Low</div>
-              <div className="font-semibold text-red-500">$188.00</div>
+              <div className="font-semibold text-red-500 text-[10px]">
+                {targetsData?.low}
+              </div>
             </div>
           </div>
         </div>
