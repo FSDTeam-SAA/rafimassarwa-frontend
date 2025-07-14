@@ -33,11 +33,19 @@ interface FinancialForecastChartProps {
     average?: number | string;
     low?: number | string;
   };
+  targetData?: {
+    high?: number | string;
+    average?: number | string;
+    low?: number | string;
+    currentPrice?: number | string;
+    upside?: number | string;
+  };
 }
 
 export default function FinancialForecastChart({
   targetChartData,
   targetsData,
+  targetData,
 }: FinancialForecastChartProps) {
   function transformToChartData(data: ForecastData) {
     if (!data || !data.labels) return [];
@@ -94,10 +102,6 @@ export default function FinancialForecastChart({
 
   const chartData = transformToChartData(targetChartData);
 
-  // Current price and upside percentage
-  const currentPrice = 400;
-  const percentageUpside = 15.2;
-
   return (
     <Card className="w-full">
       <CardHeader className="pb-0 px-6">
@@ -105,16 +109,16 @@ export default function FinancialForecastChart({
           <div className="flex flex-col">
             <div>
               <span className="text-4xl font-bold text-green-500">
-                ${currentPrice}
+                {targetData?.currentPrice}
               </span>
               <span className="text-sm text-green-500 flex items-center">
-                <ArrowUpRight className="h-4 w-4 mr-1" />({percentageUpside}%
-                Upside)
+                <ArrowUpRight className="h-4 w-4 mr-1" />
+                (${targetData?.upside})
               </span>
             </div>
           </div>
         </div>
-        <div className="flex justify-center gap-5 pt-3 pb-2 text-sm text-gray-500 font-medium">
+        <div className="flex justify-between px-24 pt-3 pb-2 text-sm text-gray-500 font-medium">
           <div>Past 12 Months</div>
           <div>12 Month Forecast</div>
         </div>
@@ -154,12 +158,9 @@ export default function FinancialForecastChart({
                     dataKey="month"
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => {
-                      const date = new Date(value);
-                      return date.toLocaleString("default", { month: "short" });
-                    }}
+                    tickFormatter={(value) => value} // Just show the raw "Jul", "Aug", etc.
                     tick={{ fontSize: 12 }}
-                    interval={2}
+                    interval={0} // ✅ This forces showing all labels
                   />
                   <YAxis
                     domain={[0, 550]}
@@ -241,18 +242,22 @@ export default function FinancialForecastChart({
           </div>
         </div>
 
-        <div className="flex justify-between mt-6  px-6">
+        <div className="flex justify-between mt-6 px-6">
           <div className="text-center flex items-center gap-2">
-            <div className="text-xl font-medium">Highest Price Target:</div>
-            <div className="font-semibold text-green-500">$400</div>
+            <div className="font-medium">Highest Price Target:</div>
+            <div className="font-semibold text-green-500">
+              {targetsData?.high}
+            </div>
           </div>
           <div className="text-center flex items-center gap-2">
-            <div className="text-xl font-medium">Highest Price Target:</div>
-            <div className="font-semibold text-gray-500">$400</div>
+            <div className="font-medium">Average Price Target:</div>
+            <div className="font-semibold text-gray-500">
+              {targetsData?.average}
+            </div>
           </div>
           <div className="text-center flex items-center gap-2">
-            <div className="text-xl font-medium">Highest Price Target:</div>
-            <div className="font-semibold text-red-500">$400</div>
+            <div className="font-medium">Lowest Price Target:</div>
+            <div className="font-semibold text-red-500">{targetsData?.low}</div>
           </div>
         </div>
       </CardContent>

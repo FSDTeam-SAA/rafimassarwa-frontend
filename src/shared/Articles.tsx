@@ -125,7 +125,7 @@ export default function Articles() {
               <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
                 {tab.value === "deep-research"
                   ? // Render deep research items
-                    (tab.data as DeepResearchItem[]).map((item) => (
+                    (tab.data as DeepResearchItem[]).slice(0, 3).map((item) => (
                       <Link key={item._id} href={`/news/${item?._id}`}>
                         <div className="p-4 border rounded-2xl">
                           <Image

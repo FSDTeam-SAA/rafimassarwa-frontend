@@ -9,6 +9,7 @@ import StockTickerCarousel from "../Watchlist/StockTickerCarousel";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
+import YoutubeVideo from "./YoutubeVideo/YoutubeVideo";
 
 interface NewsItem {
   category: string;
@@ -78,10 +79,17 @@ const PrivateHome = () => {
       <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6 lg:gap-10">
         <div className="col-span-1 lg:col-span-2">
           {stockNews[0] && (
-            <Link href={stockNews[0].url} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={stockNews[0].url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
-                  src={stockNews[0].image || "/placeholder.svg?height=270&width=500"}
+                  src={
+                    stockNews[0].image ||
+                    "/placeholder.svg?height=270&width=500"
+                  }
                   alt={stockNews[0].headline}
                   width={500}
                   height={270}
@@ -89,9 +97,13 @@ const PrivateHome = () => {
                   style={{ aspectRatio: "500 / 270" }}
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
-                  <span className="text-xs text-gray-500 uppercase font-medium">{stockNews[0].source}</span>
+                  <span className="text-xs text-gray-500 uppercase font-medium">
+                    {stockNews[0].source}
+                  </span>
                   <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-500">{formatDate(stockNews[0].datetime)}</span>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(stockNews[0].datetime)}
+                  </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
                   {truncateText(stockNews[0].headline, 80)}
@@ -104,10 +116,17 @@ const PrivateHome = () => {
           )}
 
           {stockNews[1] && (
-            <Link href={stockNews[1].url} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={stockNews[1].url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
-                  src={stockNews[1].image || "/placeholder.svg?height=270&width=500"}
+                  src={
+                    stockNews[1].image ||
+                    "/placeholder.svg?height=270&width=500"
+                  }
                   alt={stockNews[1].headline}
                   width={500}
                   height={270}
@@ -115,9 +134,13 @@ const PrivateHome = () => {
                   style={{ aspectRatio: "500 / 270" }}
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
-                  <span className="text-xs text-gray-500 uppercase font-medium">{stockNews[1].source}</span>
+                  <span className="text-xs text-gray-500 uppercase font-medium">
+                    {stockNews[1].source}
+                  </span>
                   <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-500">{formatDate(stockNews[1].datetime)}</span>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(stockNews[1].datetime)}
+                  </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
                   {truncateText(stockNews[1].headline, 80)}
@@ -132,10 +155,17 @@ const PrivateHome = () => {
 
         <div className="col-span-1 lg:col-span-3">
           {stockNews[2] && (
-            <Link href={stockNews[2].url} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={stockNews[2].url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
-                  src={stockNews[2].image || "/placeholder.svg?height=450&width=800"}
+                  src={
+                    stockNews[2].image ||
+                    "/placeholder.svg?height=450&width=800"
+                  }
                   alt={stockNews[2].headline}
                   width={800}
                   height={450}
@@ -143,9 +173,13 @@ const PrivateHome = () => {
                   style={{ aspectRatio: "800 / 450" }}
                 />
                 <div className="flex items-center justify-center gap-2 mt-4 mb-2">
-                  <span className="text-sm text-gray-500 uppercase font-medium">{stockNews[2].source}</span>
+                  <span className="text-sm text-gray-500 uppercase font-medium">
+                    {stockNews[2].source}
+                  </span>
                   <span className="text-sm text-gray-400">•</span>
-                  <span className="text-sm text-gray-500">{formatDate(stockNews[2].datetime)}</span>
+                  <span className="text-sm text-gray-500">
+                    {formatDate(stockNews[2].datetime)}
+                  </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-xs text-blue-600 uppercase font-medium px-2 py-1 bg-blue-50 rounded">
                     {stockNews[2].category}
@@ -164,10 +198,17 @@ const PrivateHome = () => {
 
         <div className="col-span-1 lg:col-span-2">
           {stockNews[3] && (
-            <Link href={stockNews[3].url} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={stockNews[3].url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
-                  src={stockNews[3].image || "/placeholder.svg?height=270&width=500"}
+                  src={
+                    stockNews[3].image ||
+                    "/placeholder.svg?height=270&width=500"
+                  }
                   alt={stockNews[3].headline}
                   width={500}
                   height={270}
@@ -175,9 +216,13 @@ const PrivateHome = () => {
                   style={{ aspectRatio: "500 / 270" }}
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
-                  <span className="text-xs text-gray-500 uppercase font-medium">{stockNews[3].source}</span>
+                  <span className="text-xs text-gray-500 uppercase font-medium">
+                    {stockNews[3].source}
+                  </span>
                   <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-500">{formatDate(stockNews[3].datetime)}</span>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(stockNews[3].datetime)}
+                  </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
                   {truncateText(stockNews[3].headline, 80)}
@@ -190,10 +235,17 @@ const PrivateHome = () => {
           )}
 
           {stockNews[4] && (
-            <Link href={stockNews[4].url} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={stockNews[4].url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
-                  src={stockNews[4].image || "/placeholder.svg?height=270&width=500"}
+                  src={
+                    stockNews[4].image ||
+                    "/placeholder.svg?height=270&width=500"
+                  }
                   alt={stockNews[4].headline}
                   width={500}
                   height={270}
@@ -201,9 +253,13 @@ const PrivateHome = () => {
                   style={{ aspectRatio: "500 / 270" }}
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
-                  <span className="text-xs text-gray-500 uppercase font-medium">{stockNews[4].source}</span>
+                  <span className="text-xs text-gray-500 uppercase font-medium">
+                    {stockNews[4].source}
+                  </span>
                   <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-500">{formatDate(stockNews[4].datetime)}</span>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(stockNews[4].datetime)}
+                  </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
                   {truncateText(stockNews[4].headline, 80)}
@@ -219,7 +275,12 @@ const PrivateHome = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-center my-8 md:my-16 gap-4 md:gap-2">
         {stockNews.slice(5, 9).map((news) => (
-          <Link key={news.id} href={news.url} target="_blank" rel="noopener noreferrer">
+          <Link
+            key={news.id}
+            href={news.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div className="flex gap-2 items-center cursor-pointer hover:opacity-90 transition-opacity">
               <div>
                 <Image
@@ -232,9 +293,13 @@ const PrivateHome = () => {
               </div>
               <div className="max-w-[200px]">
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="text-[10px] text-gray-500 uppercase font-medium">{news.source}</span>
+                  <span className="text-[10px] text-gray-500 uppercase font-medium">
+                    {news.source}
+                  </span>
                   <span className="text-[10px] text-gray-400">•</span>
-                  <span className="text-[10px] text-gray-500">{formatDate(news.datetime)}</span>
+                  <span className="text-[10px] text-gray-500">
+                    {formatDate(news.datetime)}
+                  </span>
                 </div>
                 <h1 className="font-bold text-[14px] leading-tight">
                   {truncateText(news.headline, 60)}
@@ -248,19 +313,8 @@ const PrivateHome = () => {
         ))}
       </div>
 
-      <div className="mb-12 md:mb-16">
-        <h1 className="text-3xl md:text-5xl mb-6 md:mb-10 font-semibold leading-tight">
-          Want up to 11% Dividend Yield?
-        </h1>
-
-        <div className="h-[500px] border border-gray-300 p-4 rounded-lg shadow-xl">
-          <iframe
-            className="w-full h-full rounded-lg shadow-sm"
-            src="https://www.youtube.com/embed/8EDwgRmnJr8?si=PPdCwHz16TMOQ5ME"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          ></iframe>
-        </div>
+      <div>
+        <YoutubeVideo />
       </div>
 
       <div className="mb-12 md:mb-16">
