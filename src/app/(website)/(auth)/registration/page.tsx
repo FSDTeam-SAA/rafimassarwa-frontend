@@ -3,7 +3,7 @@ import RegistrationForm from "@/components/Authentication/RegistrationForm"
 const page = () => {
   return (
     <>
-        <RegistrationForm />
+      <RegistrationForm />
     </>
   )
 }
