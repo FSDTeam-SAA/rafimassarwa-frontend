@@ -9,6 +9,7 @@ import useAxios from "@/hooks/useAxios"
 import { usePortfolio } from "../context/portfolioContext" // Adjust path as necessary
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import { useTableReload } from "../context/table-reload-context"
 
 // Custom hooks
 const useDebounce = (value: string, delay: number) => {
@@ -67,6 +68,8 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
 
     const debouncedQuery = useDebounce(searchQuery, 500)
 
+    const { setShouldReloadTable } = useTableReload()
+
     const { data: searchData, isLoading } = useQuery<SearchResponse>({
         queryKey: ["stocks-search", debouncedQuery],
         queryFn: async () => {
@@ -101,7 +104,7 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
             if (!data.portfolioId) {
                 throw new Error("Portfolio ID is missing.")
             }
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, { // Ensure this is the correct endpoint
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -115,6 +118,8 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
                     event: "buy"
                 }),
             })
+
+            setShouldReloadTable(true)
 
             if (!response.ok) {
                 const errorData = await response.json()
@@ -143,7 +148,7 @@ export default function AddStockSearch({ onStockAdded }: AddStockSearchProps) {
         addHolding({
             portfolioId: selectedPortfolioId,
             symbol: stock.symbol,
-            quantity: 1,
+            quantity: 0,
             price: stock.price
         })
     }

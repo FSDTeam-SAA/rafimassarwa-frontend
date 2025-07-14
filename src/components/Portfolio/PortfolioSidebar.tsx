@@ -2,13 +2,13 @@
 
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { GoDesktopDownload } from "react-icons/go";
-import { MdOutlineAccountCircle, MdOutlineSupportAgent } from "react-icons/md";
-import { IoIosStarHalf } from "react-icons/io";
-import { RiNewspaperLine } from "react-icons/ri";
-import { SiSimpleanalytics } from "react-icons/si";
-import { FaRegCalendarAlt, FaChartLine } from "react-icons/fa";
-import { CiShare1 } from "react-icons/ci";
+import { GoDesktopDownload } from "react-icons/go"
+import { MdOutlineAccountCircle, MdOutlineSupportAgent } from "react-icons/md"
+import { IoIosStarHalf } from "react-icons/io"
+import { RiNewspaperLine } from "react-icons/ri"
+import { SiSimpleanalytics } from "react-icons/si"
+import { FaRegCalendarAlt, FaChartLine } from "react-icons/fa"
+import { CiShare1 } from "react-icons/ci"
 import {
   Sidebar,
   SidebarContent,
@@ -19,21 +19,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import Image from "next/image";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useEffect } from "react";
-import { usePortfolio } from "../context/portfolioContext";
-import { Trash } from "lucide-react";
+import Image from "next/image"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { useSession } from "next-auth/react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useEffect, useState } from "react"
+import { usePortfolio } from "../context/portfolioContext"
+import { Edit, Trash, ChevronDown, Check } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -45,7 +39,9 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { toast } from "sonner";
+import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface SidebarItem {
   icon: React.ReactNode
@@ -55,7 +51,7 @@ interface SidebarItem {
 
 export function PortfolioSidebar() {
   const pathname = usePathname()
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -102,11 +98,10 @@ export function PortfolioSidebar() {
       icon: <MdOutlineSupportAgent />,
       label: "Support",
       href: "/my-portfolio/support",
-    }
+    },
   ]
 
-  const { data: session } = useSession();
-
+  const { data: session } = useSession()
   const { data: portfolioData } = useQuery({
     queryKey: ["portfolio"],
     queryFn: async () => {
@@ -115,14 +110,15 @@ export function PortfolioSidebar() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.user?.accessToken}`,
         },
-      });
-      const data = await res.json();
-      return data;
+      })
+      const data = await res.json()
+      return data
     },
     enabled: !!session?.user?.accessToken,
-  });
+  })
 
   const { selectedPortfolioId, setSelectedPortfolioId } = usePortfolio()
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
   useEffect(() => {
     if (portfolioData?.length > 0) {
@@ -141,17 +137,77 @@ export function PortfolioSidebar() {
           Authorization: `Bearer ${session?.user?.accessToken}`,
         },
       })
-
       if (!res.ok) throw new Error("Failed to delete portfolio")
-
       toast.success("Portfolio deleted successfully")
-      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
-      location.reload()
+
+      // Invalidate and refetch portfolio data
+      await queryClient.invalidateQueries({ queryKey: ["portfolio"] })
+
+      // If deleted portfolio was selected, select the first available one
+      if (portfolioData && portfolioData.length > 1) {
+        const remainingPortfolios = portfolioData.filter((p: { _id: string }) => p._id !== portfolioId)
+        if (remainingPortfolios.length > 0) {
+          setSelectedPortfolioId(remainingPortfolios[0]._id)
+        }
+      }
     } catch (error) {
       console.error(error)
       toast.error("Failed to delete portfolio")
     }
   }
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingPortfolioId, setEditingPortfolioId] = useState<string | null>(null)
+  const [editedName, setEditedName] = useState("")
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const handleEditClick = (portfolio: { _id: string; name: string }) => {
+    setEditingPortfolioId(portfolio._id)
+    setEditedName(portfolio.name)
+    setIsEditDialogOpen(true)
+    setIsPopoverOpen(false) // Close the popover when opening edit dialog
+  }
+
+  const updatePortfolioName = async () => {
+    if (!editingPortfolioId || !editedName || isUpdating) return
+
+    setIsUpdating(true)
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/${editingPortfolioId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+        body: JSON.stringify({ name: editedName }),
+      })
+
+      if (!res.ok) throw new Error("Failed to update portfolio")
+
+      toast.success("Portfolio name updated")
+
+      // Invalidate and refetch portfolio data
+      await queryClient.invalidateQueries({ queryKey: ["portfolio"] })
+
+      // Close dialog and reset state
+      setIsEditDialogOpen(false)
+      setEditingPortfolioId(null)
+      setEditedName("")
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to update portfolio name")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handlePortfolioSelect = (portfolioId: string) => {
+    setSelectedPortfolioId(portfolioId)
+    setIsPopoverOpen(false)
+  }
+
+  // Get selected portfolio name for display
+  const selectedPortfolio = portfolioData?.find((p: { _id: string }) => p._id === selectedPortfolioId)
 
   return (
     <Sidebar className="max-h-lvh z-40 shadow-[2px_0px_8px_0px_#00000029]">
@@ -170,27 +226,62 @@ export function PortfolioSidebar() {
               <span className="text-xl font-medium text-black">Portfolio</span>
             </div>
           </SidebarGroupLabel>
+
           <SidebarGroupContent className="pt-4 border-t">
             <SidebarMenu className="gap-0">
-              <Select value={selectedPortfolioId} onValueChange={setSelectedPortfolioId}>
-                <SelectTrigger className="flex items-center gap-3 px-7 py-3 text-base border border-green-500 rounded-md">
-                  <SelectValue placeholder="Select Portfolio" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  {portfolioData?.length > 0 ? (
-                    portfolioData.map((portfolio: { _id: string, name: string }) => (
-                      <SelectItem key={portfolio._id} value={portfolio._id} className="text-base cursor-pointer">
-                        <div className="flex items-center gap-5 w-full">
-                          <span>{portfolio.name}</span>
+              {/* Custom Portfolio Selector */}
+              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isPopoverOpen}
+                    className="flex items-center justify-between gap-3 px-7 py-3 text-base border border-green-500 rounded-md w-full h-auto bg-transparent"
+                  >
+                    <span className="truncate">{selectedPortfolio?.name || "Select Portfolio"}</span>
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <div className="p-2">
+                    <div className="text-sm font-medium text-gray-700 px-2 py-1">Your Portfolios</div>
+                    {portfolioData?.length > 0 ? (
+                      portfolioData.map((portfolio: { _id: string; name: string }) => (
+                        <div
+                          key={portfolio._id}
+                          className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-md group"
+                        >
+                          <div
+                            className="flex items-center flex-1 cursor-pointer"
+                            onClick={() => handlePortfolioSelect(portfolio._id)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedPortfolioId === portfolio._id ? "opacity-100" : "opacity-0",
+                              )}
+                            />
+                            <span className="text-sm">{portfolio.name}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-100"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditClick(portfolio)
+                            }}
+                          >
+                            <Edit className="h-3 w-3 text-gray-500 hover:text-blue-500" />
+                          </Button>
                         </div>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    "No portfolio available"
-                  )}
-                </SelectContent>
-              </Select>
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-gray-500">No portfolio available</div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.href
@@ -203,13 +294,13 @@ export function PortfolioSidebar() {
                           "flex items-center gap-3 px-7 py-8 text-xl rounded-none",
                           isActive
                             ? "bg-[#EAF6EC] text-[#28A745] relative after:absolute after:h-full after:w-1 after:bg-[#28A745] after:right-0 after:top-0"
-                            : "text-[#4E4E4E] hover:text-gray-900"
+                            : "text-[#4E4E4E] hover:text-gray-900",
                         )}
                       >
                         <span
                           className={cn(
                             "h-8 w-8 rounded-md flex justify-center items-center p-1 border",
-                            isActive ? "text-[#28A745] border-[#28A745]" : "text-gray-500"
+                            isActive ? "text-[#28A745] border-[#28A745]" : "text-gray-500",
                           )}
                         >
                           {item.icon}
@@ -260,6 +351,38 @@ export function PortfolioSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {/* Edit Portfolio Name Dialog */}
+      <AlertDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Edit Portfolio Name</AlertDialogTitle>
+            <AlertDialogDescription>Enter the new name for your portfolio.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              placeholder="New Portfolio Name"
+              className="w-full"
+              disabled={isUpdating}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !isUpdating) {
+                  updatePortfolioName()
+                }
+              }}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsEditDialogOpen(false)} disabled={isUpdating}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={updatePortfolioName} disabled={isUpdating || !editedName.trim()}>
+              {isUpdating ? "Saving..." : "Save Name"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sidebar>
   )
 }

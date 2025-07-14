@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import Image from 'next/image';
-import { FiArrowDown } from 'react-icons/fi'; // Assuming you have react-icons installed
+import { FiArrowDown, FiArrowUp } from 'react-icons/fi'; // Assuming you have react-icons installed
 import { usePortfolio } from '../../context/portfolioContext';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
@@ -24,9 +24,7 @@ interface Transaction {
     transactions: number;
     logo: string;
     portfolioPercentage: number;
-    monthlyGains: {
-        gainPercent: number;
-    }[]
+    monthlyGains: string;
 }
 
 export default function RecentActivityTable() {
@@ -43,6 +41,8 @@ export default function RecentActivityTable() {
     })
 
     const transactionHistory = performaceData?.transactionHistory
+
+    console.log("transactionHistory", transactionHistory)
 
     return (
         <div className="px-3 py-2 rounded-2xl shadow-[0px_0px_16px_0px_#00000029] overflow-x-scroll lg:overflow-x-auto">
@@ -89,9 +89,9 @@ export default function RecentActivityTable() {
                                         </TableCell>
                                         <TableCell className='text-center text-sm'>{transaction.portfolioPercentage || 'N/A'}</TableCell>
                                         <TableCell className='text-sm text-red-500'>
-                                            <div className=" flex items-center justify-center gap-1">
-                                                <FiArrowDown />
-                                                {transaction.monthlyGains[0].gainPercent || 0}
+                                            <div className={`flex items-center justify-center gap-1 ${Number(transaction.monthlyGains) > 0 ? "text-green-500" : "text-red-500"}`}>
+                                                {Number(transaction.monthlyGains) > 0 ? <FiArrowUp /> : <FiArrowDown />}
+                                                {(Number(transaction.monthlyGains)).toFixed(2)}%
                                             </div>
                                         </TableCell>
                                         <TableCell className='text-center text-sm'>{transaction.transactions}</TableCell>

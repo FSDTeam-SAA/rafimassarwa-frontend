@@ -1,4 +1,5 @@
 "use client";
+
 import BannerAds from "@/components/News/BannerAds";
 import MoreFromTip from "@/components/News/MoreFromTip";
 import StockMarketNews from "@/components/News/StockMarketNews";

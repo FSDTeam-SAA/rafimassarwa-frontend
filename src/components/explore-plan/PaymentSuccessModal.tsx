@@ -4,11 +4,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useUserPayment } from "../context/paymentContext"
+import { useEffect } from "react"
 
-export default function PaymentSuccessModal({ open, onOpenChange }: {
+export default function PaymentSuccessModal({ open, onOpenChange, planType }: {
     open: boolean
     onOpenChange: (open: boolean) => void
+    planType: string
 }) {
+
+    const { setPaymentType } = useUserPayment();
+
+    useEffect(() => {
+        setPaymentType(planType == "PREMIUM" ? "Premium" : "Ultimate")
+    }, [setPaymentType, planType])
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md text-center">

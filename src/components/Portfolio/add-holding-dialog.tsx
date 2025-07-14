@@ -6,9 +6,9 @@ import {
     DialogContent,
     DialogHeader,
     DialogTrigger,
-} from "@/components/ui/dialog" // Assuming Shadcn UI Dialog
-import { Button } from "@/components/ui/button" // Assuming Shadcn UI Button
-import AddStockSearch from "./add-holding-main" // Import the simplified search component
+} from "@/components/ui/dialog" 
+import { Button } from "@/components/ui/button"
+import AddStockSearch from "./add-holding-main"
 import { Plus } from "lucide-react"
 
 interface AddToPortfolioDialogProps {

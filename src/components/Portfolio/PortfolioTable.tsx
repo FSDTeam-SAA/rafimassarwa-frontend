@@ -40,6 +40,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { usePortfolio } from "../context/portfolioContext"
 import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
+import { useTableReload } from "../context/table-reload-context"
 
 interface TransactionData {
   portfolioId: string
@@ -111,6 +112,10 @@ export default function PortfolioTable() {
     direction: null,
   })
 
+
+  const { shouldReloadTable, setShouldReloadTable } = useTableReload();
+
+
   // Fetch watchlist data
   const { data: watchlistData } = useQuery({
     queryKey: ["watchlist-stock"],
@@ -163,8 +168,11 @@ export default function PortfolioTable() {
   useEffect(() => {
     if (selectedPortfolioId) {
       getOverview(selectedPortfolioId)
+      if (shouldReloadTable) {
+        setShouldReloadTable(false)
+      }
     }
-  }, [selectedPortfolioId, getOverview])
+  }, [selectedPortfolioId, getOverview, shouldReloadTable, setShouldReloadTable])
 
   const { mutate: DeleteStock, isPending: isDeletingStock } = useMutation({
     mutationFn: async ({ symbol, portfolioId }: { symbol: string; portfolioId: string }) => {
@@ -202,12 +210,13 @@ export default function PortfolioTable() {
         const errorData = await response.json()
         throw new Error(errorData.message || "Failed to add transaction.")
       }
+      setShouldReloadTable(true)
       return response.json()
     },
     onSuccess: (data) => {
       toast.success(data.message || "Transaction added successfully!")
       queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
-      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
+      queryClient.invalidateQueries({ queryKey: ["portfolioPerformance", selectedPortfolioId] })
       if (selectedPortfolioId) {
         getOverview(selectedPortfolioId)
       }
@@ -600,7 +609,7 @@ export default function PortfolioTable() {
           className={`flex items-center gap-1 justify-center ${Number.parseFloat(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"}`}
         >
           {Number.parseFloat(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
-          {item.holdingGain}%
+          {item.holdingGain ?? 0}%
         </div>
       </TableCell>
 
@@ -624,28 +633,46 @@ export default function PortfolioTable() {
       {columnVisibility.costBasis && (
         <TableCell className="w-[140px] text-center">
           $
-          {item.costBasis.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {
+            item.costBasis
+              ?
+              item.costBasis.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+              :
+              0
+          }
         </TableCell>
       )}
       {columnVisibility.unrealizedPL && (
         <TableCell className={`w-[160px] text-center ${item.unrealized >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {item.unrealized.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {
+            item.unrealized
+              ?
+              item.unrealized.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+              :
+              0
+          }
         </TableCell>
       )}
       {columnVisibility.plPercent && (
         <TableCell className={`w-[120px] text-center ${item.pL >= 0 ? "text-green-600" : "text-red-600"}`}>
           $
-          {item.pL.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {
+            item.pL
+              ?
+              item.pL.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+              :
+              0
+          }
         </TableCell>
       )}
       {columnVisibility.weight && (

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
-import Image from "next/image"
 import { usePortfolio } from "../../context/portfolioContext"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function UserProfile() {
 
@@ -40,12 +40,26 @@ export function UserProfile() {
         enabled: !!session?.user?.accessToken && !!selectedPortfolioId,
     });
 
+    console.log("User from performance: ", user)
+
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-4 bg-white rounded-lg shadow-sm ">
             <div className="flex-shrink-0">
-                <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-gray-200">
-                    <Image src={user?.profilePhoto || "/placeholder.svg"} alt={user?.name} fill className="object-cover" />
-                </div>
+                <Avatar className="w-24 h-24 border-2">
+                    <AvatarImage
+                        src={user?.profilePhoto || undefined}
+                        alt={user?.fullName || ""}
+                    />
+                    <AvatarFallback>
+                        {user?.fullName
+                            ? user.fullName
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                                .toUpperCase()
+                            : "U"}
+                    </AvatarFallback>
+                </Avatar>
             </div>
 
             <div className="flex flex-col items-center">

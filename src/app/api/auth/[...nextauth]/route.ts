@@ -73,7 +73,7 @@ const handler = NextAuth({
             body: JSON.stringify({
               name: user.name,
               email: user.email,
-              imageLink: user.image,
+              profilePhoto: user.image,
               gLogin: true,
             }),
           });
@@ -102,7 +102,7 @@ const handler = NextAuth({
             body: JSON.stringify({
               name: user.name,
               email: user.email,
-              imageLink: user.image,
+              profilePhoto: user.image,
               appleLogin: true,
             }),
           });
