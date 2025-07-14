@@ -44,6 +44,8 @@ export default function RecentActivityTable() {
 
     const transactionHistory = performaceData?.transactionHistory
 
+    console.log("transactionHistory", transactionHistory)
+
     return (
         <div className="px-3 py-2 rounded-2xl shadow-[0px_0px_16px_0px_#00000029] overflow-x-scroll lg:overflow-x-auto">
             <div className="py-2 px-3">

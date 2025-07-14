@@ -14,8 +14,8 @@ export function PerformanceMetrics({
     profitableTransactions,
     totalTransactions,
 }: PerformanceMetricsProps) {
-    const isNegativeReturn = averageReturn <= 0
-    const isNegativeSuccessRate = successRate <= 0
+    const isNegativeReturn = averageReturn < 0
+    const isNegativeSuccessRate = successRate < 0
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 px-2 pb-2">
@@ -36,7 +36,7 @@ export function PerformanceMetrics({
 
                 <div className="flex justify-center items-center h-24 md:h-32 mb-6">
                     <span className={`text-3xl md:text-4xl font-bold ${isNegativeSuccessRate ? "text-red-500" : "text-green-500"}`}>
-                        {isNegativeSuccessRate ? "" : "+"}
+                        {isNegativeSuccessRate && "-"}
                         {successRate}
                     </span>
                 </div>
@@ -63,7 +63,7 @@ export function PerformanceMetrics({
 
                 <div className="flex justify-center items-center h-24 md:h-32 mb-6">
                     <span className={`text-3xl md:text-4xl font-bold ${isNegativeReturn ? "text-red-500" : "text-green-500"}`}>
-                        {isNegativeReturn ? "" : "+"}
+                        {isNegativeReturn && "-"}
                         {averageReturn}%
                     </span>
                 </div>
