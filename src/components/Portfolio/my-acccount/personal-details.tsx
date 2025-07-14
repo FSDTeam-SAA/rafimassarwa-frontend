@@ -161,7 +161,6 @@ export default function PersonalDetailsCard({ selectedImage, setImagePreview }: 
         const updatedData = { ...userData, [field]: tempValue }
         setUserData(updatedData)
         setEditingField(null)
-        // No toast here as the main save button will show success/error for API call
     }
 
     const handleCancel = () => setEditingField(null)
@@ -195,7 +194,7 @@ export default function PersonalDetailsCard({ selectedImage, setImagePreview }: 
 
     return (
         <div className="md:grid md:grid-cols-2 lg:grid-cols-9 gap-5 mb-32">
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-6">
                 <Card className="w-full shadow-md">
                     <CardHeader>
                         <CardTitle className="text-xl">Personal Details</CardTitle>
@@ -360,7 +359,7 @@ export default function PersonalDetailsCard({ selectedImage, setImagePreview }: 
                 </div>
             </div>
 
-            <div className="lg:col-span-2 mt-5 md:mt-0">
+            <div className="lg:col-span-3 mt-5 md:mt-0">
                 <SubscriptionCard />
             </div>
         </div>

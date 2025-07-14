@@ -44,7 +44,7 @@ export function UserProfile() {
         <div className="flex flex-col items-center justify-center gap-4 p-4 bg-white rounded-lg shadow-sm ">
             <div className="flex-shrink-0">
                 <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-gray-200">
-                    <Image src={user?.profilePhoto || "/placeholder.svg"} alt={user?.name} fill className="object-cover" />
+                    <Image src={user?.profilePhoto || "/placeholder.svg"} alt={user?.fullName} fill className="object-cover" />
                 </div>
             </div>
 

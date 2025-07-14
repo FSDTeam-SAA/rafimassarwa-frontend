@@ -1,10 +1,42 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Trophy } from "lucide-react"
 
 export default function SubscriptionCard() {
+  const { data: session } = useSession()
+  const userId = session?.user?.id
+
+  const { data: user, isLoading: userLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/get-user/${userId}`)
+      const data = await res.json()
+      return data?.data
+    },
+    enabled: !!userId,
+  })
+
+  const { data: plans, isLoading: plansLoading } = useQuery({
+    queryKey: ["subscriptions"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscription`)
+      const data = await res.json()
+      return data?.data || []
+    },
+  })
+
+  if (userLoading || plansLoading) {
+    return <div className="text-center py-8">Loading subscription details...</div>
+  }
+
+  const currentPlanTitle = user?.payment || "Free"
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentPlan = plans?.find((plan: any) => plan.title === currentPlanTitle)
+
   return (
     <Card className="w-full shadow-md">
       <CardHeader className="flex flex-row items-center">
@@ -14,58 +46,42 @@ export default function SubscriptionCard() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Current Plan */}
+        {/* ✅ Current Plan */}
         <div className="rounded-lg p-4 border-2 border-[#28A745] bg-green-50">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-lg">Premium Plan</h3>
+            <h3 className="font-semibold text-lg">{currentPlan?.title} Plan</h3>
             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Current</span>
           </div>
-          <p className="text-sm text-gray-600 mb-4">Access to all premium features and real-time data</p>
+          <p className="text-sm text-gray-600 mb-4">{currentPlan?.description}</p>
           <div className="flex items-center justify-between">
             <div className="text-sm">
               <p className="text-gray-500">Renews on</p>
-              <p className="font-medium">April 15, 2025</p>
+              <p className="font-medium">April 15, 2025</p> {/* ← you can make this dynamic if you have it */}
             </div>
             <Button className="bg-green-600 hover:bg-green-700">Manage</Button>
           </div>
         </div>
 
-        {/* Available Plans */}
+        {/* ✅ Other Available Plans */}
         <div>
           <h3 className="font-semibold mb-4">Available Plans</h3>
-
-          {/* Basic Plan */}
-          <div className="border rounded-lg p-4 mb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Basic</h4>
-                <p className="text-sm text-gray-500">Limited access to basic features</p>
+          {plans
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .filter((plan: any) => plan.title !== currentPlanTitle)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .map((plan: any) => (
+              <div key={plan._id} className="border rounded-lg p-4 mb-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-[85%]">
+                    <h4 className="font-medium">{plan.title}</h4>
+                    <p className="text-sm text-gray-500">{plan.description}</p>
+                  </div>
+                  <span className="font-semibold w-[10%] text-sm">
+                    {plan.monthly_price > 0 ? `$${plan.monthly_price}/mo` : "Free"}
+                  </span>
+                </div>
               </div>
-              <span className="font-semibold">Free</span>
-            </div>
-          </div>
-
-          {/* Pro Plan */}
-          <div className="border rounded-lg p-4 mb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Pro</h4>
-                <p className="text-sm text-gray-500">Advanced features for active traders</p>
-              </div>
-              <span className="font-semibold">$19.99/mo</span>
-            </div>
-          </div>
-
-          {/* Enterprise Plan */}
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Enterprise</h4>
-                <p className="text-sm text-gray-500">Complete access with priority support</p>
-              </div>
-              <span className="font-semibold">$49.99/mo</span>
-            </div>
-          </div>
+            ))}
         </div>
       </CardContent>
     </Card>

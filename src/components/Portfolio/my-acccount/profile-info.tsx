@@ -2,12 +2,12 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image'
 import { CiEdit } from "react-icons/ci";
 import { usePortfolio } from '../../context/portfolioContext';
 import { useEffect } from 'react'; // No need for useState here now
 import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
 import { Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface ProfileInfoProps {
     selectedImage: File | null;
@@ -26,6 +26,7 @@ export default function ProfileInfo({ imagePreview, handleImageChange }: Profile
         queryFn: async () => {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/get-user/${userId}`);
             const data = await res.json();
+            console.log("Refetched user:", data); // See if it’s updated!
             return data;
         },
         select: (data) => data?.data,
@@ -76,13 +77,21 @@ export default function ProfileInfo({ imagePreview, handleImageChange }: Profile
             <div className="flex md:flex-row flex-col gap-4 lg:gap-0 md:justify-between lg:items-center lg:mt-20 mt-4 rounded-xl py-4 px-4 shadow-[0px_0px_8px_0px_#00000029]">
                 <div className="flex gap-4 items-center">
                     <div className="relative">
-                        <Image
-                            src={imagePreview || user?.profilePhoto || "/images/my_portfolio_page/user.png"}
-                            alt={user?.fullname || ""}
-                            width={1000}
-                            height={600}
-                            className="w-24 h-24 rounded-full object-cover"
-                        />
+                        <Avatar className="w-24 h-24">
+                            <AvatarImage
+                                src={imagePreview || user?.profilePhoto || undefined}
+                                alt={user?.fullName || ""}
+                            />
+                            <AvatarFallback>
+                                {user?.fullName
+                                    ? user.fullName
+                                        .split(" ")
+                                        .map((n: string) => n[0])
+                                        .join("")
+                                        .toUpperCase()
+                                    : "U"}
+                            </AvatarFallback>
+                        </Avatar>
                         {/* Only one label/input needed */}
                         <label htmlFor="profilePhotoInput" className="h-7 w-7 rounded-full bg-[#28A745] flex justify-center items-center text-white absolute right-1 bottom-0 cursor-pointer">
                             <CiEdit />
