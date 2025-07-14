@@ -9,10 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { FaCheckSquare } from "react-icons/fa"
 import { ImCross } from "react-icons/im"
 import { IoTriangleSharp } from "react-icons/io5"
-import CheckoutDialog from "./payment-dialog"
-import StripeProvider from "@/providers/stripe-provider"
-import { useSession } from "next-auth/react"
-import { toast } from "sonner"
+import Link from "next/link"
 
 interface ApiFeature {
     name: string
@@ -52,14 +49,10 @@ interface SubscriptionPlan {
 
 export default function SubscriptionPricing() {
     const [isAnnual, setIsAnnual] = useState(true)
-    const [checkoutOpen, setCheckoutOpen] = useState(false)
-    const [clientSecret, setClientSecret] = useState("")
-    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
     const [plans, setPlans] = useState<SubscriptionPlan[]>([])
     const [originalApiData, setOriginalApiData] = useState<ApiSubscriptionPlan[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const { data: session } = useSession()
 
     // Fetch subscription plans from API
     useEffect(() => {
@@ -127,33 +120,6 @@ export default function SubscriptionPricing() {
             setPlans(updatedPlans)
         }
     }, [isAnnual, originalApiData])
-
-    useEffect(() => {
-        if (!checkoutOpen || !selectedPlan || selectedPlan.price === 0) return
-
-        const createPaymentIntent = async () => {
-            try {
-                if (!session?.user?.accessToken) return toast.error("User not logged in")
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-payment`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${session?.user?.accessToken}`,
-                    },
-                    body: JSON.stringify({
-                        userId: session?.user?.id,
-                        subscriptionId: selectedPlan.id,
-                        price: selectedPlan.price,
-                    }),
-                })
-                const data = await res.json()
-                setClientSecret(data.clientSecret)
-            } catch (err) {
-                console.error("Error creating payment intent:", err)
-            }
-        }
-        createPaymentIntent()
-    }, [checkoutOpen, selectedPlan, session?.user?.accessToken, session?.user?.id])
 
     // Helper function to get features by type
     const getFeaturesByType = (plan: SubscriptionPlan, featureType: string) => {
@@ -334,35 +300,35 @@ export default function SubscriptionPricing() {
 
                         <CardFooter className="pt-6">
                             <div className="w-full space-y-4">
-                                <Button
-                                    onClick={() => {
-                                        setSelectedPlan(plan)
-                                        setCheckoutOpen(true)
-                                    }}
-                                    className={`w-full ${plan.title === "FREE"
-                                        ? "bg-gray-600 hover:bg-gray-700"
-                                        : plan.title === "PREMIUM"
-                                            ? "bg-blue-600 hover:bg-blue-700"
-                                            : "bg-green-600 hover:bg-green-700"
-                                        }`}
-                                >
-                                    {plan.title === "FREE"
-                                        ? "Start Free Today →"
-                                        : plan.title === "PREMIUM"
-                                            ? "Unlock Pro Insights →"
-                                            : "Claim Your Elite Access →"}
-                                </Button>
+                                {plan.title === "FREE" ? (
+                                    <Button
+                                        disabled
+                                        className="w-full bg-gray-400 cursor-not-allowed"
+                                    >
+                                        Current Plan
+                                    </Button>
+                                ) : (
+                                    <Link
+                                        href={`/plan-upgrade?subscriptionId=${plan.id}&price=${plan.price}&duration=${isAnnual ? "yearly" : "monthly"}&planType=${plan.title}`}
+                                    >
+                                        <Button
+                                            className={`w-full ${plan.title === "PREMIUM"
+                                                ? "bg-blue-600 hover:bg-blue-700"
+                                                : "bg-green-600 hover:bg-green-700"
+                                                }`}
+                                        >
+                                            {plan.title === "PREMIUM"
+                                                ? "Unlock Pro Insights →"
+                                                : "Claim Your Elite Access →"}
+                                        </Button>
+                                    </Link>
+                                )}
+
                             </div>
                         </CardFooter>
                     </Card>
                 ))}
             </div>
-
-            {clientSecret && selectedPlan && (
-                <StripeProvider clientSecret={clientSecret}>
-                    <CheckoutDialog open={checkoutOpen} onOpenChange={setCheckoutOpen} />
-                </StripeProvider>
-            )}
         </div>
     )
 }

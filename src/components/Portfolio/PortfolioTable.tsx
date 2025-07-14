@@ -210,12 +210,13 @@ export default function PortfolioTable() {
         const errorData = await response.json()
         throw new Error(errorData.message || "Failed to add transaction.")
       }
+      setShouldReloadTable(true)
       return response.json()
     },
     onSuccess: (data) => {
       toast.success(data.message || "Transaction added successfully!")
       queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
-      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
+      queryClient.invalidateQueries({ queryKey: ["portfolioPerformance", selectedPortfolioId] })
       if (selectedPortfolioId) {
         getOverview(selectedPortfolioId)
       }

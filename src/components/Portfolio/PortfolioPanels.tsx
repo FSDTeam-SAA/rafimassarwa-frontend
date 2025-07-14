@@ -25,6 +25,7 @@ import {
   CanvasRenderer
 } from "echarts/renderers";
 import Link from "next/link";
+import { useTableReload } from "../context/table-reload-context";
 
 // Register required components
 echarts.use([
@@ -45,6 +46,8 @@ export default function Home() {
 
   const [showPortfolio] = useState(true);
   const [showSP500] = useState(true);
+
+  const { shouldReloadTable, setShouldReloadTable } = useTableReload();
 
 
   // Fetch portfolio data for selected ID
@@ -87,7 +90,7 @@ export default function Home() {
 
 
   const { data: performaceData, isLoading: isPerformaceDataLoading } = useQuery({
-    queryKey: ['portfolioPerformance'],
+    queryKey: ['portfolioPerformance', selectedPortfolioId],
     queryFn: async () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-performance/${selectedPortfolioId}`);
       return response.json();
@@ -112,7 +115,6 @@ export default function Home() {
       if (!res.ok) {
         throw new Error("Failed to fetch portfolio overview");
       }
-
       return res.json();
     },
   });
@@ -130,9 +132,11 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedPortfolioId) {
+      setShouldReloadTable(true);
       getOverview(selectedPortfolioId);
+      setShouldReloadTable(false);
     }
-  }, [selectedPortfolioId, getOverview]);
+  }, [selectedPortfolioId, getOverview, shouldReloadTable, setShouldReloadTable]);
 
   useEffect(() => {
     if (!chartRef.current || !performanceChartData) return;

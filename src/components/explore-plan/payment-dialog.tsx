@@ -1,32 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from "@/components/ui/dialog";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import PaymentSuccessModal from "./PaymentSuccessModal";
 import PaymentFailureModal from "./PaymentFailureModal";
 import { useQueryClient } from "@tanstack/react-query";
 
-export default function CheckoutDialog({
-    open,
-    onOpenChange,
-}: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}) {
+export default function CheckoutForm() {
     const stripe = useStripe();
     const elements = useElements();
     const [loading, setLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailureModal, setShowFailureModal] = useState(false);
 
-    const queryClient = useQueryClient()
+    const queryClient = useQueryClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -48,15 +35,14 @@ export default function CheckoutDialog({
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/confirm-payment`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    paymentIntentId: paymentIntent.id
+                    paymentIntentId: paymentIntent.id,
                 }),
             });
-            queryClient.invalidateQueries({ queryKey: ["user"] })
-            onOpenChange(false); // Close payment dialog
-            setShowSuccessModal(true); // Show success
+            queryClient.invalidateQueries({ queryKey: ["user"] });
+            setShowSuccessModal(true);
         } else {
             setShowFailureModal(true);
         }
@@ -65,29 +51,31 @@ export default function CheckoutDialog({
     };
 
     return (
-        <>
-            <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle>Complete Your Payment</DialogTitle>
-                        <DialogDescription>Use a secure method to complete your transaction.</DialogDescription>
-                    </DialogHeader>
+        <div className="max-w-lg mx-auto border p-6 rounded shadow">
+            <h2 className="text-2xl font-bold mb-2">Complete Your Payment</h2>
+            <p className="mb-6 text-gray-600">
+                Use a secure method to complete your transaction.
+            </p>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <PaymentElement />
-                        <button
-                            type="submit"
-                            disabled={!stripe || loading}
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
-                        >
-                            {loading ? "Processing..." : "Pay Now"}
-                        </button>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <PaymentElement />
+                <button
+                    type="submit"
+                    disabled={!stripe || loading}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+                >
+                    {loading ? "Processing..." : "Pay Now"}
+                </button>
+            </form>
 
-            <PaymentSuccessModal open={showSuccessModal} onOpenChange={setShowSuccessModal} />
-            <PaymentFailureModal open={showFailureModal} onOpenChange={setShowFailureModal} />
-        </>
+            <PaymentSuccessModal
+                open={showSuccessModal}
+                onOpenChange={setShowSuccessModal}
+            />
+            <PaymentFailureModal
+                open={showFailureModal}
+                onOpenChange={setShowFailureModal}
+            />
+        </div>
     );
 }
