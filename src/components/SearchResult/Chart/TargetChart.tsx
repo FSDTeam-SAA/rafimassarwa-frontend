@@ -68,7 +68,7 @@ const TargetChart = () => {
     <div>
       {isLoading ? (
         <div className="border-2 border-[#a8a8a87a] lg:col-span-4 rounded-lg text-center min-h-[450px] flex flex-col justify-center items-center">
-          Loading
+          Loading...
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-5">
