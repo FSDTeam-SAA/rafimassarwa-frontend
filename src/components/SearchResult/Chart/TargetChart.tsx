@@ -71,14 +71,16 @@ const TargetChart = () => {
     },
   });
 
-  console.log(targetData)
-
   const targetChartData = targetData?.chart;
+  const targetsData = targetData?.targets;
+  const analystsData = targetData?.analysts;
+
+  console.log(analystsData)
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-6 gap-5">
       <div className="border-2 border-[#a8a8a87a] lg:col-span-4 rounded-lg">
-        <FinancialForecastChart targetChartData={targetChartData}/>
+        <FinancialForecastChart targetChartData={targetChartData} targetsData={targetsData}/>
       </div>
 
       <div className="border-2 border-[#a8a8a87a] lg:col-span-2 rounded-lg flex flex-col justify-center">
@@ -139,17 +141,17 @@ const TargetChart = () => {
           <CardFooter className="flex justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="bg-green-500 h-4 w-4"></div>
-              <h1 className="text-green-500">10 Buy</h1>
+              <h1 className="text-green-500">{analystsData?.buy} Buy</h1>
             </div>
 
             <div className="flex items-center gap-2">
               <div className="bg-gray-500 h-4 w-4"></div>
-              <h1 className="text-gray-500">12 Hold</h1>
+              <h1 className="text-gray-500">{analystsData?.hold} Hold</h1>
             </div>
 
             <div className="flex items-center gap-2">
               <div className="bg-red-500 h-4 w-4"></div>
-              <h1 className="text-red-500">6 Sell</h1>
+              <h1 className="text-red-500">{analystsData?.sell} Sell</h1>
             </div>
           </CardFooter>
         </Card>
