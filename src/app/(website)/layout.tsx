@@ -8,6 +8,7 @@ import NextTopLoader from "nextjs-toploader"; // <- Import the loader
 import { SocketProvider } from "@/providers/SocketProvider";
 import { PaymentProvider } from "@/components/context/paymentContext";
 import QueryProvider from "@/Layout/query-provider";
+import { TableReloadProvider } from "@/components/context/table-reload-context";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -34,11 +35,13 @@ export default function RootLayout({
 
         <AuthSessionProvider>
           <QueryProvider>
-            <PaymentProvider>
-              <LayoutWrapper>
-                <SocketProvider>{children}</SocketProvider>
-              </LayoutWrapper>
-            </PaymentProvider>
+            <TableReloadProvider>
+              <PaymentProvider>
+                <LayoutWrapper>
+                  <SocketProvider>{children}</SocketProvider>
+                </LayoutWrapper>
+              </PaymentProvider>
+            </TableReloadProvider>
           </QueryProvider>
         </AuthSessionProvider>
         <Toaster position="top-center" />

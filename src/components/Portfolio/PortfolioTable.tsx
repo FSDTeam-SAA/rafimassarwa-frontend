@@ -40,6 +40,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { usePortfolio } from "../context/portfolioContext"
 import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
+import { useTableReload } from "../context/table-reload-context"
 
 interface TransactionData {
   portfolioId: string
@@ -111,6 +112,10 @@ export default function PortfolioTable() {
     direction: null,
   })
 
+
+  const { shouldReloadTable, setShouldReloadTable } = useTableReload();
+
+
   // Fetch watchlist data
   const { data: watchlistData } = useQuery({
     queryKey: ["watchlist-stock"],
@@ -163,8 +168,11 @@ export default function PortfolioTable() {
   useEffect(() => {
     if (selectedPortfolioId) {
       getOverview(selectedPortfolioId)
+      if (shouldReloadTable) {
+        setShouldReloadTable(false)
+      }
     }
-  }, [selectedPortfolioId, getOverview])
+  }, [selectedPortfolioId, getOverview, shouldReloadTable, setShouldReloadTable])
 
   const { mutate: DeleteStock, isPending: isDeletingStock } = useMutation({
     mutationFn: async ({ symbol, portfolioId }: { symbol: string; portfolioId: string }) => {
