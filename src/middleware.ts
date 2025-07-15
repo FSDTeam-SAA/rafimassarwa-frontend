@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
 
     // If user is not logged in and tries to access protected pages
-    if (!token && (pathname.startsWith("/my-portfolio") || pathname.startsWith("/watchlist") || pathname.startsWith("/dashboard") || pathname.startsWith("/news"))) {
+    if (!token && (pathname.startsWith("/my-portfolio") || pathname.startsWith("/watchlist") || pathname.startsWith("/dashboard") || pathname.startsWith("/news") || pathname.startsWith("/plan-upgrade"))) {
         const loginUrl = new URL("/login", request.url);
         return NextResponse.redirect(loginUrl);
     }
@@ -49,6 +49,7 @@ export const config = {
         "/registration",
         "/forgot-password",
         "/watchlist",
-        "/news"
+        "/news",
+        "/plan-upgrade",
     ],
 };
