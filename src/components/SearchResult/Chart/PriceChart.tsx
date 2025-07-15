@@ -86,7 +86,7 @@ const PriceChart = () => {
       <div className="flex space-x-2 sm:text-[32px] text-xl">
         <span className="font-bold">{priceData?.priceInfo?.currentPrice.toFixed(2)}</span>
         <span className="text-green-600 font-semibold">
-          +{priceData?.priceInfo?.change.toFixed(2)} ({priceData?.priceInfo?.percentChange.toFixed(2)}
+          +{priceData?.priceInfo?.change?.toFixed(2)} ({priceData?.priceInfo?.percentChange?.toFixed(2)}
           %)
         </span>
       </div>
