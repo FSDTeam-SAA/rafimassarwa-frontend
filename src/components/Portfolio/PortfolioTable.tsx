@@ -606,10 +606,11 @@ export default function PortfolioTable() {
 
       <TableCell className="w-[120px] text-center">
         <div
-          className={`flex items-center gap-1 justify-center ${Number.parseFloat(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"}`}
+          className={`flex items-center gap-1 justify-center ${Number(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"
+            }`}
         >
-          {Number.parseFloat(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
-          {item.holdingGain ?? 0}%
+          {Number(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
+          {Number.isNaN(Number(item.holdingGain)) ? 0 : Number(item.holdingGain).toFixed(2)}%
         </div>
       </TableCell>
 

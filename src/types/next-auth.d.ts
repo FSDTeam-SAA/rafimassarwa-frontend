@@ -7,6 +7,7 @@ declare module "next-auth" {
       role: string
       accessToken: string
       refreshToken: string
+      rememberMe: boolean
     } & DefaultSession["user"]
   }
 
@@ -15,6 +16,7 @@ declare module "next-auth" {
     name: string
     email: string
     role: string
+    rememberMe: boolean
     accessToken: string
     refreshToken: string
   }
@@ -26,5 +28,6 @@ declare module "next-auth/jwt" {
     role: string
     accessToken: string
     refreshToken: string
+    rememberMe: boolean
   }
 }

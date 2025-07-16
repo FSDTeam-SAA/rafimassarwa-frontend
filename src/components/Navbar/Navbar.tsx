@@ -67,9 +67,9 @@ interface SearchResponse {
 
 
 export default function Navbar() {
-  const pathname = usePathname(); // Current route path
-  const [open, setOpen] = useState(false); // Mobile menu open state
-  const { data: session, status } = useSession(); // User session data
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   const { paymentType } = useUserPayment();
 
@@ -108,7 +108,7 @@ export default function Navbar() {
       const data = await res.json();
       return data;
     },
-    select: (data) => data?.data, // Extract the data property from response
+    select: (data) => data, // Extract the data property from response
     enabled: !!session?.user?.id, // Only fetch if we have a user session
   });
 
@@ -161,6 +161,9 @@ export default function Navbar() {
     return initials.slice(0, 2); // Max 2 letters
   };
 
+
+  console.log(userData)
+
   // Desktop auth section (right side of navbar)
   const renderAuthSection = () => {
     // Show loading state while session is being checked
@@ -184,7 +187,6 @@ export default function Navbar() {
           {/* Notification bell icon */}
           <Link href="/notification">
             <Bell className="text-green-600" />
-
           </Link>
 
           {/* User dropdown menu */}
@@ -197,18 +199,18 @@ export default function Navbar() {
               >
                 {/* User avatar - uses profile photo if available */}
                 <Avatar
-                  className={cn("transition-all duration-300", "h-6 w-6")} // Fixed size
+                  className={cn("transition-all duration-300", "h-8 w-8")} // Fixed size
                 >
                   <AvatarImage
                     src={
-                      userData?.profilePhoto || // First try backend profile photo
+                      userData?.data?.profilePhoto || // First try backend profile photo
                       session.user.image || // Then auth provider image
                       "/placeholder.svg" // Fallback placeholder
                     }
-                    alt={userData?.userName || session.user.name || "User"}
+                    alt={userData?.data?.userName || session.user.name || "User"}
                   />
                   <AvatarFallback className="text-xs font-semibold bg-green-500 text-white">
-                    {getInitials(userData?.userName || session.user.name)}
+                    {getInitials(userData?.data?.userName || session.user.name)}
                   </AvatarFallback>
                 </Avatar>
 
@@ -220,7 +222,7 @@ export default function Navbar() {
                       "text-xs" // Fixed size
                     )}
                   >
-                    {userData?.userName || session.user.name || "User"}
+                    {userData?.data?.userName || session.user.name || "User"}
                   </p>
                   <p
                     className={cn(
@@ -228,7 +230,7 @@ export default function Navbar() {
                       "text-xs"
                     )}
                   >
-                    {userData?.role || session.user.role || "Member"}
+                    {userData?.payment || "Free"}
                   </p>
                 </div>
               </div>
@@ -239,13 +241,13 @@ export default function Navbar() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {userData?.userName || session.user.name || "User"}
+                    {userData?.data?.userName || session.user.name || "User"}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {userData?.email || session.user.email || "No email"}
+                    {userData?.data?.email || session.user.email || "No email"}
                   </p>
                   {
-                    userData?.role === "admin" && (
+                    userData?.data?.role === "admin" && (
                       <Link href="/dashboard">
                         <Button
                           className="w-full justify-start text-white hover:bg-green-600 bg-green-500 my-2"
@@ -310,33 +312,33 @@ export default function Navbar() {
             <Avatar className="h-10 w-10">
               <AvatarImage
                 src={
-                  userData?.profilePhoto ||
+                  userData?.data?.profilePhoto ||
                   session.user.image ||
                   "/placeholder.svg"
                 }
-                alt={userData?.userName || session.user.name || "User"}
+                alt={userData?.data?.userName || session.user.name || "User"}
               />
               <AvatarFallback className="bg-green-500 text-white font-semibold">
-                {getInitials(userData?.userName || session.user.name)}
+                {getInitials(userData?.data?.userName || session.user.name)}
               </AvatarFallback>
             </Avatar>
 
             {/* Mobile user details */}
             <div className="flex-1">
               <p className="font-semibold text-gray-900">
-                {userData?.userName || session.user.name || "User"}
+                {userData?.data?.userName || session.user.name || "User"}
               </p>
               <p className="text-sm text-gray-600">
-                {userData?.email || session.user.email || "No email"}
+                {userData?.data?.email || session.user.email || "No email"}
               </p>
               <p className="text-xs text-green-600 capitalize">
-                {userData?.role || session.user.role || "Member"}
+                {userData?.data?.role || session.user.role || "Member"}
               </p>
             </div>
           </div>
 
           {
-            userData?.role === "admin" && (
+            userData?.data?.role === "admin" && (
               <Link href="/dashboard">
                 <Button
                   className="w-full justify-start text-green-600 hover:text-green-600 hover:bg-green-50"

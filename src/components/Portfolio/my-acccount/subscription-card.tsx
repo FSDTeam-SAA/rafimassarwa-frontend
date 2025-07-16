@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Trophy } from "lucide-react"
+import Link from "next/link"
 
 export default function SubscriptionCard() {
   const { data: session } = useSession()
@@ -15,7 +16,7 @@ export default function SubscriptionCard() {
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/get-user/${userId}`)
       const data = await res.json()
-      return data?.data
+      return data
     },
     enabled: !!userId,
   })
@@ -56,9 +57,19 @@ export default function SubscriptionCard() {
           <div className="flex items-center justify-between">
             <div className="text-sm">
               <p className="text-gray-500">Renews on</p>
-              <p className="font-medium">April 15, 2025</p> {/* ← you can make this dynamic if you have it */}
+              <p className="font-medium">
+                {user?.expiryDate
+                  ? new Date(user?.expiryDate).toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                  : "N/A"}
+              </p>
             </div>
-            <Button className="bg-green-600 hover:bg-green-700">Manage</Button>
+            <Link href="/explore-plan">
+              <Button className="bg-green-600 hover:bg-green-700">Manage</Button>
+            </Link>
           </div>
         </div>
 
@@ -66,7 +77,7 @@ export default function SubscriptionCard() {
         <div>
           <h3 className="font-semibold mb-4">Available Plans</h3>
           {plans
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((plan: any) => plan.title !== currentPlanTitle)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((plan: any) => (
@@ -80,6 +91,9 @@ export default function SubscriptionCard() {
                     {plan.monthly_price > 0 ? `$${plan.monthly_price}/mo` : "Free"}
                   </span>
                 </div>
+                <Link href="/explore-plan">
+                  <Button className="bg-green-600 hover:bg-green-700 h-8 mt-2">Get Plan</Button>
+                </Link>
               </div>
             ))}
         </div>
