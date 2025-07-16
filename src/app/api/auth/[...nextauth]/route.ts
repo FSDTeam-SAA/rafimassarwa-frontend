@@ -11,6 +11,7 @@ const handler = NextAuth({
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        rememberMe: { label: "Remember Me", type: "checkbox" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -33,6 +34,7 @@ const handler = NextAuth({
           role: result.data.user.role,
           accessToken: result.data.token.accessToken,
           refreshToken: result.data.token.refreshToken,
+          rememberMe: credentials.rememberMe === "on", // HTML checkbox returns "on"
         };
       },
     }),
@@ -62,6 +64,15 @@ const handler = NextAuth({
         token.role = user.role;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
+        token.rememberMe = user.rememberMe;
+
+        // Set custom expiration for rememberMe
+        const now = Math.floor(Date.now() / 1000);
+        if (user.rememberMe) {
+          token.exp = now + 30 * 24 * 60 * 60; // 30 days
+        } else {
+          token.exp = now + 24 * 60 * 60; // 1 day
+        }
       }
 
       // For Google login
@@ -85,6 +96,10 @@ const handler = NextAuth({
             token.role = data.data.user.role;
             token.accessToken = data.data.token.accessToken;
             token.refreshToken = data.data.token.refreshToken;
+
+            // For social logins, you can decide on a default duration:
+            const now = Math.floor(Date.now() / 1000);
+            token.exp = now + 30 * 24 * 60 * 60; // Default 30 days for social
           } else {
             console.error("Google login failed:", data);
           }
@@ -114,6 +129,10 @@ const handler = NextAuth({
             token.role = data.data.user.role;
             token.accessToken = data.data.token.accessToken;
             token.refreshToken = data.data.token.refreshToken;
+
+            // Default for social login
+            const now = Math.floor(Date.now() / 1000);
+            token.exp = now + 30 * 24 * 60 * 60;
           } else {
             console.error("Apple login failed:", data);
           }
@@ -131,6 +150,7 @@ const handler = NextAuth({
         session.user.role = token.role as string;
         session.user.accessToken = token.accessToken as string;
         session.user.refreshToken = token.refreshToken as string;
+        session.user.rememberMe = token.rememberMe as boolean;
       }
       return session;
     },
@@ -138,7 +158,7 @@ const handler = NextAuth({
 
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 24 hours
+    maxAge: 24 * 60 * 60, // fallback for non-credentials flows
   },
 
   secret: process.env.NEXTAUTH_SECRET,

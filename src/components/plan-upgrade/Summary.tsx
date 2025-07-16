@@ -35,6 +35,7 @@ export default function Summary() {
                         userId: session?.user?.id,
                         subscriptionId,
                         price,
+                        duration,
                     }),
                 });
                 const data = await res.json();
@@ -47,7 +48,7 @@ export default function Summary() {
         if (session?.user?.accessToken && subscriptionId && price) {
             createPaymentIntent();
         }
-    }, [session?.user?.accessToken, session?.user?.id, subscriptionId, price]);
+    }, [session?.user?.accessToken, session?.user?.id, subscriptionId, price, duration]);
 
 
     return (

@@ -88,7 +88,7 @@ export default function NewsList() {
                                         <TableCell className="font-medium text-start p-0 md:p-2">{shortTimeAgo(data.datetime)}</TableCell>
                                         <TableCell className='text-start md:w-20 w-12 p-0 md:p-2'>{data.symbol}</TableCell>
                                         <TableCell className='text-start p-0 pl-3'>
-                                            <Link href={data.url} target='_blank'>
+                                            <Link href={data.url}>
                                                 {data.headline}
                                             </Link>
                                         </TableCell>

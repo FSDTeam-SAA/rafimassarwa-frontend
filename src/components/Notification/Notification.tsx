@@ -3,6 +3,7 @@ import { useSocketContext } from "@/providers/SocketProvider";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface Notification {
   link: string;
@@ -14,7 +15,7 @@ interface Notification {
 export default function NotificationsPage() {
   const { newsNotification } = useSocketContext();
 
-  console.log(newsNotification);
+  toast(newsNotification?.message);
 
   const axiosInstance = useAxios();
 

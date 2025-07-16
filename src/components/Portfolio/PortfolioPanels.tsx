@@ -394,7 +394,7 @@ export default function Home() {
               (
                 <div className="p-4 border-b">
                   <h2 className="font-semibold text-lg text-gray-800">
-                    Portfolio Overview
+                    Big Movers
                   </h2>
                   <div className="flex justify-between mt-2 shadow-[0px_0px_10px_1px_#0000001A]">
                     <div className="px-4 py-2 font-medium relative after:absolute after:top-0 after:left-0 after:content-[''] after:h-[5px] after:w-full after:bg-[#28A745]">
