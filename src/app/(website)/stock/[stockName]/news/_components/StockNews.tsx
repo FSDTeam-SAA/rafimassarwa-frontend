@@ -1,4 +1,4 @@
-import StockAds from "@/shared/StockAds";
+import BannerAds from "@/components/News/BannerAds";
 import MarketNewsCard from "./MarketNewsCard";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -52,7 +52,7 @@ export default function StockNews({ stockNews }: StockNewsProps) {
           </Link>
 
           <div className="mt-5">
-            <StockAds />
+            <BannerAds />
           </div>
         </div>
       </div>

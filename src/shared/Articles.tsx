@@ -46,7 +46,7 @@ export default function Articles() {
     },
   });
 
-  const { data: relatedStockNews } = useQuery({
+  const { data: relatedStockNews, isLoading } = useQuery({
     queryKey: ["related-stocks-news"],
     queryFn: async () => {
       const res = await axiosInstance(
@@ -105,6 +105,9 @@ export default function Articles() {
     },
   ];
 
+  if (isLoading)
+    return <div className="text-center text-xl font-semibold">Loading....</div>;
+
   return (
     <section className="py-16 px-2 lg:px-0">
       <div className="container mx-auto">
@@ -157,7 +160,7 @@ export default function Articles() {
                     ))
                   : // Render stock news items
                     (tab.data as StockNewsItem[]).slice(60, 63).map((item) => (
-                      <Link key={item.id} href={item?.url} target="_blank">
+                      <Link key={item.id} href={item?.url}>
                         <div className="p-4 border rounded-2xl">
                           <Image
                             src={item.image || "/images/news-placeholder.png"}

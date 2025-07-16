@@ -49,7 +49,7 @@ export default function TipRanksLabs({
             <span className="text-xs text-gray-500">
               {new Date(rightSide?.createdAt).toLocaleDateString()}
             </span>
-            <Link href={`/news/${rightSide?._id}`} target="_blank">
+            <Link href={`/news/${rightSide?._id}`} >
               <Button
                 variant="outline"
                 size="sm"
@@ -81,7 +81,7 @@ export default function TipRanksLabs({
               <span className="text-xs text-gray-500">
                 {new Date(leftSide1?.createdAt).toLocaleDateString()}
               </span>
-              <Link href={`/news/${leftSide1?._id}`} target="_blank">
+              <Link href={`/news/${leftSide1?._id}`} >
                 <Button
                   variant="outline"
                   size="sm"
@@ -111,7 +111,7 @@ export default function TipRanksLabs({
               <span className="text-xs text-gray-500">
                 {new Date(leftSide1?.createdAt).toLocaleDateString()}
               </span>
-              <Link href={`/news/${leftSide2?._id}`} target="_blank">
+              <Link href={`/news/${leftSide2?._id}`} >
                 <Button
                   variant="outline"
                   size="sm"

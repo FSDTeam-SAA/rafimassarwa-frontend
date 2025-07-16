@@ -1,4 +1,5 @@
 "use client";
+import { useUserPayment } from "@/components/context/paymentContext";
 import { Button } from "@/components/ui/button";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
@@ -21,6 +22,10 @@ interface News {
 
 const Page = ({ params }: PageProps) => {
   const axiosInstance = useAxios();
+
+  const { paymentType } = useUserPayment();
+
+  console.log(paymentType);
 
   const { data: newsDetails = {}, isLoading } = useQuery({
     queryKey: ["blog-details"],
@@ -52,14 +57,14 @@ const Page = ({ params }: PageProps) => {
     );
 
   return (
-    <div className="mt-10 container mx-auto grid grid-cols-8 gap-5 mb-16">
-      <div className="col-span-2 p-5 h-[500px] bg-green-100 rounded-lg font-bold sticky top-24">
+    <div className="mt-10 container mx-auto grid grid-cols-6 gap-5 mb-16">
+      {/* <div className="col-span-2 p-5 h-[500px] bg-green-100 rounded-lg font-bold sticky top-24">
         Ads
-      </div>
+      </div> */}
 
       <div className="col-span-4">
         <h1 className="font-bold text-4xl mb-5">{newsTitle}</h1>
-        {newsDetails?.isPaid ? (
+        {newsDetails?.isPaid && paymentType === "Free" ? (
           <div>
             <div
               className="quill-content text-gray-700 max-w-none"
@@ -118,7 +123,7 @@ const Page = ({ params }: PageProps) => {
                 </h3>
                 <div className="flex items-center justify-between mt-auto px-2 py-3">
                   <span className="text-xs text-gray-500">{news.time}</span>
-                  <Link href={`/news/${news?._id}`} target="_blank">
+                  <Link href={`/news/${news?._id}`}>
                     <Button
                       variant="outline"
                       size="sm"

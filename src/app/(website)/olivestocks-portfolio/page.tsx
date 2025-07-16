@@ -1,8 +1,8 @@
-import React from 'react'
-import Portfolio from '@/components/olivestocks_portfolio/Portfolio'
-import BannerAds from '@/components/olivestocks_portfolio/BannerAds'
-import StockTickerCarousel from '@/components/Watchlist/StockTickerCarousel'
-import Articles from '@/shared/Articles'
+import React from "react";
+import Portfolio from "@/components/olivestocks_portfolio/Portfolio";
+import StockTickerCarousel from "@/components/Watchlist/StockTickerCarousel";
+import Articles from "@/shared/Articles";
+import BannerAds from "@/components/News/BannerAds";
 
 export default function page() {
   return (
@@ -14,5 +14,5 @@ export default function page() {
       <BannerAds />
       <Articles />
     </>
-  )
+  );
 }

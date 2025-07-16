@@ -129,9 +129,8 @@ export function OverviewSidebar() {
               height={150}
               className="w-20 h-16 object-contain"
             />
-            <div className="flex flex-col">
-              <span className="text-base font-medium text-black">AAPL</span>
-              <span className="text-xl font-medium text-black">Apple</span>
+            <div className=" uppercase">
+              <span className="text-xl font-medium text-black">{stockName}</span>
             </div>
           </SidebarGroupLabel>
           <SidebarGroupContent className="pt-4 border-t">

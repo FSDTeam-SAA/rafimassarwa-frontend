@@ -81,7 +81,7 @@ const PrivateHome = () => {
           {stockNews[0] && (
             <Link
               href={stockNews[0].url}
-              target="_blank"
+              
               rel="noopener noreferrer"
             >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
@@ -118,7 +118,7 @@ const PrivateHome = () => {
           {stockNews[1] && (
             <Link
               href={stockNews[1].url}
-              target="_blank"
+              
               rel="noopener noreferrer"
             >
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
@@ -157,7 +157,7 @@ const PrivateHome = () => {
           {stockNews[2] && (
             <Link
               href={stockNews[2].url}
-              target="_blank"
+              
               rel="noopener noreferrer"
             >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
@@ -200,7 +200,7 @@ const PrivateHome = () => {
           {stockNews[3] && (
             <Link
               href={stockNews[3].url}
-              target="_blank"
+              
               rel="noopener noreferrer"
             >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
@@ -237,7 +237,7 @@ const PrivateHome = () => {
           {stockNews[4] && (
             <Link
               href={stockNews[4].url}
-              target="_blank"
+              
               rel="noopener noreferrer"
             >
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
@@ -278,7 +278,7 @@ const PrivateHome = () => {
           <Link
             key={news.id}
             href={news.url}
-            target="_blank"
+            
             rel="noopener noreferrer"
           >
             <div className="flex gap-2 items-center cursor-pointer hover:opacity-90 transition-opacity">
