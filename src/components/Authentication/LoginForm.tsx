@@ -49,6 +49,7 @@ export default function LoginForm() {
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
+        rememberMe: data.remember,
         redirect: false,
       });
 
@@ -134,7 +135,7 @@ export default function LoginForm() {
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full rounded border border-gray-300 py-3 pl-4 pr-10 outline-none focus:border-green-500"
+                  className="w-full rounded border border-gray-300 py-3 pl-4 pr-10 outline-none focus:border-green-500 lowercase"
                   {...register("email")}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">

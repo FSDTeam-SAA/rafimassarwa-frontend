@@ -606,10 +606,11 @@ export default function PortfolioTable() {
 
       <TableCell className="w-[120px] text-center">
         <div
-          className={`flex items-center gap-1 justify-center ${Number.parseFloat(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"}`}
+          className={`flex items-center gap-1 justify-center ${Number(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"
+            }`}
         >
-          {Number.parseFloat(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
-          {item.holdingGain ?? 0}%
+          {Number(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
+          {Number.isNaN(Number(item.holdingGain)) ? 0 : Number(item.holdingGain).toFixed(2)}%
         </div>
       </TableCell>
 
@@ -775,10 +776,18 @@ export default function PortfolioTable() {
               <Input
                 id="quantity"
                 type="number"
-                value={transactionQuantity}
-                onChange={(e) => setTransactionQuantity(Number(e.target.value))}
+                value={transactionQuantity === 0 ? "" : transactionQuantity}
+                onChange={(e) => {
+                  const value = e.target.value === "" ? 0 : Math.max(1, Number(e.target.value));
+                  setTransactionQuantity(value);
+                }}
                 className="col-span-3"
                 min="1"
+                onBlur={(e) => {
+                  if (e.target.value === "" || Number(e.target.value) < 1) {
+                    setTransactionQuantity(1); // Reset to minimum if empty or invalid
+                  }
+                }}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -790,19 +799,31 @@ export default function PortfolioTable() {
                 type="number"
                 value={
                   selectedStock
-                    ? (editablePrices[selectedStock.symbol] ?? Number.parseFloat(selectedStock.holdingPrice))
-                    : 0
+                    ? (editablePrices[selectedStock.symbol] ?? selectedStock.holdingPrice) === 0
+                      ? ""
+                      : (editablePrices[selectedStock.symbol] ?? selectedStock.holdingPrice)
+                    : ""
                 }
                 onChange={(e) => {
                   if (selectedStock) {
+                    const value = e.target.value === "" ? 0 : Number(e.target.value);
                     setEditablePrices((prev) => ({
                       ...prev,
-                      [selectedStock.symbol]: Number(e.target.value),
-                    }))
+                      [selectedStock.symbol]: value,
+                    }));
                   }
                 }}
                 className="col-span-3"
                 step="0.01"
+                min="0"
+                onBlur={(e) => {
+                  if (selectedStock && (e.target.value === "" || Number(e.target.value) < 0)) {
+                    setEditablePrices((prev) => ({
+                      ...prev,
+                      [selectedStock.symbol]: Number(selectedStock.holdingPrice), // Reset to original if empty or invalid
+                    }));
+                  }
+                }}
               />
             </div>
           </div>

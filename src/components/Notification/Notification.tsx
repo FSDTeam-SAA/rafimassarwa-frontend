@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { MoreHorizontal } from "lucide-react"
 import { useSocketContext } from "@/providers/SocketProvider"
+import { toast } from "sonner"
 
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState("today")
@@ -102,7 +103,7 @@ export default function NotificationsPage() {
 
   const { newsNotification } = useSocketContext()
 
-  console.log(newsNotification)
+  toast(newsNotification?.message)
 
   // Filter notifications based on active tab
   const filteredNotifications = notifications
