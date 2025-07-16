@@ -6,10 +6,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { usePortfolio } from "@/components/context/portfolioContext";
 
 // Create axios instance (adjust baseURL as needed)
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://your-api-base-url.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 interface Event {
@@ -29,6 +30,8 @@ export default function FinancialDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(7);
 
+  const { selectedPortfolioId } = usePortfolio();
+
   // Fetch events data
   const {
     data: eventsData,
@@ -38,7 +41,9 @@ export default function FinancialDashboard() {
     queryKey: ["upcomingEvents"],
     queryFn: async () => {
       try {
-        const res = await axiosInstance.get("/portfolio/upcoming-event");
+        const res = await axiosInstance.get(
+          `/portfolio/upcoming-event?portfolioId=${selectedPortfolioId}`
+        );
         return res.data || { total: 0, events: [] };
       } catch (error) {
         console.error("Error fetching events:", error);

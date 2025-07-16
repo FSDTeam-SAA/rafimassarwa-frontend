@@ -121,7 +121,7 @@ export default function HeroSwiper() {
               {/* Swiper */}
               <div className="relative h-full w-full">
                 {swiperImages.map((image, index) => (
-                  <Link href={`${image.url}`} target="_blank" key={index}>
+                  <Link href={`${image.url}`}  key={index}>
                     <div
                       className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? "opacity-100" : "opacity-0"
                         }`}

@@ -73,7 +73,7 @@ export default function MoreFromTip({ stockNews }: MoreFromTipProps) {
                 <span className="text-xs text-gray-500">
                   {new Date(initialNews[0]?.createdAt).toLocaleDateString()}
                 </span>
-                <Link href={`/news/${initialNews[0]?._id}`} target="_blank">
+                <Link href={`/news/${initialNews[0]?._id}`} >
                   <Button
                     variant="outline"
                     size="sm"
@@ -111,7 +111,7 @@ export default function MoreFromTip({ stockNews }: MoreFromTipProps) {
                         <span className="text-xs text-gray-500">
                           {new Date(item.createdAt).toLocaleDateString()}
                         </span>
-                        <Link href={`/news/${item._id}`} target="_blank">
+                        <Link href={`/news/${item._id}`} >
                           <Button
                             variant="outline"
                             size="sm"
@@ -174,7 +174,7 @@ function NewsCard({ news }: { news: StockNewsItem }) {
         <span className="text-xs text-gray-500">
           {new Date(news.createdAt).toLocaleDateString()}
         </span>
-        <Link href={`/news/${news._id}`} target="_blank">
+        <Link href={`/news/${news._id}`} >
           <Button
             variant="outline"
             size="sm"

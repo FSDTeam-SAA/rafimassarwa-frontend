@@ -25,7 +25,7 @@ export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
         {/* Main Article */}
         <div className="flex gap-10">
           <div className="w-1/2">
-            <Link href={`${firstNews?.url}`} target="_blank">
+            <Link href={`${firstNews?.url}`} >
               {firstNews?.image && (
                 <Image
                   src={firstNews?.image || `${"/images/news-placeholder.png"}`}
@@ -52,7 +52,7 @@ export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
                 {shortTimeAgo(firstNews?.datetime)}
               </span>
               <div>
-                <Link href={`${firstNews?.url}`} target="_blank">
+                <Link href={`${firstNews?.url}`} >
                   <Button
                     variant="outline"
                     size="sm"

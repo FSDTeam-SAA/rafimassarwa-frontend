@@ -95,7 +95,7 @@ export default function NotificationsPage() {
           allNotifications?.map((notification: Notification) => (
             <Link
               href={`${notification?.link}`}
-              target="_blank"
+              
               key={notification?._id}
             >
               <div className="flex items-center gap-2 py-4 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer transition-all duration-300">

@@ -11,13 +11,33 @@ import {
 } from "@/components/ui/accordion";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import useAxios from "@/hooks/useAxios";
 
 const EarningChart = () => {
   const [activeTab, setActiveTab] = useState("Results");
 
+  const axiosInstance = useAxios();
   const params = useSearchParams();
 
-  const stock = params.get('q')
+  const stock = params.get("q");
+
+  // Fetch API data using React Query
+  const { data: earningChart, isLoading } = useQuery({
+    queryKey: ["earning-chart", stock],
+    queryFn: async () => {
+      if (!stock) return [];
+      const res = await axiosInstance(
+        `/stocks/stock/earnings-surprise?symbol=${stock}`
+      );
+      return res.data;
+    },
+    enabled: !!stock,
+  });
+
+  console.log(earningChart);
+
+  if (isLoading) return <div className="text-center text-lg">Loading...</div>;
 
   return (
     <div>
@@ -118,23 +138,21 @@ const EarningChart = () => {
           </button>
 
           <button className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
-             <Link href={`/tree?q=${stock}`}>
-            <button className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
-              <Image
-                src={"/images/transcript.png"}
-                alt="star img"
-                height={20}
-                width={20}
-              />
-              Tree{" "}
-              <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
-                Pro
-              </span>
-            </button>
-          </Link>
+            <Link href={`/tree?q=${stock}`}>
+              <button className="w-full bg-[#cccccc] py-3 flex items-center justify-center gap-2 rounded-3xl text-green-600">
+                <Image
+                  src={"/images/transcript.png"}
+                  alt="star img"
+                  height={20}
+                  width={20}
+                />
+                Tree{" "}
+                <span className="bg-[#eaf6ec] px-3 rounded-sm text-green-500">
+                  Pro
+                </span>
+              </button>
+            </Link>
           </button>
-
-         
         </div>
       </div>
 

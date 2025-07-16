@@ -58,7 +58,7 @@ export default function StockMarketNews({ allNews }: StockMarketNewsProps) {
                 <span className="text-sm text-gray-500">
                   {shortTimeAgo(article?.datetime)}
                 </span>
-                <Link href={`${article.url}`} target="_blank">
+                <Link href={`${article.url}`} >
                   <Button
                     variant="outline"
                     size="sm"

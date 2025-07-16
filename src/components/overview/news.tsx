@@ -36,7 +36,7 @@ export default function RecentNews() {
             key={item._id}
             className="overflow-hidden rounded-lg border border-gray-200 shadow-sm h-[120px]"
           >
-            <Link href={item.url} target="_blank">
+            <Link href={item.url} >
               <div className="flex gap-2">
                 <div>
                   {item.image && (
