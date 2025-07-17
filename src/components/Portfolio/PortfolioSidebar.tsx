@@ -117,6 +117,7 @@ export function PortfolioSidebar() {
     enabled: !!session?.user?.accessToken,
   })
 
+
   const { selectedPortfolioId, setSelectedPortfolioId } = usePortfolio()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 

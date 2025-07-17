@@ -103,7 +103,7 @@ export default function ChartPage() {
     }
 
     // Empty Portfolio UI
-    if (isPortfolioSuccess && (!portfolioData || portfolioData.stocks.length === 0)) {
+    if (isPortfolioSuccess && (!portfolioData || portfolioData?.stocks?.length === 0)) {
         return (
             <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
