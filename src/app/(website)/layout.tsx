@@ -9,6 +9,7 @@ import { SocketProvider } from "@/providers/SocketProvider";
 import { PaymentProvider } from "@/components/context/paymentContext";
 import QueryProvider from "@/Layout/query-provider";
 import { TableReloadProvider } from "@/components/context/table-reload-context";
+import LanguageProvider from "@/providers/LanguageProvider";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -35,13 +36,15 @@ export default function RootLayout({
 
         <AuthSessionProvider>
           <QueryProvider>
-            <TableReloadProvider>
-              <PaymentProvider>
-                <LayoutWrapper>
-                  <SocketProvider>{children}</SocketProvider>
-                </LayoutWrapper>
-              </PaymentProvider>
-            </TableReloadProvider>
+            <LanguageProvider>
+              <TableReloadProvider>
+                <PaymentProvider>
+                  <LayoutWrapper>
+                    <SocketProvider>{children}</SocketProvider>
+                  </LayoutWrapper>
+                </PaymentProvider>
+              </TableReloadProvider>
+            </LanguageProvider>
           </QueryProvider>
         </AuthSessionProvider>
         <Toaster position="top-center" />
