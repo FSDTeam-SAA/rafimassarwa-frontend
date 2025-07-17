@@ -5,10 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
+import  { useLanguage }  from "@/providers/LanguageProvider";
 
 export default function HeroSwiper() {
   const [currentSlide, setCurrentSlide] = useState(0);
-
+  const { dictionary, selectedLangCode } = useLanguage();
   const axiosInstance = useAxios();
 
   const { data: heroNews = [] } = useQuery({
@@ -88,14 +89,17 @@ export default function HeroSwiper() {
             </div>
 
             <h1 className="mt-6 text-2xl font-bold leading-tight text-black sm:text-5xl text-center lg:text-start">
-              Unlock Your Investment Potential with Our Data-Driven Platform{" "}
+              {/* Unlock Your Investment Potential with Our Data-Driven Platform{" "} */}
               {/* Clear benefit */}
+              {selectedLangCode === "en"
+                ? dictionary.heroTitle
+                : dictionary.heroTitle}
             </h1>
 
             <p className="mt-6 text-base text-gray-600 lg:text-start text-center">
-              Gain a competitive edge with real-time stock data, AI-powered
-              insights, and comprehensive financial research – all designed to
-              help you make confident and profitable investment decisions.{" "}
+             {selectedLangCode === "en"
+                ? dictionary.heroDesc
+                : dictionary.heroDesc}
               {/* More explicit benefits */}
             </p>
 
@@ -121,10 +125,11 @@ export default function HeroSwiper() {
               {/* Swiper */}
               <div className="relative h-full w-full">
                 {swiperImages.map((image, index) => (
-                  <Link href={`${image.url}`}  key={index}>
+                  <Link href={`${image.url}`} key={index}>
                     <div
-                      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? "opacity-100" : "opacity-0"
-                        }`}
+                      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
+                        index === currentSlide ? "opacity-100" : "opacity-0"
+                      }`}
                     >
                       <Image
                         src={image.src || "/images/hero.jpg"}
@@ -143,10 +148,11 @@ export default function HeroSwiper() {
                           {swiperImages.map((_, i) => (
                             <span
                               key={i}
-                              className={`h-2 w-2 rounded-full ${i === currentSlide
-                                ? "bg-green-500"
-                                : "bg-white/50"
-                                }`}
+                              className={`h-2 w-2 rounded-full ${
+                                i === currentSlide
+                                  ? "bg-green-500"
+                                  : "bg-white/50"
+                              }`}
                             />
                           ))}
                         </div>
