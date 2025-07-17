@@ -64,7 +64,7 @@ const Page = ({ params }: PageProps) => {
 
       <div className="col-span-4">
         <h1 className="font-bold text-4xl mb-5">{newsTitle}</h1>
-        {newsDetails?.isPaid && paymentType === "Free" ? (
+        {newsDetails?.isPaid && paymentType === "free" ? (
           <div>
             <div
               className="quill-content text-gray-700 max-w-none"
