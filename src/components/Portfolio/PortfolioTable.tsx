@@ -85,6 +85,7 @@ interface HoldingItem {
   priceTarget: {
     high: number
   }
+  preMarketChangePercent: number
 }
 
 export default function PortfolioTable() {
@@ -550,13 +551,16 @@ export default function PortfolioTable() {
         })}
       </TableCell>
       <TableCell className="w-[120px] text-center">${item.price.toFixed(2)}</TableCell>
-      <TableCell className="w-[120px] text-center">
+      <TableCell className="w-[130px] text-center">
         <div className="flex flex-col items-center">
           <span className={`${item.change > 0 ? "text-green-500" : "text-red-500"}`}>${item.change.toFixed(2)}</span>
           <div className="flex items-center">
             {item.change > 0 ? <FaCaretUp className="text-green-500" /> : <FaCaretDown className="text-red-500" />}
             <span className={item.change > 0 ? "text-green-500" : "text-red-500"}>{item.percent.toFixed(2)}%</span>
           </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className={`text-xs ${item.preMarketChangePercent > 0 ? "text-green-500" : "text-red-500"}`}>pre market: {item.preMarketChangePercent?.toFixed(2)}%</span>
         </div>
       </TableCell>
 
