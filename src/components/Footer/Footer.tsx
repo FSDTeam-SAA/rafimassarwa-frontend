@@ -2,22 +2,32 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const Footer = () => {
+  const { dictionary, selectedLangCode } = useLanguage();
   return (
     <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
       <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="relative">
             <h2 className="mb-4 text-3xl font-bold tracking-tight">
-              Stay Connected
+              {selectedLangCode === "en"
+                ? dictionary.connected
+                : dictionary.connected}
             </h2>
             <p className="mb-6 text-muted-foreground">
-              Join our newsletter for the latest updates and exclusive offers.
+              {selectedLangCode === "en"
+                ? dictionary.footerDesc
+                : dictionary.footerDesc}
             </p>
           </div>
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
+            <h3 className="mb-4 text-lg font-semibold">
+              {selectedLangCode === "en"
+                ? dictionary.quickLink
+                : dictionary.quickLink}
+            </h3>
             <nav className="space-y-2 text-sm">
               <Link href={"/terms-conditions"}>
                 <h3>Terms and conditions</h3>
@@ -31,7 +41,11 @@ const Footer = () => {
             </nav>
           </div>
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Contact Us</h3>
+            <h3 className="mb-4 text-lg font-semibold">
+              {selectedLangCode === "en"
+                ? dictionary.contactUs
+                : dictionary.contactUs}
+            </h3>
             <address className="space-y-2 text-sm not-italic">
               <p>128 City Road, London, EC1V 2NX, United Kingdom</p>
               <p>Support@olivestocks.com</p>

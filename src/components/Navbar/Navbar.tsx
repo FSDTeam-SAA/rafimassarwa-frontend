@@ -39,6 +39,7 @@ import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import { MdDashboard } from "react-icons/md";
 import { useUserPayment } from "../context/paymentContext";
+import { LanguageSwitcher } from "@/shared/LanguageSwitcher";
 
 // Define the shape of navigation items
 interface NavItem {
@@ -65,7 +66,6 @@ interface SearchResponse {
   results: StockResult[];
 }
 
-
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -77,13 +77,21 @@ export default function Navbar() {
     { name: "Home", href: "/", icon: Home },
     {
       name: "Olive Stock's Portfolio",
-      href: `${paymentType === "Premium" || paymentType === "Ultimate" ? "/olivestocks-portfolio" : "/explore-plan"}`,
+      href: `${
+        paymentType === "Premium" || paymentType === "Ultimate"
+          ? "/olivestocks-portfolio"
+          : "/explore-plan"
+      }`,
       icon: TrendingUp,
     },
     {
       name: "Quality Stocks",
-      href: `${paymentType === "Premium" || paymentType === "Ultimate" ? "/quality-stocks" : "/explore-plan"}`,
-      icon: Star
+      href: `${
+        paymentType === "Premium" || paymentType === "Ultimate"
+          ? "/quality-stocks"
+          : "/explore-plan"
+      }`,
+      icon: Star,
     },
     { name: "Stock of the Month", href: "/stock-of-month", icon: Calendar },
     { name: "My Portfolio", href: "/my-portfolio", icon: Briefcase },
@@ -161,8 +169,7 @@ export default function Navbar() {
     return initials.slice(0, 2); // Max 2 letters
   };
 
-
-  console.log(userData)
+  console.log(userData);
 
   // Desktop auth section (right side of navbar)
   const renderAuthSection = () => {
@@ -189,6 +196,8 @@ export default function Navbar() {
             <Bell className="text-green-600" />
           </Link>
 
+
+
           {/* User dropdown menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -207,7 +216,9 @@ export default function Navbar() {
                       session.user.image || // Then auth provider image
                       "/placeholder.svg" // Fallback placeholder
                     }
-                    alt={userData?.data?.userName || session.user.name || "User"}
+                    alt={
+                      userData?.data?.userName || session.user.name || "User"
+                    }
                   />
                   <AvatarFallback className="text-xs font-semibold bg-green-500 text-white">
                     {getInitials(userData?.data?.userName || session.user.name)}
@@ -215,7 +226,12 @@ export default function Navbar() {
                 </Avatar>
 
                 {/* User name and role - now fixed to always show "xl:block" */}
-                <div className={cn("text-left transition-all duration-300", "hidden xl:block")}>
+                <div
+                  className={cn(
+                    "text-left transition-all duration-300",
+                    "hidden xl:block"
+                  )}
+                >
                   <p
                     className={cn(
                       "font-semibold text-gray-700 leading-tight transition-all duration-300",
@@ -246,19 +262,17 @@ export default function Navbar() {
                   <p className="text-xs leading-none text-muted-foreground">
                     {userData?.data?.email || session.user.email || "No email"}
                   </p>
-                  {
-                    userData?.data?.role === "admin" && (
-                      <Link href="/dashboard">
-                        <Button
-                          className="w-full justify-start text-white hover:bg-green-600 bg-green-500 my-2"
-                          size="sm"
-                        >
-                          <MdDashboard className="mr-2 h-4 w-4" />
-                          Dashboard
-                        </Button>
-                      </Link>
-                    )
-                  }
+                  {userData?.data?.role === "admin" && (
+                    <Link href="/dashboard">
+                      <Button
+                        className="w-full justify-start text-white hover:bg-green-600 bg-green-500 my-2"
+                        size="sm"
+                      >
+                        <MdDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -271,29 +285,38 @@ export default function Navbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+                          <div>
+                  <LanguageSwitcher />
+                </div>
         </div>
       );
     }
 
     // Logged out state - shows login button
     return (
-      <Link href="/login" className="hidden lg:block flex-shrink-0">
-        <Button
-          className={cn(
-            "bg-green-500 hover:bg-green-600 transition-all duration-300 rounded-full",
-            "px-3 py-2 text-sm" // Fixed size
-          )}
-        >
-          <LogIn
-            className={cn("transition-all duration-300", "h-3 w-3 mr-1")} // Fixed size
-          />
-          <span
-            className={cn("transition-all duration-300", "hidden xl:inline")} // Fixed visibility
+      <div className="flex items-center gap-3">
+        <Link href="/login" className="hidden lg:block flex-shrink-0">
+          <Button
+            className={cn(
+              "bg-green-500 hover:bg-green-600 transition-all duration-300 rounded-full",
+              "px-3 py-2 text-sm" // Fixed size
+            )}
           >
-            Log in
-          </span>
-        </Button>
-      </Link>
+            <LogIn
+              className={cn("transition-all duration-300", "h-3 w-3 mr-1")} // Fixed size
+            />
+            <span
+              className={cn("transition-all duration-300", "hidden xl:inline")} // Fixed visibility
+            >
+              Log in
+            </span>
+          </Button>
+        </Link>
+
+        <div>
+          <LanguageSwitcher />
+        </div>
+      </div>
     );
   };
 
@@ -337,19 +360,17 @@ export default function Navbar() {
             </div>
           </div>
 
-          {
-            userData?.data?.role === "admin" && (
-              <Link href="/dashboard">
-                <Button
-                  className="w-full justify-start text-green-600 hover:text-green-600 hover:bg-green-50"
-                  size="sm"
-                >
-                  <MdDashboard className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Button>
-              </Link>
-            )
-          }
+          {userData?.data?.role === "admin" && (
+            <Link href="/dashboard">
+              <Button
+                className="w-full justify-start text-green-600 hover:text-green-600 hover:bg-green-50"
+                size="sm"
+              >
+                <MdDashboard className="mr-2 h-4 w-4" />
+                Dashboard
+              </Button>
+            </Link>
+          )}
 
           {/* Logout button */}
           <Button
@@ -374,6 +395,10 @@ export default function Navbar() {
             Log in
           </Button>
         </Link>
+
+        <div>
+          <LanguageSwitcher />
+        </div>
       </div>
     );
   };
@@ -573,10 +598,11 @@ export default function Navbar() {
                                   ${stock.price?.toFixed(2)}
                                 </p>
                                 <p
-                                  className={`text-xs font-medium ${stock.change >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                    }`}
+                                  className={`text-xs font-medium ${
+                                    stock.change >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
                                 >
                                   {stock.change >= 0 ? "+" : ""}
                                   {stock.change?.toFixed(2)} (
@@ -624,10 +650,11 @@ export default function Navbar() {
                           <Link
                             key={link.name}
                             href={link.href}
-                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${isActive
-                              ? "text-green-600 bg-green-50"
-                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                              }`}
+                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${
+                              isActive
+                                ? "text-green-600 bg-green-50"
+                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                            }`}
                             onClick={() => setOpen(false)}
                           >
                             <Icon size={20} />
