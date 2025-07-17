@@ -753,14 +753,14 @@ export default function EnhancedStockChart({ selectedStock, timeframe }: StockCh
             dataZoom: [
                 {
                     type: "inside",
-                    start: 0,
+                    start: 30,
                     end: 100,
                     xAxisIndex: [0],
                     zoomLock: false,
                 },
                 {
                     type: "slider",
-                    start: 0,
+                    start: 30,
                     end: 100,
                     height: 20,
                     bottom: 30,
