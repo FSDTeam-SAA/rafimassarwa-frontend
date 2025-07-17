@@ -8,10 +8,10 @@ export default function StockPremiumBanner() {
     return (
         <div className="max-w-5xl">
             <h2 className="text-xl font-bold mb-6">Unlock Premium Insights With Olive Stocks</h2>
-            <Card className="border-2 border-[#28A745] bg-[#f5fff7] mx-auto overflow-hidden px-5">
+            <Card className="border-2 border-[#28A745] bg-[#f5fff7] mx-auto overflow-hidden lg:px-5">
                 <CardContent className="lg:py-10 py-5">
                     <div className="flex flex-col md:flex-row items-center">
-                        <div className="p-6 flex-1">
+                        <div className="lg:p-6 flex-1">
                             <div className="mb-6">
                                 <h3 className="text-lg font-bold mb-4">Why Go Premium?</h3>
                                 <ul className="space-y-2">
@@ -24,7 +24,7 @@ export default function StockPremiumBanner() {
                                     ].map((item, index) => (
                                         <li key={index} className="flex items-start">
                                             <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                                            <span className="text-lg text-gray-700">{item}</span>
+                                            <span className="lg:text-lg text-sm text-gray-700">{item}</span>
                                         </li>
                                     ))}
                                 </ul>
