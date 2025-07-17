@@ -125,7 +125,7 @@ export default function ChartPage() {
 
     // Main Chart Page
     return (
-        <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
+        <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw] -mt-12">
             <div className="">
                 <div className="">
                     {selectedStock && (

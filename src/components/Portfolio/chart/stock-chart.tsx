@@ -171,7 +171,7 @@ export default function EnhancedStockChart({ selectedStock, timeframe, compariso
         for (let i = 0; i < ohlcData.length; i++) {
             const [timestamp, open, close, low, high] = ohlcData[i]
 
-            let haOpen, haClose, haHigh, haLow
+            let haOpen
 
             if (i === 0) {
                 haOpen = (open + close) / 2
@@ -179,9 +179,9 @@ export default function EnhancedStockChart({ selectedStock, timeframe, compariso
                 haOpen = (haData[i - 1][1] + haData[i - 1][2]) / 2
             }
 
-            haClose = (open + high + low + close) / 4
-            haHigh = Math.max(high, haOpen, haClose)
-            haLow = Math.min(low, haOpen, haClose)
+            const haClose = (open + high + low + close) / 4
+            const haHigh = Math.max(high, haOpen, haClose)
+            const haLow = Math.min(low, haOpen, haClose)
 
             haData.push([timestamp, haOpen, haClose, haLow, haHigh])
         }
@@ -193,7 +193,6 @@ export default function EnhancedStockChart({ selectedStock, timeframe, compariso
     const calculateRenko = useCallback((priceData: [number, number][], brickSize = 1) => {
         const renkoData: [number, number, number, number, number][] = []
         let currentPrice = priceData[0][1]
-        let direction = 1 // 1 for up, -1 for down
 
         for (let i = 1; i < priceData.length; i++) {
             const [timestamp, price] = priceData[i]
@@ -216,7 +215,6 @@ export default function EnhancedStockChart({ selectedStock, timeframe, compariso
                 }
 
                 currentPrice = currentPrice + bricks * brickSize * Math.sign(priceDiff)
-                direction = Math.sign(priceDiff)
             }
         }
 
@@ -814,14 +812,14 @@ export default function EnhancedStockChart({ selectedStock, timeframe, compariso
             dataZoom: [
                 {
                     type: "inside",
-                    start: 0,
+                    start: 50,
                     end: 100,
                     xAxisIndex: [0],
                     zoomLock: false,
                 },
                 {
                     type: "slider",
-                    start: 0,
+                    start: 50,
                     end: 100,
                     height: 20,
                     bottom: 30,
@@ -919,7 +917,7 @@ export default function EnhancedStockChart({ selectedStock, timeframe, compariso
                 </div>
             )}
 
-            <div ref={chartRef} className="w-full" />
+            <div ref={chartRef} className="w-full h-[700px]" />
         </Card>
     )
 }
