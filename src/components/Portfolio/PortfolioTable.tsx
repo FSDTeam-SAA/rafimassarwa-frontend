@@ -840,8 +840,9 @@ export default function PortfolioTable() {
               disabled={
                 isAddingTransaction ||
                 transactionQuantity <= 0 ||
-                !selectedStock || // no stock selected
-                (editablePrices[selectedStock.symbol] ?? selectedStock.holdingPrice) === 0
+                !selectedStock ||
+                !editablePrices[selectedStock.symbol] || // disables if undefined, zero, or empty
+                editablePrices[selectedStock.symbol] === 0 // extra check for explicit zero
               }
               className="bg-[#28A745] hover:bg-[#228B3B]"
             >
