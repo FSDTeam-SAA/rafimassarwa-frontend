@@ -837,7 +837,12 @@ export default function PortfolioTable() {
             </Button>
             <Button
               onClick={handleTransactionSubmit}
-              disabled={isAddingTransaction || transactionQuantity <= 0}
+              disabled={
+                isAddingTransaction ||
+                transactionQuantity <= 0 ||
+                !selectedStock || // no stock selected
+                (editablePrices[selectedStock.symbol] ?? selectedStock.holdingPrice) === 0
+              }
               className="bg-[#28A745] hover:bg-[#228B3B]"
             >
               {isAddingTransaction ? "Adding..." : "Add Transaction"}

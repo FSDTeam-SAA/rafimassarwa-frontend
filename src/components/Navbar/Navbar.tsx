@@ -380,7 +380,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Fixed header that stays at top of page */}
       <header
         className={cn(
           "fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full transition-all duration-700 ease-in-out",
@@ -409,7 +408,7 @@ export default function Navbar() {
 
               {/* Desktop navigation links */}
               <div className="hidden lg:flex items-center gap-1 flex-1 justify-center mx-4">
-                {navigationLinks.map((item) => {
+                {navigationLinks.map((item, idx: number) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
 
@@ -428,11 +427,33 @@ export default function Navbar() {
                       <span
                         className={cn(
                           "transition-all duration-300",
-                          "hidden xl:inline" // Fixed visibility for text
+                          "hidden xl:inline" // Only show text on xl+
                         )}
                       >
-                        {item.name}
+                        <span className="relative">
+                          {item.name}
+
+                          {(idx === 1 || idx === 2) && paymentType === "free" && (
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center">
+                              <div
+                                className="relative w-[70px] h-5 rounded-full flex items-center justify-center bg-[#28A745]/40"
+                                style={{
+                                  backdropFilter: "blur(5px)"
+                                }}
+                              >
+                                <Image
+                                  src="/images/lock.png"
+                                  alt="lock-image"
+                                  width={15}
+                                  height={15}
+                                  className="absolute"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </span>
                       </span>
+
                       <span
                         className={cn(
                           "transition-all duration-300",
