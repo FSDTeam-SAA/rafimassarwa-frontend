@@ -30,4 +30,65 @@ export const arLangs = {
   q14: "نعم، تتم حماية بياناتك باستخدام تقنيات التشفير وخوادم مؤمنة.",
   q15: "هل يمكنني إنشاء أكثر من محفظة؟",
   q16: "نعم، يمكنك إدارة عدة محافظ ضمن حساب واحد.",
+
+  // --- New Content from Image ---
+  oliveStocks: "مخزون الزيتون",
+  home: "الصفحة الرئيسية",
+  oliveStocksPortfolio: "محفظة Olive Stocks",
+  qualityStocks: "أسهم ذات جودة",
+  stockOfTheMonth: "سهم الشهر",
+  myPortfolio: "محفظتي",
+  watchlist: "قائمة المتابعة",
+  news: "الأخبار",
+  searchStocks: "ابحث عن الأسهم...",
+  login: "تسجيل الدخول",
+
+  trustedPartner: "شريكك الموثوق لفهم الأسواق بعمق",
+  unlockPotential:
+    "أطلق العنان لإمكانياتك الاستثمارية الكامنة من خلال منصتنا المعتمدة على البيانات",
+  gainEdge: "احصل على منصة تمنحك الرؤية التي يفتقدها الآخرون.",
+  registerNow: "سجل الآن",
+  whatWeOffer: "اكتشف ما نقدمه",
+
+  sAndP500: "S&P 500",
+  dow30: "داو 30",
+  nasdaq: "ناسداك",
+
+  informedInvestments: "اتخذ قرارات مالية مبنية على بيانات وتحليل عميق",
+  empowerInvestors:
+    "نمنح الجميع الأدوات والمقالات التي يستخدمها المستثمرون المحترفون لاتخاذ قرارات استثمارية مستنيرة",
+
+  essentialServices : "الخدمات الأساسية",
+  deepStockAnalysis: "تحليل الأسهم المتعمق",
+  aiBackedData: "تحليل الأسهم باستخدام بيانات مدعومة بالذكاء الاصطناعي.",
+  buildStrongPortfolio: "قم ببناء محفظة استثمارية قوية",
+  expertGuidance: "احصل على إرشادات الخبراء بشأن تنويع الاستثمار.",
+  smartSignals: "مؤشرات استثمار ذكية",
+  timelyRecommendations: "تنبيهات وتوصيات في الوقت المناسب.",
+  shariahScreening: "فحص متوافق مع الشريعة",
+  ethicalInvesting: "استثمر بثقة في الأصول المتوافقة مع الأخلاق.",
+
+  growPortfolio: "نمِّ محفظتك الاستثمارية وابنِ ثروة تدوم",
+  financialControl: "تحكّم بمستقبلك المالي باستخدام Olive Stocks",
+
+  expertInsights: "تحليلات السوق من خبراء",
+  breakingNews: "أحدث الأخبار وتحليلات متعمقة لما وراء العناوين",
+  dataBackedDecisions: "قرارات استثمارية قائمة على البيانات",
+  realTimeTracking: "تتبع المحفظة في الوقت الفعلي",
+  hiddenOpportunities: "اكتشف فرص استثمارية خفية",
+  upgradeNow: "افتح ميزات الوصول إلى تحليلات حصرية وبيانات مميزة",
+
+  latestArticles: "أحدث المقالات",
+  marketNews: "أخبار السوق",
+  deepResearch: "تحليل متعمق لأسهم Olive Stocks",
+
+  trendingStocks: "الأسهم الأكثر تداولا اليوم",
+  company: "الشركة",
+  stockTicker: "رمز السهم",
+  priceChange: "السعر والتغير",
+  score: "التقييم",
+  topStocks: "أفضل الأسهم",
+  ratingsBySector: "التقييم مقارنة بمتوسط القطاع",
+  upsidePotential: "القيمة الصاعدة حاليًا",
+  allTopStocks: "عرض القائمة الكاملة",
 };

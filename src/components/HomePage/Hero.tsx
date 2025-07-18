@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
-import  { useLanguage }  from "@/providers/LanguageProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function HeroSwiper() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -78,28 +78,27 @@ export default function HeroSwiper() {
               />
             </div>
             <h3 className="ml-2 text-2xl font-bold text-green-600 mt-5 text-center lg:text-start">
-              Olives Stocks
+              {dictionary.oliveStocks}
             </h3>
 
             <div className="mt-6 flex items-center justify-center lg:justify-start">
               <span className="inline-block rounded-full bg-green-50 px-4 py-1 text-sm font-medium text-green-800 text-center">
-                Your Trusted Partner for Market Insights{" "}
+                {dictionary.trustedPartner}
                 {/* More direct differentiator */}
               </span>
             </div>
 
-            <h1 className="mt-6 text-2xl font-bold leading-tight text-black sm:text-5xl text-center lg:text-start">
+            <h1
+              dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+              className={`mt-6 text-2xl font-bold leading-tight text-black sm:text-5xl text-center lg:text-start`}
+            >
               {/* Unlock Your Investment Potential with Our Data-Driven Platform{" "} */}
               {/* Clear benefit */}
-              {selectedLangCode === "en"
-                ? dictionary.heroTitle
-                : dictionary.heroTitle}
+              {dictionary.unlockPotential}
             </h1>
 
             <p className="mt-6 text-base text-gray-600 lg:text-start text-center">
-             {selectedLangCode === "en"
-                ? dictionary.heroDesc
-                : dictionary.heroDesc}
+              {dictionary.gainEdge}
               {/* More explicit benefits */}
             </p>
 
@@ -108,13 +107,13 @@ export default function HeroSwiper() {
                 href="/registration"
                 className="inline-flex items-center justify-center rounded-md bg-green-500 px-8 py-3 text-base font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
-                Register Now
+                {dictionary.registerNow}
               </Link>
               <Link
                 href="/explore-plan"
                 className="inline-flex items-center justify-center rounded-md border border-green-500 bg-white px-8 py-3 text-base font-medium text-green-600 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
-                See What We Offer
+                {dictionary.whatWeOffer}
               </Link>
             </div>
           </div>

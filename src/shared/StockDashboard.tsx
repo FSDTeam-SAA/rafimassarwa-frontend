@@ -5,11 +5,13 @@ import StockTrackingTable from "@/components/HomePage/AllStock";
 import TopStocksTable from "@/components/HomePage/ByRating";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function StockDashboard() {
   const axiosInstance = useAxios();
   const [showAllTrending, setShowAllTrending] = useState(false);
   const [showAllTop, setShowAllTop] = useState(false);
+  const { dictionary } = useLanguage();
 
   const {
     data: stocks,
@@ -72,11 +74,11 @@ export default function StockDashboard() {
   return (
     <section className="py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {/* Trending Stocks Card */}
           <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="p-4">
-              <h2 className="text-xl font-bold">Trending Stocks</h2>
+              <h2 className="text-xl font-bold">{dictionary.trendingStocks}</h2>
               <StockTrackingTable
                 trendingStocks={
                   showAllTrending ? trendingStocks : trendingStocks.slice(0, 5)
@@ -99,7 +101,7 @@ export default function StockDashboard() {
           {/* Top Stocks Card */}
           <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="p-4">
-              <h2 className="text-xl font-bold">Top Stocks</h2>
+              <h2 className="text-xl font-bold">{dictionary.topStocks}</h2>
               <TopStocksTable
                 topStocks={showAllTop ? topStocks : topStocks.slice(0, 5)}
               />

@@ -40,7 +40,11 @@ import { useQuery } from "@tanstack/react-query";
 import { MdDashboard } from "react-icons/md";
 import { useUserPayment } from "../context/paymentContext";
 import { LanguageSwitcher } from "@/shared/LanguageSwitcher";
+<<<<<<< HEAD
+import { useLanguage } from "@/providers/LanguageProvider";
+=======
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+>>>>>>> ffbba7da55c723ed6bf06b1e0116241d937b0a0d
 
 // Define the shape of navigation items
 interface NavItem {
@@ -73,10 +77,30 @@ export default function Navbar() {
   const { data: session, status } = useSession();
 
   const { paymentType } = useUserPayment();
+  const { dictionary, selectedLangCode } = useLanguage();
 
   const navigationLinks: NavItem[] = [
-    { name: "Home", href: "/", icon: Home },
     {
+<<<<<<< HEAD
+      name: dictionary.home,
+      href: "/",
+      icon: Home,
+    },
+    {
+      name: dictionary.oliveStocksPortfolio,
+      href:
+        paymentType === "Premium" || paymentType === "Ultimate"
+          ? "/olivestocks-portfolio"
+          : "/explore-plan",
+      icon: TrendingUp,
+    },
+    {
+      name: dictionary.qualityStocks,
+      href:
+        paymentType === "Premium" || paymentType === "Ultimate"
+          ? "/quality-stocks"
+          : "/explore-plan",
+=======
       name: "Olive Stock's Portfolio",
       href: "/olivestocks-portfolio",
       icon: TrendingUp,
@@ -84,12 +108,29 @@ export default function Navbar() {
     {
       name: "Quality Stocks",
       href: "/quality-stocks",
+>>>>>>> ffbba7da55c723ed6bf06b1e0116241d937b0a0d
       icon: Star,
     },
-    { name: "Stock of the Month", href: "/stock-of-month", icon: Calendar },
-    { name: "My Portfolio", href: "/my-portfolio", icon: Briefcase },
-    { name: "Watchlist", href: "/watchlist", icon: Eye },
-    { name: "News", href: "/news", icon: Newspaper },
+    {
+      name: dictionary.stockOfTheMonth,
+      href: "/stock-of-month",
+      icon: Calendar,
+    },
+    {
+      name: dictionary.myPortfolio,
+      href: "/my-portfolio",
+      icon: Briefcase,
+    },
+    {
+      name: dictionary.watchlist,
+      href: "/watchlist",
+      icon: Eye,
+    },
+    {
+      name: dictionary.news,
+      href: "/news",
+      icon: Newspaper,
+    },
   ];
 
 
@@ -193,8 +234,6 @@ export default function Navbar() {
           <Link href="/notification">
             <Bell className="text-green-600" />
           </Link>
-
-
 
           {/* User dropdown menu */}
           <DropdownMenu>
@@ -306,7 +345,7 @@ export default function Navbar() {
             <span
               className={cn("transition-all duration-300", "hidden xl:inline")} // Fixed visibility
             >
-              Log in
+              {dictionary.login}
             </span>
           </Button>
         </Link>
@@ -404,6 +443,7 @@ export default function Navbar() {
   return (
     <>
       <header
+        dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
         className={cn(
           "fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full transition-all duration-700 ease-in-out",
           "pt-1" // Always use 'pt-1'
@@ -551,7 +591,7 @@ export default function Navbar() {
               >
                 <input
                   type="text"
-                  placeholder="Search stocks..."
+                  placeholder={dictionary.searchStocks}
                   value={searchQuery}
                   onChange={handleSearchChange}
                   onFocus={() => searchQuery.length > 0 && setShowResults(true)}

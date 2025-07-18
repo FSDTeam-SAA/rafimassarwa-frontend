@@ -4,14 +4,16 @@ import type React from "react";
 
 import Image from "next/image";
 import { useSocketContext } from "@/providers/SocketProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function StockSearchSection() {
   const { notifications } = useSocketContext();
 
+  const { dictionary, selectedLangCode } = useLanguage();
+
   return (
     <section className="w-full bg-[#f0f7f0] py-16">
       <div className="container mx-auto px-4">
-
         {/* Stock Grid */}
         <div className="mb-10">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -61,12 +63,17 @@ export default function StockSearchSection() {
 
         {/* Title Section */}
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold text-black md:text-4xl lg:text-5xl">
-            Make Informed, Data-Driven Investments
+          <h2
+            dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+            className="text-3xl font-bold text-black md:text-4xl lg:text-5xl"
+          >
+            {dictionary.informedInvestments}
           </h2>
-          <p className="mt-4 text-lg text-gray-800">
-            We empower everyone with access to institutional-grade research
-            tools and data.
+          <p
+            dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+            className="mt-4 text-lg text-gray-800"
+          >
+            {dictionary.empowerInvestors}
           </p>
         </div>
       </div>
