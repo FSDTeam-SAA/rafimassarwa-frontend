@@ -20,7 +20,7 @@ export default function StockChartPage({ params }: PageProps) {
     }
 
     return (
-        <main className="w-[80vw]">
+        <main className="lg:w-[80vw]">
             <div className="">
                 <StockHeader selectedStock={stockSymbol} timeframe={timeframe} onTimeframeChange={handleTimeframeChange} />
                 <div className="mt-6">

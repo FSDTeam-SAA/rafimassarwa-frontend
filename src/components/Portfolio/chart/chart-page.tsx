@@ -97,13 +97,13 @@ export default function ChartPage() {
     if (isPortfolioLoading && !initialLoadComplete) {
         return (
             <main className="flex lg:w-[80vw] min-h-[75vh] items-center justify-center">
-                <Loader2 className="animate-spin w-16 h-16 text-green-500"/>
+                <Loader2 className="animate-spin w-16 h-16 text-green-500" />
             </main>
         );
     }
 
     // Empty Portfolio UI
-    if (isPortfolioSuccess && (!portfolioData || portfolioData.stocks.length === 0)) {
+    if (isPortfolioSuccess && (!portfolioData || portfolioData?.stocks?.length === 0)) {
         return (
             <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
@@ -125,9 +125,9 @@ export default function ChartPage() {
 
     // Main Chart Page
     return (
-        <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
-                <div className="col-span-5">
+        <main className="flex min-h-screen flex-col lg:p-4 md:p-6 lg:w-[80vw] w-[98vw] -mt-12">
+            <div className="">
+                <div className="">
                     {selectedStock && (
                         <StockHeader
                             selectedStock={selectedStock}
@@ -160,13 +160,13 @@ export default function ChartPage() {
                         <StockPremiumBanner />
                     </div>
                 </div>
-                <div className="col-span-1">
+                {/* <div className="col-span-1">
                     <div className="md:w-[200px] h-full">
                         <div className="bg-green-50 h-full rounded-xl flex items-center justify-center">
                             <div className="font-bold text-3xl -rotate-90 tracking-wider hidden md:flex">Banner Ads</div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </main>
     );

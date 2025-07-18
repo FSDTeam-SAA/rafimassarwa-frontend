@@ -47,6 +47,26 @@ const handler = NextAuth({
     AppleProvider({
       clientId: process.env.APPLE_CLIENT_ID || "",
       clientSecret: process.env.APPLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          scope: "name email openid",
+          response_mode: "form_post",
+        },
+      },
+      checks: ["pkce"],
+      idToken: true,
+      profile(profile, tokens) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: null,
+          role: "user", // default role
+          rememberMe: false, // default value
+          accessToken: tokens?.access_token || "",
+          refreshToken: tokens?.refresh_token || "",
+        };
+      },
     }),
   ],
 
@@ -58,7 +78,6 @@ const handler = NextAuth({
 
   callbacks: {
     async jwt({ token, user, account }) {
-      // For credentials login
       if (user && account?.provider === "credentials") {
         token.id = user.id;
         token.role = user.role;
@@ -66,16 +85,10 @@ const handler = NextAuth({
         token.refreshToken = user.refreshToken;
         token.rememberMe = user.rememberMe;
 
-        // Set custom expiration for rememberMe
         const now = Math.floor(Date.now() / 1000);
-        if (user.rememberMe) {
-          token.exp = now + 30 * 24 * 60 * 60; // 30 days
-        } else {
-          token.exp = now + 24 * 60 * 60; // 1 day
-        }
+        token.exp = user.rememberMe ? now + 30 * 24 * 60 * 60 : now + 24 * 60 * 60;
       }
 
-      // For Google login
       if (account?.provider === "google" && user?.email) {
         try {
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
@@ -96,10 +109,7 @@ const handler = NextAuth({
             token.role = data.data.user.role;
             token.accessToken = data.data.token.accessToken;
             token.refreshToken = data.data.token.refreshToken;
-
-            // For social logins, you can decide on a default duration:
-            const now = Math.floor(Date.now() / 1000);
-            token.exp = now + 30 * 24 * 60 * 60; // Default 30 days for social
+            token.exp = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
           } else {
             console.error("Google login failed:", data);
           }
@@ -108,7 +118,6 @@ const handler = NextAuth({
         }
       }
 
-      // For Apple login
       if (account?.provider === "apple" && user?.email) {
         try {
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
@@ -129,10 +138,7 @@ const handler = NextAuth({
             token.role = data.data.user.role;
             token.accessToken = data.data.token.accessToken;
             token.refreshToken = data.data.token.refreshToken;
-
-            // Default for social login
-            const now = Math.floor(Date.now() / 1000);
-            token.exp = now + 30 * 24 * 60 * 60;
+            token.exp = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
           } else {
             console.error("Apple login failed:", data);
           }
@@ -146,11 +152,11 @@ const handler = NextAuth({
 
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        session.user.accessToken = token.accessToken as string;
-        session.user.refreshToken = token.refreshToken as string;
-        session.user.rememberMe = token.rememberMe as boolean;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.accessToken = token.accessToken;
+        session.user.refreshToken = token.refreshToken;
+        session.user.rememberMe = token.rememberMe;
       }
       return session;
     },
@@ -158,7 +164,7 @@ const handler = NextAuth({
 
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60, // fallback for non-credentials flows
+    maxAge: 24 * 60 * 60,
   },
 
   secret: process.env.NEXTAUTH_SECRET,

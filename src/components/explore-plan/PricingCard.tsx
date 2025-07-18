@@ -56,7 +56,7 @@ interface SubscriptionPlan {
 }
 
 export default function SubscriptionPricing() {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [originalApiData, setOriginalApiData] = useState<ApiSubscriptionPlan[]>(
     []

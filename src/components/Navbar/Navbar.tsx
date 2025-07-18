@@ -33,14 +33,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession, signOut } from "next-auth/react";
 import { BiNotification } from "react-icons/bi";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import { MdDashboard } from "react-icons/md";
 import { useUserPayment } from "../context/paymentContext";
 import { LanguageSwitcher } from "@/shared/LanguageSwitcher";
+<<<<<<< HEAD
 import { useLanguage } from "@/providers/LanguageProvider";
+=======
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+>>>>>>> ffbba7da55c723ed6bf06b1e0116241d937b0a0d
 
 // Define the shape of navigation items
 interface NavItem {
@@ -77,6 +81,7 @@ export default function Navbar() {
 
   const navigationLinks: NavItem[] = [
     {
+<<<<<<< HEAD
       name: dictionary.home,
       href: "/",
       icon: Home,
@@ -95,6 +100,15 @@ export default function Navbar() {
         paymentType === "Premium" || paymentType === "Ultimate"
           ? "/quality-stocks"
           : "/explore-plan",
+=======
+      name: "Olive Stock's Portfolio",
+      href: "/olivestocks-portfolio",
+      icon: TrendingUp,
+    },
+    {
+      name: "Quality Stocks",
+      href: "/quality-stocks",
+>>>>>>> ffbba7da55c723ed6bf06b1e0116241d937b0a0d
       icon: Star,
     },
     {
@@ -119,12 +133,19 @@ export default function Navbar() {
     },
   ];
 
+
+  const lockedRoutes = ["/olivestocks-portfolio", "/quality-stocks"];
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+
+
   // Search functionality
   const axiosInstance = useAxios();
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(searchQuery, 500);
+  const router = useRouter();
 
   // Fetch user details from our backend (only if session exists)
   const { data: userData } = useQuery({
@@ -421,7 +442,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Fixed header that stays at top of page */}
       <header
         dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
         className={cn(
@@ -456,25 +476,55 @@ export default function Navbar() {
                   const isActive = pathname === item.href;
 
                   return (
-                    <Link
+                    <div
                       key={item.name}
-                      href={item.href}
+                      onClick={(e) => {
+                        if (paymentType === "free" && lockedRoutes.includes(item.href)) {
+                          e.preventDefault();
+                          setShowUpgradeModal(true);
+                        } else {
+                          e.preventDefault(); // block <a> native behavior
+                          router.push(item.href); // ✅ push manually
+                        }
+                      }}
                       className={cn(
                         "relative cursor-pointer text-[12px] font-semibold px-3 py-2 rounded-full transition-colors",
                         "text-gray-700 hover:text-green-600",
                         isActive && "bg-green-50 text-green-600",
-                        "px-4" // Fixed padding
+                        "px-4"
                       )}
                     >
                       {/* Show text on larger screens, icon on smaller */}
                       <span
                         className={cn(
                           "transition-all duration-300",
-                          "hidden xl:inline" // Fixed visibility for text
+                          "hidden xl:inline" // Only show text on xl+
                         )}
                       >
-                        {item.name}
+                        <span className="relative">
+                          {item.name}
+
+                          {/* {(idx === 1 || idx === 2) && paymentType === "free" && (
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center">
+                              <div
+                                className="relative w-[70px] h-5 rounded-full flex items-center justify-center bg-[#28A745]/40"
+                                style={{
+                                  backdropFilter: "blur(5px)",
+                                }}
+                              >
+                                <Image
+                                  src="/images/lock.png"
+                                  alt="lock-image"
+                                  width={15}
+                                  height={15}
+                                  className="absolute"
+                                />
+                              </div>
+                            </div>
+                          )} */}
+                        </span>
                       </span>
+
                       <span
                         className={cn(
                           "transition-all duration-300",
@@ -503,10 +553,36 @@ export default function Navbar() {
                           </div>
                         </motion.div>
                       )}
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
+
+              <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Upgrade Required</DialogTitle>
+                    <DialogDescription>
+                      This feature is available for <strong>Premium</strong> or <strong>Ultimate</strong> members only.
+                      Please upgrade your plan to access it.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowUpgradeModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Link href="/explore-plan">
+                      <Button className="bg-green-500 hover:bg-green-600 text-white">
+                        Explore Plans
+                      </Button>
+                    </Link>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
 
               {/* Stock search bar - desktop only */}
               <div
@@ -594,11 +670,10 @@ export default function Navbar() {
                                   ${stock.price?.toFixed(2)}
                                 </p>
                                 <p
-                                  className={`text-xs font-medium ${
-                                    stock.change >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                                  className={`text-xs font-medium ${stock.change >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
                                 >
                                   {stock.change >= 0 ? "+" : ""}
                                   {stock.change?.toFixed(2)} (
@@ -643,19 +718,27 @@ export default function Navbar() {
                         const Icon = link.icon;
                         const isActive = pathname === link.href;
                         return (
-                          <Link
+                          <a
                             key={link.name}
-                            href={link.href}
-                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${
-                              isActive
-                                ? "text-green-600 bg-green-50"
-                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                            }`}
-                            onClick={() => setOpen(false)}
+                            href="#"
+                            onClick={(e) => {
+                              if (paymentType === "free" && lockedRoutes.includes(link.href)) {
+                                e.preventDefault();
+                                setShowUpgradeModal(true);
+                              } else {
+                                e.preventDefault(); // block default <a> behavior
+                                router.push(link.href); // ✅ push manually
+                                setOpen(false); // ✅ close sidebar
+                              }
+                            }}
+                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${isActive
+                              ? "text-green-600 bg-green-50"
+                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                              }`}
                           >
                             <Icon size={20} />
                             {link.name}
-                          </Link>
+                          </a>
                         );
                       })}
                       {/* Mobile auth section */}

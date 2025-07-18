@@ -10,7 +10,7 @@ import {
 } from "react"
 import { useQuery } from "@tanstack/react-query"
 
-type PaymentType = "Free" | "Premium" | "Ultimate" | null
+type PaymentType = "free" | "Premium" | "Ultimate" | null
 
 interface PaymentContextType {
   paymentType: PaymentType
@@ -24,7 +24,7 @@ export const PaymentProvider = ({ children }: { children: ReactNode }) => {
   const { data: session } = useSession()
   const userId = session?.user?.id
 
-  const [paymentType, setPaymentType] = useState<PaymentType>("Free")
+  const [paymentType, setPaymentType] = useState<PaymentType>("free")
 
   const { data, isLoading: isPaymentLoading } = useQuery({
     queryKey: ["user", userId],
