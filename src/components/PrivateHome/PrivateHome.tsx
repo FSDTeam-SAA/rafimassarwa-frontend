@@ -12,15 +12,11 @@ import useAxios from "@/hooks/useAxios";
 import YoutubeVideo from "./YoutubeVideo/YoutubeVideo";
 
 interface NewsItem {
-  category: string;
-  datetime: number;
-  headline: string;
-  id: number;
-  image: string;
-  related: string;
-  source: string;
-  summary: string;
-  url: string;
+  _id: string;
+  newsImage?: string;
+  symbol?: string;
+  createdAt?: number;
+  newsTitle: string;
 }
 
 const PrivateHome = () => {
@@ -29,22 +25,14 @@ const PrivateHome = () => {
   const { data: stockNews = [] } = useQuery<NewsItem[]>({
     queryKey: ["private-news"],
     queryFn: async () => {
-      const res = await axiosInstance("/admin/news/market-news");
+      const res = await axiosInstance("/admin/news/all-news");
       return res.data.data;
     },
   });
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
+    if (text?.length <= maxLength) return text;
+    return text?.substring(0, maxLength) + "...";
   };
 
   return (
@@ -74,23 +62,17 @@ const PrivateHome = () => {
         </Link>
       </div>
 
-      {/* Removed search bar */}
-
       <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6 lg:gap-10">
         <div className="col-span-1 lg:col-span-2">
-          {stockNews[0] && (
-            <Link
-              href={stockNews[0].url}
-              
-              rel="noopener noreferrer"
-            >
+          {stockNews[4] && (
+            <Link href={`/news/${stockNews[4]._id}`} rel="noopener noreferrer">
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[0].image ||
+                    stockNews[4].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[0].headline}
+                  alt={stockNews[4].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -98,36 +80,31 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[0].source}
+                    {stockNews[4].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {formatDate(stockNews[0].datetime)}
+                    {new Date(
+                      stockNews[4]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[0].headline, 80)}
+                  {truncateText(stockNews[4].newsTitle, 80)}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 mt-2">
-                  {truncateText(stockNews[0].summary, 120)}
-                </p>
               </div>
             </Link>
           )}
 
-          {stockNews[1] && (
-            <Link
-              href={stockNews[1].url}
-              
-              rel="noopener noreferrer"
-            >
+          {stockNews[3] && (
+            <Link href={`/news/${stockNews[3]._id}`} rel="noopener noreferrer">
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[1].image ||
+                    stockNews[3].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[1].headline}
+                  alt={stockNews[3].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -135,38 +112,33 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[1].source}
+                    {stockNews[3].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {formatDate(stockNews[1].datetime)}
+                    {new Date(
+                      stockNews[3]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[1].headline, 80)}
+                  {truncateText(stockNews[3].newsTitle, 80)}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 mt-2">
-                  {truncateText(stockNews[1].summary, 120)}
-                </p>
               </div>
             </Link>
           )}
         </div>
 
         <div className="col-span-1 lg:col-span-3">
-          {stockNews[2] && (
-            <Link
-              href={stockNews[2].url}
-              
-              rel="noopener noreferrer"
-            >
+          {stockNews[0] && (
+            <Link href={`/news/${stockNews[0]._id}`} rel="noopener noreferrer">
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[2].image ||
+                    stockNews[0].newsImage ||
                     "/placeholder.svg?height=450&width=800"
                   }
-                  alt={stockNews[2].headline}
+                  alt={stockNews[0].newsTitle}
                   width={800}
                   height={450}
                   className="w-full object-cover"
@@ -174,42 +146,37 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center justify-center gap-2 mt-4 mb-2">
                   <span className="text-sm text-gray-500 uppercase font-medium">
-                    {stockNews[2].source}
+                    {stockNews[0].symbol}
                   </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-sm text-gray-500">
-                    {formatDate(stockNews[2].datetime)}
+                    {new Date(
+                      stockNews[0]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-xs text-blue-600 uppercase font-medium px-2 py-1 bg-blue-50 rounded">
-                    {stockNews[2].category}
+                    {stockNews[0].symbol}
                   </span>
                 </div>
                 <h1 className="font-bold my-4 md:my-5 text-2xl md:text-[40px] w-full lg:w-[90%] mx-auto text-center leading-tight">
-                  {stockNews[2].headline}
+                  {stockNews[0].newsTitle}
                 </h1>
-                <p className="w-full lg:w-[80%] mx-auto text-center text-sm md:text-base text-gray-600">
-                  {stockNews[2].summary}
-                </p>
               </div>
             </Link>
           )}
         </div>
 
         <div className="col-span-1 lg:col-span-2">
-          {stockNews[3] && (
-            <Link
-              href={stockNews[3].url}
-              
-              rel="noopener noreferrer"
-            >
+          {stockNews[1] && (
+            <Link href={`/news/${stockNews[1]._id}`} rel="noopener noreferrer">
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[3].image ||
+                    stockNews[1].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[3].headline}
+                  alt={stockNews[1].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -217,36 +184,31 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[3].source}
+                    {stockNews[1].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {formatDate(stockNews[3].datetime)}
+                    {new Date(
+                      stockNews[1]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[3].headline, 80)}
+                  {truncateText(stockNews[1].newsTitle, 80)}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 mt-2">
-                  {truncateText(stockNews[3].summary, 120)}
-                </p>
               </div>
             </Link>
           )}
 
-          {stockNews[4] && (
-            <Link
-              href={stockNews[4].url}
-              
-              rel="noopener noreferrer"
-            >
+          {stockNews[2] && (
+            <Link href={`/news/${stockNews[2]._id}`} rel="noopener noreferrer">
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[4].image ||
+                    stockNews[2].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[4].headline}
+                  alt={stockNews[2].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -254,19 +216,18 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[4].source}
+                    {stockNews[2].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {formatDate(stockNews[4].datetime)}
+                    {new Date(
+                      stockNews[2]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[4].headline, 80)}
+                  {truncateText(stockNews[2].newsTitle, 80)}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 mt-2">
-                  {truncateText(stockNews[4].summary, 120)}
-                </p>
               </div>
             </Link>
           )}
@@ -274,18 +235,17 @@ const PrivateHome = () => {
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-center my-8 md:my-16 gap-4 md:gap-2">
-        {stockNews.slice(5, 9).map((news) => (
+        {stockNews.slice(4, 8).map((news) => (
           <Link
-            key={news.id}
-            href={news.url}
-            
+            key={news._id}
+            href={`/news/${news._id}`}
             rel="noopener noreferrer"
           >
             <div className="flex gap-2 items-center cursor-pointer hover:opacity-90 transition-opacity">
               <div>
                 <Image
-                  src={news.image || "/placeholder.svg?height=56&width=88"}
-                  alt={news.headline}
+                  src={news.newsImage || "/placeholder.svg?height=56&width=88"}
+                  alt={news.newsTitle}
                   width={88}
                   height={56}
                   className="rounded-2xl object-cover"
@@ -294,19 +254,16 @@ const PrivateHome = () => {
               <div className="max-w-[200px]">
                 <div className="flex items-center gap-1 mb-1">
                   <span className="text-[10px] text-gray-500 uppercase font-medium">
-                    {news.source}
+                    {news.symbol}
                   </span>
                   <span className="text-[10px] text-gray-400">•</span>
                   <span className="text-[10px] text-gray-500">
-                    {formatDate(news.datetime)}
+                    {new Date(news?.createdAt || 0).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-bold text-[14px] leading-tight">
-                  {truncateText(news.headline, 60)}
+                  {truncateText(news.newsTitle, 60)}
                 </h1>
-                <p className="text-[12px] md:text-[14px] text-gray-600 mt-1">
-                  {truncateText(news.summary, 50)}
-                </p>
               </div>
             </div>
           </Link>

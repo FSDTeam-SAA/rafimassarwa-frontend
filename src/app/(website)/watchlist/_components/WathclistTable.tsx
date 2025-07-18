@@ -23,6 +23,7 @@ import {
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { toast } from "sonner";
+import WatchlistModal from "./WatchListModal";
 
 type Stock = {
   symbol: string;
@@ -49,6 +50,7 @@ const columnHelper = createColumnHelper<Stock>();
 
 export default function WatchlistTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   // API calling
   const axiosInstance = useAxios();
@@ -110,7 +112,9 @@ export default function WatchlistTable() {
       }),
       columnHelper.accessor("sector", {
         header: "Sector",
-        cell: (info) => <h1 className="text-center">{info.getValue() || "N/A"}</h1>,
+        cell: (info) => (
+          <h1 className="text-center">{info.getValue() || "N/A"}</h1>
+        ),
         enableSorting: true,
       }),
       columnHelper.display({
@@ -352,14 +356,21 @@ export default function WatchlistTable() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-      <h2 className="text-xl sm:text-2xl font-medium mb-4">
-        My Watchlist
-      </h2>
-     <div className="flex">
-      
-     </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl sm:text-2xl font-medium mb-4">My Watchlist</h2>
 
-      <div className="overflow-x-auto">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="py-2 px-5 rounded-lg bg-green-500 text-white hover:bg-green-600"
+        >
+          + Add To Watchlist
+        </button>
+      </div>
+      <div className="flex"></div>
+
+      {isOpen && <WatchlistModal refetch={refetch} isOpen={isOpen} setIsOpen={setIsOpen} />}
+
+      <div className="overflow-x-auto mt-5">
         <table className="w-full min-w-[800px]">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
