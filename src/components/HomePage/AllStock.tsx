@@ -29,7 +29,7 @@ export default function StockTrackingTable({
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-scroll scrollbar-hide ">
       <div className="min-w-[700px] lg:max-w-4xl mx-auto">
         <table className="w-full">
           <thead>
