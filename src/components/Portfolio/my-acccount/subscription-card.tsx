@@ -36,9 +36,9 @@ export default function SubscriptionCard() {
 
   const currentPlanTitle = user?.payment || "free"
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const currentPlan = plans?.find((plan: any) => plan.title === currentPlanTitle)
+  const currentPlan = plans?.find((plan: any) => plan.title.toLowerCase() === currentPlanTitle.toLowerCase())
 
-  console.log(currentPlan)
+  console.log(currentPlanTitle)
 
   return (
     <Card className="w-full shadow-md">
@@ -80,7 +80,7 @@ export default function SubscriptionCard() {
           <h3 className="font-semibold mb-4">Available Plans</h3>
           {plans
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .filter((plan: any) => plan.title !== currentPlanTitle)
+            .filter((plan: any) => plan.title.toLowerCase() !== currentPlanTitle.toLowerCase())
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((plan: any) => (
               <div key={plan._id} className="border rounded-lg p-4 mb-3">
@@ -93,9 +93,12 @@ export default function SubscriptionCard() {
                     {plan.monthly_price > 0 ? `$${plan.monthly_price}/mo` : "Free"}
                   </span>
                 </div>
-                <Link href="/explore-plan">
-                  <Button className="bg-green-600 hover:bg-green-700 h-8 mt-2">Get Plan</Button>
-                </Link>
+                {
+                  (plan.title.toLowerCase() !== "free" && currentPlanTitle.toLowerCase() !== "ultimate") &&
+                  <Link href="/explore-plan">
+                    <Button className="bg-green-600 hover:bg-green-700 h-8 mt-2">Get Plan</Button>
+                  </Link>
+                }
               </div>
             ))}
         </div>

@@ -16,7 +16,7 @@ export default function PaymentSuccessModal({ open, onOpenChange, planType }: {
     const { setPaymentType } = useUserPayment();
 
     useEffect(() => {
-        setPaymentType(planType == "PREMIUM" ? "Premium" : "Ultimate")
+        setPaymentType(planType == "Premium" ? "Premium" : "Ultimate")
     }, [setPaymentType, planType])
 
     return (
