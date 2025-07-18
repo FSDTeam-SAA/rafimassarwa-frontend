@@ -40,6 +40,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MdDashboard } from "react-icons/md";
 import { useUserPayment } from "../context/paymentContext";
 import { LanguageSwitcher } from "@/shared/LanguageSwitcher";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 // Define the shape of navigation items
 interface NavItem {
@@ -72,31 +73,50 @@ export default function Navbar() {
   const { data: session, status } = useSession();
 
   const { paymentType } = useUserPayment();
+  const { dictionary, selectedLangCode } = useLanguage();
 
   const navigationLinks: NavItem[] = [
-    { name: "Home", href: "/", icon: Home },
     {
-      name: "Olive Stock's Portfolio",
-      href: `${
+      name: dictionary.home,
+      href: "/",
+      icon: Home,
+    },
+    {
+      name: dictionary.oliveStocksPortfolio,
+      href:
         paymentType === "Premium" || paymentType === "Ultimate"
           ? "/olivestocks-portfolio"
-          : "/explore-plan"
-      }`,
+          : "/explore-plan",
       icon: TrendingUp,
     },
     {
-      name: "Quality Stocks",
-      href: `${
+      name: dictionary.qualityStocks,
+      href:
         paymentType === "Premium" || paymentType === "Ultimate"
           ? "/quality-stocks"
-          : "/explore-plan"
-      }`,
+          : "/explore-plan",
       icon: Star,
     },
-    { name: "Stock of the Month", href: "/stock-of-month", icon: Calendar },
-    { name: "My Portfolio", href: "/my-portfolio", icon: Briefcase },
-    { name: "Watchlist", href: "/watchlist", icon: Eye },
-    { name: "News", href: "/news", icon: Newspaper },
+    {
+      name: dictionary.stockOfTheMonth,
+      href: "/stock-of-month",
+      icon: Calendar,
+    },
+    {
+      name: dictionary.myPortfolio,
+      href: "/my-portfolio",
+      icon: Briefcase,
+    },
+    {
+      name: dictionary.watchlist,
+      href: "/watchlist",
+      icon: Eye,
+    },
+    {
+      name: dictionary.news,
+      href: "/news",
+      icon: Newspaper,
+    },
   ];
 
   // Search functionality
@@ -169,8 +189,6 @@ export default function Navbar() {
     return initials.slice(0, 2); // Max 2 letters
   };
 
-  console.log(userData);
-
   // Desktop auth section (right side of navbar)
   const renderAuthSection = () => {
     // Show loading state while session is being checked
@@ -195,8 +213,6 @@ export default function Navbar() {
           <Link href="/notification">
             <Bell className="text-green-600" />
           </Link>
-
-
 
           {/* User dropdown menu */}
           <DropdownMenu>
@@ -285,9 +301,9 @@ export default function Navbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-                          <div>
-                  <LanguageSwitcher />
-                </div>
+          <div>
+            <LanguageSwitcher />
+          </div>
         </div>
       );
     }
@@ -308,7 +324,7 @@ export default function Navbar() {
             <span
               className={cn("transition-all duration-300", "hidden xl:inline")} // Fixed visibility
             >
-              Log in
+              {dictionary.login}
             </span>
           </Button>
         </Link>
@@ -407,6 +423,7 @@ export default function Navbar() {
     <>
       {/* Fixed header that stays at top of page */}
       <header
+        dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
         className={cn(
           "fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full transition-all duration-700 ease-in-out",
           "pt-1" // Always use 'pt-1'
@@ -498,7 +515,7 @@ export default function Navbar() {
               >
                 <input
                   type="text"
-                  placeholder="Search stocks..."
+                  placeholder={dictionary.searchStocks}
                   value={searchQuery}
                   onChange={handleSearchChange}
                   onFocus={() => searchQuery.length > 0 && setShowResults(true)}

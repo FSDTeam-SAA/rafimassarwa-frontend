@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { shortTimeAgo } from "../../utils/shortTimeAgo";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface StockNewsItem {
   category: string;
@@ -37,6 +38,7 @@ export default function Articles() {
   const pathname = usePathname();
   const params = useSearchParams();
   const relatedStockParams = params.get("q");
+  const { dictionary, selectedLangCode } = useLanguage();
 
   const { data: stockNews } = useQuery({
     queryKey: ["stocks-news"],
@@ -89,7 +91,7 @@ export default function Articles() {
   const tabsData = [
     {
       value: "allstocks",
-      title: "Market News",
+      title: dictionary.marketNews,
       data:
         pathname === "/search-result"
           ? relatedStockNews || []
@@ -97,7 +99,7 @@ export default function Articles() {
     },
     {
       value: "deep-research",
-      title: "Olive Stock's Deep Research",
+      title: dictionary.deepResearch,
       data:
         pathname === "/search-result"
           ? relatedDeepResearch || []
@@ -112,12 +114,14 @@ export default function Articles() {
     <section className="py-16 px-2 lg:px-0">
       <div className="container mx-auto">
         <div className="pb-4">
-          <h2 className="text-3xl font-semibold">Latest Articles</h2>
+          <h2 className="text-3xl font-semibold">
+            {dictionary.latestArticles}
+          </h2>
         </div>
         <Tabs defaultValue="allstocks">
           <TabsList className="bg-transparent mb-3 text-[16px]">
             {tabsData.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
+              <TabsTrigger dir={selectedLangCode === "ar" ? "rtl" : "ltr"} key={tab.value} value={tab.value}>
                 {tab.title}
               </TabsTrigger>
             ))}
