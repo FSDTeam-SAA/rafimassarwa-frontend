@@ -353,8 +353,11 @@ export default function WatchlistTable() {
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
       <h2 className="text-xl sm:text-2xl font-medium mb-4">
-        Olive Stocks Portfolio
+        My Watchlist
       </h2>
+     <div className="flex">
+      
+     </div>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[800px]">

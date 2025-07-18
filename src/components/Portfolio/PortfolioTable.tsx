@@ -560,7 +560,7 @@ export default function PortfolioTable() {
           </div>
         </div>
         <div className="flex flex-col items-center">
-          <span className={`text-xs ${item.preMarketChangePercent > 0 ? "text-green-500" : "text-red-500"}`}>pre market: {item.preMarketChangePercent?.toFixed(2)}%</span>
+          <span className={`text-xs ${item.preMarketChangePercent > 0 ? "text-green-500" : "text-red-500"}`}>pre : {item.preMarketChangePercent?.toFixed(2)}%</span>
         </div>
       </TableCell>
 

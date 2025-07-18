@@ -47,7 +47,7 @@ export default function LoginForm() {
 
     try {
       const result = await signIn("credentials", {
-        email: data.email,
+        email: data.email.toLowerCase(),
         password: data.password,
         rememberMe: data.remember,
         redirect: false,
@@ -135,7 +135,7 @@ export default function LoginForm() {
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full rounded border border-gray-300 py-3 pl-4 pr-10 outline-none focus:border-green-500 lowercase"
+                  className="w-full rounded border border-gray-300 py-3 pl-4 pr-10 outline-none focus:border-green-500"
                   {...register("email")}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">

@@ -34,9 +34,11 @@ export default function SubscriptionCard() {
     return <div className="text-center py-8">Loading subscription details...</div>
   }
 
-  const currentPlanTitle = user?.payment || "Free"
+  const currentPlanTitle = user?.payment || "free"
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentPlan = plans?.find((plan: any) => plan.title === currentPlanTitle)
+
+  console.log(currentPlan)
 
   return (
     <Card className="w-full shadow-md">
