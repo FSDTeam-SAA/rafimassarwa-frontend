@@ -24,10 +24,13 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useUserPayment } from "../context/paymentContext";
+import Link from "next/link";
+import { Unlock } from "lucide-react";
 
 // Zod schema for form validation
 const formSchema = z.object({
@@ -47,6 +50,23 @@ export function AddPortfolioDialog() {
             name: "",
         },
     });
+
+    const { data: portfolioData } = useQuery({
+        queryKey: ["portfolio"],
+        queryFn: async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.user?.accessToken}`,
+                },
+            })
+            const data = await res.json()
+            return data
+        },
+        enabled: !!session?.user?.accessToken,
+    })
+
+    const { paymentType } = useUserPayment()
 
     const { mutate: createPortfolio, isPending } = useMutation({
         mutationFn: async (data: FormData) => {
@@ -82,41 +102,73 @@ export function AddPortfolioDialog() {
                     Add Portfolio
                 </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Add Portfolio</DialogTitle>
-                    <DialogDescription>
-                        Add a new portfolio by entering a name below.
-                    </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. My Portfolio" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter className="pt-2">
-                            <DialogClose asChild>
-                                <Button variant="outline" type="button">
-                                    Cancel
+            {
+                paymentType == "free" && portfolioData?.length == 1 ?
+                    <DialogContent className="sm:max-w-[480px] p-6">
+                        <DialogHeader className="space-y-2">
+                            <DialogTitle className="text-lg font-semibold">
+                                Add Portfolio
+                            </DialogTitle>
+                            <DialogDescription className="text-sm text-muted-foreground">
+                                Our free plan does not allow you to create multiple portfolios. <br />
+                                Upgrade your plan to unlock this feature.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="mt-4 flex flex-col items-center justify-center text-center">
+                            <div className="w-20 h-20 rounded-full text-white bg-green-600 flex items-center justify-center mb-4">
+                                <Unlock size={32}/>
+                            </div>
+                            <p className="text-sm text-gray-600 max-w-xs">
+                                To create more portfolios, please upgrade your subscription. Manage your investments with more flexibility.
+                            </p>
+                            <Link href="/explore-plan">
+                                <Button
+                                    className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition"
+                                >
+                                    Upgrade Plan
                                 </Button>
-                            </DialogClose>
-                            <Button type="submit" className="bg-green-500 hover:bg-green-600">
-                                {isPending ? "Creating..." : "Create"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
+                            </Link>
+                        </div>
+                    </DialogContent>
+
+                    :
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Add Portfolio</DialogTitle>
+                            <DialogDescription>
+                                Add a new portfolio by entering a name below.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. My Portfolio" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter className="pt-2">
+                                    <DialogClose asChild>
+                                        <Button variant="outline" type="button">
+                                            Cancel
+                                        </Button>
+                                    </DialogClose>
+                                    <Button type="submit" className="bg-green-500 hover:bg-green-600">
+                                        {isPending ? "Creating..." : "Create"}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+            }
         </Dialog>
     );
 }
