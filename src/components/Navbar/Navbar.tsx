@@ -7,7 +7,6 @@ import Image from "next/image";
 import {
   Home,
   TrendingUp,
-  Star,
   Calendar,
   Briefcase,
   Eye,
@@ -40,11 +39,8 @@ import { useQuery } from "@tanstack/react-query";
 import { MdDashboard } from "react-icons/md";
 import { useUserPayment } from "../context/paymentContext";
 import { LanguageSwitcher } from "@/shared/LanguageSwitcher";
-<<<<<<< HEAD
 import { useLanguage } from "@/providers/LanguageProvider";
-=======
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
->>>>>>> ffbba7da55c723ed6bf06b1e0116241d937b0a0d
 
 // Define the shape of navigation items
 interface NavItem {
@@ -81,7 +77,6 @@ export default function Navbar() {
 
   const navigationLinks: NavItem[] = [
     {
-<<<<<<< HEAD
       name: dictionary.home,
       href: "/",
       icon: Home,
@@ -100,16 +95,7 @@ export default function Navbar() {
         paymentType === "Premium" || paymentType === "Ultimate"
           ? "/quality-stocks"
           : "/explore-plan",
-=======
-      name: "Olive Stock's Portfolio",
-      href: "/olivestocks-portfolio",
       icon: TrendingUp,
-    },
-    {
-      name: "Quality Stocks",
-      href: "/quality-stocks",
->>>>>>> ffbba7da55c723ed6bf06b1e0116241d937b0a0d
-      icon: Star,
     },
     {
       name: dictionary.stockOfTheMonth,
