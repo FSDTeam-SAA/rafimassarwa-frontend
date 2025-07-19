@@ -1,5 +1,17 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useUserPayment } from "../context/paymentContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogHeader } from "../ui/dialog";
+import { Unlock } from "lucide-react";
+import { Button } from "../ui/button";
+import { useState } from "react";
 
 interface TopStock {
   symbol: string;
@@ -18,6 +30,9 @@ interface TopStocksTableProps {
 }
 
 export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
+  const { paymentType } = useUserPayment();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
   if (!topStocks || topStocks.length === 0) {
     return (
       <div className="mt-4 p-8 text-center text-gray-500">
@@ -30,12 +45,12 @@ export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
     <div className="w-full overflow-x-auto">
       <div className="min-w-[600px] w-full max-w-4xl mx-auto">
         <div className="mt-4 grid grid-cols-4 gap-2 rounded-t-md bg-green-50 p-2 text-sm font-medium">
-          <div>Stock Info</div>
-          <div className="ml-10">Company</div>
-          <div className="ml-7">
-            Rating &<br /> Price Target
+          <div className="flex flex-col justify-center">Stock Info</div>
+          <div className="ml-10 flex flex-col justify-center">
+            Price & Changes
           </div>
-          <div>
+          <div className="ml-7 flex flex-col justify-center">Price</div>
+          <div className="flex flex-col justify-center">
             Upside <br /> Potential
           </div>
         </div>
@@ -54,22 +69,32 @@ export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
                 {/* Stock Info */}
                 <div className="flex items-center">
                   <Link href={`/search-result?q=${stock?.symbol}`}>
-                    {" "}
                     <div>
                       <div className="text-[#2e7d32] font-medium">
                         {stock.symbol}
                       </div>
-                      <div className="text-gray-500 text-sm">Stock Symbol</div>
                     </div>
                   </Link>
                 </div>
 
-                {/* Company */}
+                {/* Company Price & Changes */}
                 <div className="ml-10">
-                  <div className="text-green-500 font-medium">
-                    ${stock.currentPrice || "N/A"}
+                  <div
+                    className={`font-medium ${
+                      stock.priceChange !== null && stock.priceChange < 0
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
+                    ${stock.currentPrice.toFixed(2)}
                   </div>
-                  <div className="text-gray-500 text-sm">
+                  <div
+                    className={`text-sm ${
+                      stock.priceChange !== null && stock.priceChange < 0
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
                     {stock.priceChange !== null && stock.percentChange !== null
                       ? `${
                           stock.priceChange >= 0 ? "+" : ""
@@ -80,36 +105,114 @@ export default function TopStocksTable({ topStocks }: TopStocksTableProps) {
                   </div>
                 </div>
 
-                {/* Rating & Price Target */}
+                {/*  Price Data */}
                 <div className="flex items-center ml-8">
-                  <div
-                    className="relative w-10 h-10 rounded-full flex items-center justify-center bg-[#28A745] z-0"
-                    style={{
-                      filter: "blur(3px)",
-                      boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.3)",
-                    }}
-                  >
-                    <Image
-                      src="/images/lock.png"
-                      alt="lock-image"
-                      width={20}
-                      height={20}
-                      className="absolute z-1000"
-                    />
-                  </div>
+                  {paymentType === "free" ? (
+                    <div
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="relative w-10 h-10 rounded-full flex items-center justify-center bg-[#28A745] z-0"
+                      style={{
+                        filter: "blur(1px)",
+                        boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      <Image
+                        src="/images/lock.png"
+                        alt="lock-image"
+                        width={20}
+                        height={20}
+                        className="absolute z-1000"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      {stock?.targetMean !== null ? (
+                        <span
+                          className={`text-sm font-medium ${
+                            stock.targetMean >= 0
+                              ? "text-green-500"
+                              : "text-red-500"
+                          }`}
+                        >
+                          $ {stock.targetMean.toFixed(2)}
+                        </span>
+                      ) : (
+                        <div className="text-green-500 text-sm">No data</div>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {/* Upside Potential */}
                 <div className="text-green-500 font-medium mt-3 ml-3">
-                  {stock.upsidePercent ? `${stock.upsidePercent}%` : "N/A"}
-                  <div className="text-green-500 text-sm">
-                    {stock.upsidePercent ? "Upside" : "No data"}
-                  </div>
+                  {paymentType === "free" ? (
+                    <div
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="relative w-10 h-10 rounded-full flex items-center justify-center bg-[#28A745] z-0"
+                      style={{
+                        filter: "blur(1px)",
+                        boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      <Image
+                        src="/images/lock.png"
+                        alt="lock-image"
+                        width={20}
+                        height={20}
+                        className="absolute z-1000"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      {stock.upsidePercent ? (
+                        <span
+                          className={`font-medium ${
+                            parseFloat(stock.upsidePercent) >= 0
+                              ? "text-green-500"
+                              : "text-red-500"
+                          }`}
+                        >
+                          {stock.upsidePercent}%
+                        </span>
+                      ) : (
+                        <div className="text-green-500 text-sm">No data</div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
+
+        <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+          <DialogContent className="sm:max-w-[480px] p-6">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-lg font-semibold">
+                Upgrade Required
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Our free plan does not allow you to access this page. <br />
+                Upgrade your plan to unlock this page.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-4 flex flex-col items-center justify-center text-center">
+              <div className="w-20 h-20 rounded-full text-white bg-green-600 flex items-center justify-center mb-4">
+                <Unlock size={32} />
+              </div>
+              <p className="text-sm text-gray-600 max-w-xs">
+                To get access, multiple portfolios, please upgrade your
+                subscription. Manage your investments with more flexibility.
+              </p>
+              <Link href="/explore-plan">
+                <Button className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition">
+                  Upgrade Plan
+                </Button>
+              </Link>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -55,7 +55,7 @@ const Page = ({ params }: PageProps) => {
     );
 
   return (
-    <div className="mt-10 container mx-auto grid grid-cols-6 gap-5 mb-16">
+    <div className="mt-10 container mx-auto grid grid-cols-6 gap-10 mb-16">
       {/* <div className="col-span-2 p-5 h-[500px] bg-green-100 rounded-lg font-bold sticky top-24">
         Ads
       </div> */}
