@@ -353,10 +353,10 @@ const Page = () => {
         </div>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="text-lg text-gray-500 mb-4">No news available</div>
+            <div className="text-lg text-gray-500 mb-4">No Deep Research available</div>
             <Link href={"/dashboard/deep-research/add-deep-research"}>
               <button className="bg-[#28a745] py-2 px-5 rounded-lg text-white font-semibold">
-                Create Your First News
+                Create Your First Deep Research
               </button>
             </Link>
           </div>

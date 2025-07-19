@@ -158,6 +158,7 @@ const Page = () => {
       formData.append("imageLink", image.file);
       formData.append("source", "admin");
       formData.append("isPaid", data.isPaid); // ✅ added
+      formData.append("lang", language);
 
       await mutateAsync(formData);
     } catch (error) {
