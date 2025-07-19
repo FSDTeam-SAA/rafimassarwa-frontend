@@ -139,7 +139,8 @@ export function PortfolioSidebar() {
         },
       })
       if (!res.ok) throw new Error("Failed to delete portfolio")
-      toast.success("Portfolio deleted successfully")
+      toast.success("Portfolio deleted successfully");
+      location.reload();
 
       // Invalidate and refetch portfolio data
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] })

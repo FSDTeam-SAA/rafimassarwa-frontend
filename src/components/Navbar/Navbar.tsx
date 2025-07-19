@@ -18,6 +18,7 @@ import {
   type LucideIcon,
   Bell,
   Filter,
+  Unlock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -45,7 +46,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
@@ -91,18 +91,12 @@ export default function Navbar() {
     },
     {
       name: dictionary.oliveStocksPortfolio,
-      href:
-        paymentType === "Premium" || paymentType === "Ultimate"
-          ? "/olivestocks-portfolio"
-          : "/explore-plan",
+      href: "/olivestocks-portfolio",
       icon: TrendingUp,
     },
     {
       name: dictionary.qualityStocks,
-      href:
-        paymentType === "Premium" || paymentType === "Ultimate"
-          ? "/quality-stocks"
-          : "/explore-plan",
+      href: "/quality-stocks",
       icon: TrendingUp,
     },
     {
@@ -558,28 +552,32 @@ export default function Navbar() {
                 open={showUpgradeModal}
                 onOpenChange={setShowUpgradeModal}
               >
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Upgrade Required</DialogTitle>
-                    <DialogDescription>
-                      This feature is available for <strong>Premium</strong> or{" "}
-                      <strong>Ultimate</strong> members only. Please upgrade
-                      your plan to access it.
+                <DialogContent className="sm:max-w-[480px] p-6">
+                  <DialogHeader className="space-y-2">
+                    <DialogTitle className="text-lg font-semibold">
+                      Upgrade Required
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground">
+                      Our free plan does not allow you to access this page. <br />
+                      Upgrade your plan to unlock this page.
                     </DialogDescription>
                   </DialogHeader>
-                  <DialogFooter className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowUpgradeModal(false)}
-                    >
-                      Cancel
-                    </Button>
+
+                  <div className="mt-4 flex flex-col items-center justify-center text-center">
+                    <div className="w-20 h-20 rounded-full text-white bg-green-600 flex items-center justify-center mb-4">
+                      <Unlock size={32} />
+                    </div>
+                    <p className="text-sm text-gray-600 max-w-xs">
+                      To get access, multiple portfolios, please upgrade your subscription. Manage your investments with more flexibility.
+                    </p>
                     <Link href="/explore-plan">
-                      <Button className="bg-green-500 hover:bg-green-600 text-white">
-                        Explore Plans
+                      <Button
+                        className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition"
+                      >
+                        Upgrade Plan
                       </Button>
                     </Link>
-                  </DialogFooter>
+                  </div>
                 </DialogContent>
               </Dialog>
 
@@ -632,18 +630,17 @@ export default function Navbar() {
                                   (option) => (
                                     <div
                                       key={option}
-                                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
-                                        selectedFilter === option
-                                          ? "bg-green-50 text-green-600 font-semibold"
-                                          : ""
-                                      }`}
+                                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${selectedFilter === option
+                                        ? "bg-green-50 text-green-600 font-semibold"
+                                        : ""
+                                        }`}
                                       onClick={() => {
                                         setSelectedFilter(option);
                                         setShowFilterOptions(false);
                                         // Optionally trigger filtering logic here
                                       }}
                                     >
-                                      {option  === "oneOlive" ? "One Olive" : option === "twoOlive" ? "Two Olives" : "Tree Olive"}
+                                      {option === "oneOlive" ? "One Olive" : option === "twoOlive" ? "Two Olives" : "Tree Olive"}
                                     </div>
                                   )
                                 )}
@@ -707,11 +704,10 @@ export default function Navbar() {
                                   ${stock.price?.toFixed(2)}
                                 </p>
                                 <p
-                                  className={`text-xs font-medium ${
-                                    stock.change >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                                  className={`text-xs font-medium ${stock.change >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
                                 >
                                   {stock.change >= 0 ? "+" : ""}
                                   {stock.change?.toFixed(2)} (
@@ -772,11 +768,10 @@ export default function Navbar() {
                                 setOpen(false); // ✅ close sidebar
                               }
                             }}
-                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${
-                              isActive
-                                ? "text-green-600 bg-green-50"
-                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                            }`}
+                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${isActive
+                              ? "text-green-600 bg-green-50"
+                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                              }`}
                           >
                             <Icon size={20} />
                             {link.name}
