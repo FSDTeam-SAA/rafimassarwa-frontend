@@ -17,6 +17,7 @@ import {
   Search,
   type LucideIcon,
   Bell,
+  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -40,7 +41,14 @@ import { MdDashboard } from "react-icons/md";
 import { useUserPayment } from "../context/paymentContext";
 import { LanguageSwitcher } from "@/shared/LanguageSwitcher";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 
 // Define the shape of navigation items
 interface NavItem {
@@ -119,11 +127,8 @@ export default function Navbar() {
     },
   ];
 
-
   const lockedRoutes = ["/olivestocks-portfolio", "/quality-stocks"];
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
-
 
   // Search functionality
   const axiosInstance = useAxios();
@@ -132,6 +137,8 @@ export default function Navbar() {
   const searchRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(searchQuery, 500);
   const router = useRouter();
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   // Fetch user details from our backend (only if session exists)
   const { data: userData } = useQuery({
@@ -465,7 +472,10 @@ export default function Navbar() {
                     <div
                       key={item.name}
                       onClick={(e) => {
-                        if (paymentType === "free" && lockedRoutes.includes(item.href)) {
+                        if (
+                          paymentType === "free" &&
+                          lockedRoutes.includes(item.href)
+                        ) {
                           e.preventDefault();
                           setShowUpgradeModal(true);
                         } else {
@@ -544,13 +554,17 @@ export default function Navbar() {
                 })}
               </div>
 
-              <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+              <Dialog
+                open={showUpgradeModal}
+                onOpenChange={setShowUpgradeModal}
+              >
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Upgrade Required</DialogTitle>
                     <DialogDescription>
-                      This feature is available for <strong>Premium</strong> or <strong>Ultimate</strong> members only.
-                      Please upgrade your plan to access it.
+                      This feature is available for <strong>Premium</strong> or{" "}
+                      <strong>Ultimate</strong> members only. Please upgrade
+                      your plan to access it.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter className="flex justify-end gap-2">
@@ -568,7 +582,6 @@ export default function Navbar() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-
 
               {/* Stock search bar - desktop only */}
               <div
@@ -595,12 +608,50 @@ export default function Navbar() {
                       </div>
                     ) : searchData?.results?.length ? (
                       <>
-                        <div className="p-3 border-b border-gray-100 flex items-center gap-2">
-                          <Search className="w-4 h-4 text-green-500" />
-                          <span className="text-sm font-medium text-gray-700">
-                            Search Results
-                          </span>
+                        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Search className="w-4 h-4 text-green-500" />
+                            <span className="text-sm font-medium text-gray-700">
+                              Search Results
+                            </span>
+                          </div>
+                          <div className="relative">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-gray-600 hover:text-green-600"
+                              onClick={() =>
+                                setShowFilterOptions((prev) => !prev)
+                              }
+                            >
+                              <Filter className="w-4 h-4 text-green-500" />
+                            </Button>
+                            {showFilterOptions && (
+                              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                {["oneOlive", "twoOlive", "treeOlive"].map(
+                                  (option) => (
+                                    <div
+                                      key={option}
+                                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                        selectedFilter === option
+                                          ? "bg-green-50 text-green-600 font-semibold"
+                                          : ""
+                                      }`}
+                                      onClick={() => {
+                                        setSelectedFilter(option);
+                                        setShowFilterOptions(false);
+                                        // Optionally trigger filtering logic here
+                                      }}
+                                    >
+                                      {option  === "oneOlive" ? "One Olive" : option === "twoOlive" ? "Two Olives" : "Tree Olive"}
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
+
                         {searchData.results.map((stock, index) => (
                           <Link
                             key={`${stock.symbol}-${index}`}
@@ -656,10 +707,11 @@ export default function Navbar() {
                                   ${stock.price?.toFixed(2)}
                                 </p>
                                 <p
-                                  className={`text-xs font-medium ${stock.change >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                    }`}
+                                  className={`text-xs font-medium ${
+                                    stock.change >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
                                 >
                                   {stock.change >= 0 ? "+" : ""}
                                   {stock.change?.toFixed(2)} (
@@ -708,7 +760,10 @@ export default function Navbar() {
                             key={link.name}
                             href="#"
                             onClick={(e) => {
-                              if (paymentType === "free" && lockedRoutes.includes(link.href)) {
+                              if (
+                                paymentType === "free" &&
+                                lockedRoutes.includes(link.href)
+                              ) {
                                 e.preventDefault();
                                 setShowUpgradeModal(true);
                               } else {
@@ -717,10 +772,11 @@ export default function Navbar() {
                                 setOpen(false); // ✅ close sidebar
                               }
                             }}
-                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${isActive
-                              ? "text-green-600 bg-green-50"
-                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                              }`}
+                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${
+                              isActive
+                                ? "text-green-600 bg-green-50"
+                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                            }`}
                           >
                             <Icon size={20} />
                             {link.name}

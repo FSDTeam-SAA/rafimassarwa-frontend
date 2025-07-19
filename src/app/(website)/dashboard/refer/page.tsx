@@ -38,7 +38,7 @@ const Page = () => {
     queryKey : ['all-refer'],
     queryFn : async () => {
       const res = await axiosInstance('/user/get-refer');
-      return res.data.data
+      return res.data.users || [];
     }
   })
 

@@ -28,7 +28,7 @@ export default function MoreFromTip({ stockNews }: MoreFromTipProps) {
 
   if (!stockNews || stockNews.length === 0) {
     return (
-      <div className="text-center text-2xl text-red-500">No news available</div>
+      <div className="text-center text-2xl text-red-500 my-4">{isNewsPage ? "No news available" : "No Deep Research Available"}</div>
     );
   }
 

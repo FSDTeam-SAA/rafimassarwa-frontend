@@ -25,8 +25,6 @@ const Page = ({ params }: PageProps) => {
 
   const { paymentType } = useUserPayment();
 
-  console.log(paymentType);
-
   const { data: newsDetails = {}, isLoading } = useQuery({
     queryKey: ["blog-details"],
     queryFn: async () => {
@@ -62,7 +60,7 @@ const Page = ({ params }: PageProps) => {
         Ads
       </div> */}
 
-      <div className="col-span-4">
+      <div dir={newsDetails?.lang === "ar" ? "rtl" : "ltr"} className="col-span-4">
         <h1 className="font-bold text-4xl mb-5">{newsTitle}</h1>
         {newsDetails?.isPaid && paymentType === "free" ? (
           <div>

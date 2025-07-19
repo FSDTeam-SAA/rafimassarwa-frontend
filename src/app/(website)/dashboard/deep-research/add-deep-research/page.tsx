@@ -169,6 +169,7 @@ const Page = () => {
       formData.append("imageLink", image.file);
       formData.append("source", "deep-research");
       formData.append("isPaid", data.isPaid);
+      formData.append("lang", language);
 
       await mutateAsync(formData);
     } catch (error) {
