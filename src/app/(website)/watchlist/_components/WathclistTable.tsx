@@ -24,6 +24,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import WatchlistModal from "./WatchListModal";
+import { formatCompactCurrency } from "../../../../../utils/formatCompactCurrency";
 
 type Stock = {
   symbol: string;
@@ -264,22 +265,7 @@ export default function WatchlistTable() {
       }),
       columnHelper.accessor("marketCap", {
         header: "Market Cap",
-        cell: (info) => {
-          const raw = info.getValue();
-          const num =
-            typeof raw === "number"
-              ? raw
-              : typeof raw === "string"
-              ? Number(raw.replace(/[^0-9.-]/g, ""))
-              : 0;
-
-          return isNaN(num)
-            ? "N/A"
-            : num.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              });
-        },
+        cell: (info) => formatCompactCurrency(info.getValue()),
         enableSorting: true,
       }),
       columnHelper.display({
@@ -368,7 +354,13 @@ export default function WatchlistTable() {
       </div>
       <div className="flex"></div>
 
-      {isOpen && <WatchlistModal refetch={refetch} isOpen={isOpen} setIsOpen={setIsOpen} />}
+      {isOpen && (
+        <WatchlistModal
+          refetch={refetch}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+        />
+      )}
 
       <div className="overflow-x-auto mt-5">
         <table className="w-full min-w-[800px]">
