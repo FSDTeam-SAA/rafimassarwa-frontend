@@ -401,10 +401,10 @@ const SearchResult = () => {
                 </text>
 
                 <text
-                  x="353"
+                  x={`${stockData?.valuationBar?.currentPrice < stockData?.valuationBar?.fairValue ? 118 : 344}`}
                   y="88"
                   textAnchor="middle"
-                  className="text-sm font-bold"
+                  className={`text-sm font-bold`}
                   fill="#FF5733"
                 >
                   ${stockData?.valuationBar?.currentPrice}

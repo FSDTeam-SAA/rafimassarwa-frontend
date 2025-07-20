@@ -14,6 +14,12 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
 
+interface EarningData {
+  estimate: string;
+  actual: string;
+  surprisePercent: number;
+}
+
 const EarningChart = () => {
   const [activeTab, setActiveTab] = useState("Results");
 
@@ -34,8 +40,6 @@ const EarningChart = () => {
     },
     enabled: !!stock,
   });
-
-  console.log(earningChart);
 
   if (isLoading) return <div className="text-center text-lg">Loading...</div>;
 
@@ -64,7 +68,7 @@ const EarningChart = () => {
           >
             Results
           </button>
-          <button
+          {/* <button
             onClick={() => setActiveTab("Guidance")}
             className={`pb-2 border-b-2 transition-all duration-200 ${
               activeTab === "Guidance"
@@ -73,31 +77,51 @@ const EarningChart = () => {
             }`}
           >
             Guidance
-          </button>
+          </button> */}
         </div>
 
         <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell className="">REV</TableCell>
-              <TableCell>
-                $5.058{" "}
-                <span className="text-xs text-muted-foreground">(est)</span>
-              </TableCell>
-              <TableCell>$5.718</TableCell>
-              <TableCell className="text-green-600">0.99%</TableCell>
-            </TableRow>
+          {earningChart
+            ?.slice(0, 10)
+            ?.map((item: EarningData, index: number) => (
+              <TableBody key={index}>
+                <TableRow>
+                  <TableCell className="">REV</TableCell>
+                  <TableCell>
+                    {item?.estimate}
+                    <span className="text-xs text-muted-foreground">(est)</span>
+                  </TableCell>
+                  <TableCell>
+                    {item?.actual}
+                    <span className="text-xs text-muted-foreground">(aqt)</span>
+                  </TableCell>
+                  <TableCell
+                    className={` ${
+                      item?.surprisePercent >= 0
+                        ? "text-green-600"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {item?.surprisePercent}%
+                  </TableCell>
+                </TableRow>
 
-            <TableRow>
-              <TableCell className="font-medium">EPS</TableCell>
-              <TableCell>
-                $4.97{" "}
-                <span className="text-xs text-muted-foreground">(est)</span>
-              </TableCell>
-              <TableCell>$5.08</TableCell>
-              <TableCell className="text-green-600">2.21%</TableCell>
-            </TableRow>
-          </TableBody>
+                <TableRow>
+                  <TableCell className="font-medium">EPS</TableCell>
+                  <TableCell>
+                    {item?.estimate}
+                    <span className="text-xs text-muted-foreground">(est)</span>
+                  </TableCell>
+                  <TableCell>
+                    {item?.actual}
+                    <span className="text-xs text-muted-foreground">(aqt)</span>
+                  </TableCell>
+                  <TableCell className="text-green-600">
+                    {item?.surprisePercent}%
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            ))}
         </Table>
 
         <div className="mt-10 p-4 flex flex-col lg:flex-row justify-between items-center gap-5">
