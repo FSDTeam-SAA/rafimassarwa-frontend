@@ -56,7 +56,7 @@ export default function ProfileInfo({ imagePreview, handleImageChange }: Profile
 
     if (!user) {
         return (
-            <div className="w-full animate-pulse">
+            <div className="w-[80vw] animate-pulse">
                 <div className="flex md:flex-row flex-col gap-4 md:justify-between lg:items-center mt-4 p-4 shadow rounded-xl bg-white">
                     <div className="flex gap-4 items-center">
                         <div className="w-24 h-24 bg-gray-300 rounded-full" />

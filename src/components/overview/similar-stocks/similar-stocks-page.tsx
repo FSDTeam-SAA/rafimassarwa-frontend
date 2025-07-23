@@ -8,6 +8,7 @@ import SimilarStocksTable from "./similar-stocks-table"
 import useAxios from "@/hooks/useAxios"
 import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
+import { useUserPayment } from "@/components/context/paymentContext"
 
 // Define the interface for the similar stock data received from the API
 interface SimilarStockApiData {
@@ -25,6 +26,8 @@ interface SimilarStockApiData {
 export default function SimilarStocksPage() {
   const axiosInstance = useAxios()
   const params = useParams()
+
+  const { paymentType } = useUserPayment()
 
   // Ensure stockName is a string, as useParams can return string | string[]
   const stockName = typeof params.stockName === "string" ? params.stockName : undefined
@@ -74,9 +77,13 @@ export default function SimilarStocksPage() {
           <div className="mt-8 lg:mt-20">
             <PerformanceCoverage similarStockApiResponse={similarStockApiResponse} />
           </div>
-          <div className="mt-8 lg:mt-20">
-            <StockPremiumBanner />
-          </div>
+          {
+            (paymentType === "free" || paymentType === "Premium") && (
+              <div className="mt-20">
+                <StockPremiumBanner />
+              </div>
+            )
+          }
         </div>
         <div className="col-span-full lg:col-span-2">
           <RecentNews />

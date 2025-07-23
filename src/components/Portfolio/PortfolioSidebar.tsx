@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { GoDesktopDownload } from "react-icons/go"
 import { MdOutlineAccountCircle, MdOutlineSupportAgent } from "react-icons/md"
 import { IoIosStarHalf } from "react-icons/io"
@@ -53,6 +53,27 @@ export function PortfolioSidebar() {
   const pathname = usePathname()
   const queryClient = useQueryClient()
 
+  const { data: session } = useSession()
+
+  const router = useRouter()
+
+  const { data: portfolioData } = useQuery({
+    queryKey: ["portfolio"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+      })
+      const data = await res.json()
+      return data
+    },
+    enabled: !!session?.user?.accessToken,
+  })
+
+  console.log(portfolioData, "Portfolio Data")
+
   const sidebarItems: SidebarItem[] = [
     {
       icon: <GoDesktopDownload />,
@@ -67,7 +88,7 @@ export function PortfolioSidebar() {
     {
       icon: <IoIosStarHalf />,
       label: "Performance",
-      href: "/my-portfolio/performance",
+      href: "/my-portfolio/performance"
     },
     {
       icon: <RiNewspaperLine />,
@@ -101,21 +122,13 @@ export function PortfolioSidebar() {
     },
   ]
 
-  const { data: session } = useSession()
-  const { data: portfolioData } = useQuery({
-    queryKey: ["portfolio"],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/get`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-      })
-      const data = await res.json()
-      return data
-    },
-    enabled: !!session?.user?.accessToken,
-  })
+  useEffect(() => {
+    if (((portfolioData && portfolioData.length === 0) || !portfolioData) &&
+      ["/my-portfolio/performance", "/my-portfolio/my-news", "/my-portfolio/analysis", "/my-portfolio/my-calendar", "/my-portfolio/chart"].includes(pathname)
+    ) {
+      router.replace("/my-portfolio")
+    }
+  }, [portfolioData, pathname, router])
 
 
   const { selectedPortfolioId, setSelectedPortfolioId } = usePortfolio()
