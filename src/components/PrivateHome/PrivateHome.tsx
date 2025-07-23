@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
 import YoutubeVideo from "./YoutubeVideo/YoutubeVideo";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface NewsItem {
   _id: string;
@@ -21,6 +22,7 @@ interface NewsItem {
 
 const PrivateHome = () => {
   const axiosInstance = useAxios();
+  const { dictionary } = useLanguage();
 
   const { data: stockNews = [] } = useQuery<NewsItem[]>({
     queryKey: ["private-news"],
@@ -46,19 +48,19 @@ const PrivateHome = () => {
           href="/my-portfolio"
           className="inline-block rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-600 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
         >
-          Portfolio
+          {dictionary.myPortfolio}
         </Link>
         <Link
           href="/watchlist"
           className="inline-block rounded-md bg-blue-100 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
         >
-          Watchlist
+          {dictionary?.watchlist}
         </Link>
         <Link
           href="/news"
           className="inline-block rounded-md bg-orange-100 px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1"
         >
-          News
+          {dictionary?.news}
         </Link>
       </div>
 

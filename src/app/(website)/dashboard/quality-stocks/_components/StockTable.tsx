@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatCompactCurrency } from "../../../../../../utils/formatCompactCurrency";
 
 type Stock = {
   symbol: string;
@@ -282,7 +283,7 @@ export default function StockTable() {
                     </td>
 
                     <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-medium">
-                      {stock.marketCap || "N/A"}
+                      {formatCompactCurrency(stock.marketCap) || "N/A"}
                     </td>
 
                     <td className="text-center">
