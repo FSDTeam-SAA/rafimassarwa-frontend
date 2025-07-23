@@ -39,6 +39,8 @@ const MyPortfolio = () => {
     enabled: isQueryEnabled,
   });
 
+  console.log(session)
+
 
 
   // Show loading if the query is enabled and is either loading or not yet fetched
@@ -53,7 +55,7 @@ const MyPortfolio = () => {
   }
 
   // After query is finished and portfolioData is still nullish
-  if (isQueryEnabled && isFetched && portfolioData?.length === 0) {
+  if ((isQueryEnabled && isFetched && portfolioData?.length === 0) || !portfolioData) {
     return (
       <div className="w-[80vw] flex justify-center items-center h-[80vh]">
         <div className="text-center">

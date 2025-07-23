@@ -5,11 +5,14 @@ import FinancialDashboard from "./_components/FinancialDashboard";
 import AppleFinancialCharts from "./_components/chart/AppleFinancialCharts";
 import StockPremiumBanner from "@/components/Portfolio/chart/chart-bottom";
 import { useParams } from "next/navigation";
+import { useUserPayment } from "@/components/context/paymentContext";
 
 const Page = () => {
 
   const params = useParams();
   const stockName = params.stockName;
+
+  const { paymentType } = useUserPayment();
 
   return (
     <div className="lg:w-[75vw]">
@@ -62,9 +65,13 @@ const Page = () => {
             <AppleFinancialCharts />
           </div>
 
-          <div className="mt-10">
-            <StockPremiumBanner />
-          </div>
+          {
+            (paymentType === "free" || paymentType === "Premium") && (
+              <div className="mt-20">
+                <StockPremiumBanner />
+              </div>
+            )
+          }
         </div>
 
         <div className="lg:w-[25%]">

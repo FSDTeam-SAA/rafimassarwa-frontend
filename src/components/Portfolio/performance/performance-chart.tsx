@@ -45,12 +45,16 @@ export default function PerformanceDashboard() {
     }));
   }, [chartData]);
 
-  const maxValue = 26.01;
-  const minValue = -26.01;
+  const allValues = performanceData.flatMap(d => [
+    d.murakkabAverage,
+    d.sp500,
+    d.myPortfolio
+  ]);
+  const maxValue = Math.max(...allValues, 0);
 
   const getBarHeight = (value: number) => {
     const percentage = (Math.abs(value) / maxValue) * 100;
-    return Math.min(Math.max(percentage, 5), 100);
+    return Math.min(Math.max(percentage, 5), 95); // ⬅️ cap at 95% instead of 100%
   };
 
   return (
@@ -105,16 +109,10 @@ export default function PerformanceDashboard() {
           (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="mb-8 col-span-5 overflow-x-scroll lg:overflow-auto">
-                <div className="flex justify-start mb-2">
-                  <span className="text-gray-700 font-medium">
-                    {maxValue.toFixed(2)}%
-                  </span>
-                </div>
-
                 <div className="grid grid-cols-6 gap-2 mb-1 min-w-[600px]">
                   {performanceData.map((data, index) => (
                     <div key={index} className="flex flex-col items-center">
-                      <div className="w-full bg-gray-100 flex flex-col h-48">
+                      <div className="w-full bg-gray-100 flex flex-col h-52">
                         {/* Top half for positive values */}
                         <div className="flex-1 flex items-end justify-center gap-4 relative">
                           <div
@@ -232,12 +230,6 @@ export default function PerformanceDashboard() {
                       </div>
                     </div>
                   ))}
-                </div>
-
-                <div className="flex justify-start">
-                  <span className="text-gray-700 font-medium">
-                    {minValue.toFixed(2)}%
-                  </span>
                 </div>
               </div>
             </div>

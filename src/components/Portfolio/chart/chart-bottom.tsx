@@ -3,8 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
+import { useUserPayment } from "@/components/context/paymentContext"
 
 export default function StockPremiumBanner() {
+
+    const { paymentType } = useUserPayment();
+
     return (
         <div className="max-w-5xl">
             <h2 className="text-xl font-bold mb-6">Unlock Premium Insights With Olive Stocks</h2>
@@ -13,7 +17,8 @@ export default function StockPremiumBanner() {
                     <div className="flex flex-col md:flex-row items-center">
                         <div className="lg:p-6 flex-1">
                             <div className="mb-6">
-                                <h3 className="text-lg font-bold mb-4">Why Go Premium?</h3>
+                                <h3 className="text-lg font-bold mb-4">Why Go {paymentType === "free" ? "Premium" : paymentType === "Premium" ? "Ultimate" : "Basic"}
+                                    ?</h3>
                                 <ul className="space-y-2">
                                     {[
                                         "Spot hight - conviction trades backed by expert analysis",

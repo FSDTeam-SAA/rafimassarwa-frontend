@@ -192,16 +192,53 @@ export default function PersonalDetailsCard({ selectedImage, setImagePreview }: 
     const isValidPhoneNumber = useCallback((phone: string) => /^\+?[0-9\s\-()]{10,20}$/.test(phone), [])
 
 
+    // if (userLoading) {
+    //     return (
+    //         <div className="space-y-4 animate-pulse">
+    //             {/* Full Name Skeleton */}
+    //             <div className="flex items-center space-x-3 bg-[#F9FAFB] px-4 py-3 rounded-md">
+    //                 <div className="h-7 w-7 bg-gray-300 rounded-full" />
+    //                 <div className="flex-1 space-y-2">
+    //                     <div className="w-24 h-3 bg-gray-300 rounded" />
+    //                     <div className="w-full h-5 bg-gray-200 rounded" />
+    //                 </div>
+    //             </div>
+
+    //             {/* Email Skeleton */}
+    //             <div className="flex items-center space-x-3 bg-[#F9FAFB] px-4 py-3 rounded-md">
+    //                 <div className="h-7 w-7 bg-gray-300 rounded-full" />
+    //                 <div className="flex-1 space-y-2">
+    //                     <div className="w-28 h-3 bg-gray-300 rounded" />
+    //                     <div className="w-full h-5 bg-gray-200 rounded" />
+    //                 </div>
+    //             </div>
+
+    //             {/* Password Skeleton */}
+    //             <div className="flex items-center space-x-3 bg-[#F9FAFB] px-4 py-3 rounded-md">
+    //                 <div className="h-7 w-7 bg-gray-300 rounded-full" />
+    //                 <div className="flex-1 space-y-2">
+    //                     <div className="w-24 h-3 bg-gray-300 rounded" />
+    //                     <div className="w-1/3 h-5 bg-gray-200 rounded" />
+    //                 </div>
+    //             </div>
+
+    //             {/* Save Button Skeleton */}
+    //             <div className="flex justify-between pt-4">
+    //                 <div className="w-32 h-10 bg-gray-300 rounded" />
+    //             </div>
+    //         </div>
+    //     )
+
+    // }
+
+
     return (
         <div className="md:grid md:grid-cols-2 lg:grid-cols-9 gap-5 mb-32">
             <div className="lg:col-span-6">
-                <Card className="w-full shadow-md">
-                    <CardHeader>
-                        <CardTitle className="text-xl">Personal Details</CardTitle>
-                    </CardHeader>
-                    {
-                        userLoading ? (
-                            <CardContent className="space-y-4 animate-pulse">
+                {
+                    userLoading ?
+                        (
+                            <div className="space-y-4 animate-pulse mt-20 mr-20 w-[52vw]">
                                 {/* Full Name Skeleton */}
                                 <div className="flex items-center space-x-3 bg-[#F9FAFB] px-4 py-3 rounded-md">
                                     <div className="h-7 w-7 bg-gray-300 rounded-full" />
@@ -233,38 +270,46 @@ export default function PersonalDetailsCard({ selectedImage, setImagePreview }: 
                                 <div className="flex justify-between pt-4">
                                     <div className="w-32 h-10 bg-gray-300 rounded" />
                                 </div>
-                            </CardContent>
+                            </div>
                         )
-                            :
-                            (
+                        :
+                        (
+                            <Card className="w-full shadow-md">
+                                <CardHeader>
+                                    <CardTitle className="text-xl">Personal Details</CardTitle>
+                                </CardHeader>
                                 <CardContent className="space-y-2">
                                     {/* Full Name */}
                                     <div className="flex items-center space-x-3 bg-[#F9FAFB] px-4 py-3 rounded-md">
                                         <BiUser className="h-7 w-7 text-[#737373]" />
                                         <div className="flex-1">
                                             <p className="text-xs text-[#737373]">Full Name</p>
-                                            {editingField === "fullName" ? (
-                                                <div className="flex space-x-2">
-                                                    <Input
-                                                        value={tempValue}
-                                                        onChange={(e) => setTempValue(e.target.value)}
-                                                        className="flex-1 text-sm font-medium text-[#000000]"
-                                                    />
-                                                    <Button size="sm" onClick={() => handleSave("fullName")}>
-                                                        Save
-                                                    </Button>
-                                                    <Button size="sm" variant="outline" onClick={handleCancel}>
-                                                        Cancel
-                                                    </Button>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-sm font-medium">{userData?.fullName}</p>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEdit("fullName", userData?.fullName)}>
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            )}
+                                            {editingField === "fullName" ?
+                                                (
+                                                    <div className="flex space-x-2">
+                                                        <Input
+                                                            value={tempValue}
+                                                            onChange={(e) => setTempValue(e.target.value)}
+                                                            className="flex-1 text-sm font-medium text-[#000000]"
+                                                        />
+                                                        <Button size="sm" onClick={() => handleSave("fullName")}>
+                                                            Save
+                                                        </Button>
+                                                        <Button size="sm" variant="outline" onClick={handleCancel}>
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
+                                                )
+                                                :
+                                                (
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-sm font-medium">{userData?.fullName}</p>
+                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit("fullName", userData?.fullName)}>
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                     </div>
 
@@ -350,10 +395,9 @@ export default function PersonalDetailsCard({ selectedImage, setImagePreview }: 
                                         </Button>
                                     </div>
                                 </CardContent>
-                            )
-                    }
-                </Card>
-
+                            </Card>
+                        )
+                }
                 <div>
                     <FeedbackCard />
                 </div>

@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
+import AzureADProvider from "next-auth/providers/azure-ad"; // ✅ Correct for Azure AD
 import { loginUser } from "@/app/actions/auth";
 
 const handler = NextAuth({
@@ -34,7 +35,7 @@ const handler = NextAuth({
           role: result.data.user.role,
           accessToken: result.data.token.accessToken,
           refreshToken: result.data.token.refreshToken,
-          rememberMe: credentials.rememberMe === "on", // HTML checkbox returns "on"
+          rememberMe: credentials.rememberMe === "on",
         };
       },
     }),
@@ -55,18 +56,24 @@ const handler = NextAuth({
       },
       checks: ["pkce"],
       idToken: true,
-      profile(profile, tokens) {
+      profile(profile) {
         return {
           id: profile.sub,
-          name: profile.name,
+          name: profile.name || `${profile.firstName || ""} ${profile.lastName || ""}`.trim(),
           email: profile.email,
           image: null,
-          role: "user", // default role
-          rememberMe: false, // default value
-          accessToken: tokens?.access_token || "",
-          refreshToken: tokens?.refresh_token || "",
+          role: "user",
+          rememberMe: false,
+          accessToken: "",
+          refreshToken: "",
         };
       },
+    }),
+
+    AzureADProvider({
+      clientId: process.env.AZURE_AD_CLIENT_ID || "",
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET || "",
+      tenantId: process.env.AZURE_AD_TENANT_ID || "common", // Use 'common' for multi-tenant
     }),
   ],
 
@@ -127,7 +134,7 @@ const handler = NextAuth({
               name: user.name,
               email: user.email,
               profilePhoto: user.image,
-              appleLogin: true,
+              gLogin: true,
             }),
           });
 
@@ -146,6 +153,37 @@ const handler = NextAuth({
           console.error("Error contacting backend during Apple login:", error);
         }
       }
+
+      if (account?.provider === "azure-ad" && user?.email) {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: user.name,
+              email: user.email,
+              profilePhoto: user.image,
+              gLogin: true,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            token.id = data.data.user._id;
+            token.role = data.data.user.role;
+            token.accessToken = data.data.token.accessToken;
+            token.refreshToken = data.data.token.refreshToken;
+            token.exp = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+          } else {
+            console.error("Azure AD login failed:", data);
+          }
+        } catch (error) {
+          console.error("Error contacting backend during Azure AD login:", error);
+        }
+      }
+
+      console.log(token)
 
       return token;
     },
