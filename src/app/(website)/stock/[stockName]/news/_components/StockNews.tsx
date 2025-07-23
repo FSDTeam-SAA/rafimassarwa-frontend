@@ -68,6 +68,7 @@ export default function StockNews({ stockNews }: StockNewsProps) {
               1
             )}d ago`}
             tags={[{ name: "AAPL" }, { name: "AVGO" }]}
+            url={news?.url}
           />
         ))}
       </div>

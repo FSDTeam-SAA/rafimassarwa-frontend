@@ -18,19 +18,25 @@ const YoutubeVideo = () => {
     return <div className="mb-12 md:mb-16 text-center">Loading...</div>;
 
   return (
-    <div className="mb-12 md:mb-16">
-      <h1 className="text-3xl md:text-5xl mb-6 md:mb-10 font-semibold leading-tight">
-        {video?.videoTitle}
-      </h1>
+    <div>
+      {video?.publish ? (
+        <div className="mb-12 md:mb-16">
+          <h1 className="text-3xl md:text-5xl mb-6 md:mb-10 font-semibold leading-tight">
+            {video?.videoTitle}
+          </h1>
 
-      <div className="h-[500px] border border-gray-300 p-4 rounded-lg shadow-xl">
-        <iframe
-          className="w-full h-full rounded-lg shadow-sm"
-          src={video?.videoLink}
-          title="YouTube video player"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        ></iframe>
-      </div>
+          <div className="h-[650px] border border-gray-300 p-4 rounded-lg shadow-xl">
+            <iframe
+              className="w-full h-full rounded-lg shadow-sm"
+              src={video?.videoLink}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            ></iframe>
+          </div>
+        </div>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };

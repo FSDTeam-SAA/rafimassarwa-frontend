@@ -28,7 +28,7 @@ export default function StockMarketNews({ allNews }: StockMarketNewsProps) {
   };
 
   if (!allNews || allNews.length === 0) {
-    return <div className="text-center text-gray-500">No news available</div>;
+    return <div className="text-center text-gray-500"></div>;
   }
 
   return (

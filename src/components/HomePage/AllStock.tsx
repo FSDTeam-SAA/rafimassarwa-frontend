@@ -35,6 +35,8 @@ export default function StockTrackingTable({
   const { paymentType } = useUserPayment();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
+  console.log(trendingStocks);
+
   if (!trendingStocks || trendingStocks.length === 0) {
     return (
       <div className="mt-4 p-8 text-center text-gray-500">
@@ -48,10 +50,12 @@ export default function StockTrackingTable({
       <div className="min-w-[600px] w-full max-w-4xl mx-auto">
         <div className="mt-4 grid grid-cols-4 gap-2 rounded-t-md bg-green-50 p-2 text-sm font-medium">
           <div className="flex flex-col justify-center">Stock Info</div>
-          <div className="ml-10 flex flex-col justify-center">Price & Changes</div>
-          <div className="ml-7 flex flex-col justify-center">Price</div>
+          <div className="ml-10 flex flex-col justify-center">Smart Score</div>
+          <div className="ml-7 flex flex-col justify-center">
+            Price & Changes
+          </div>
           <div className="flex flex-col justify-center">
-            Upside <br /> Potential
+            Rating in Last 30 Days
           </div>
         </div>
 
@@ -60,14 +64,18 @@ export default function StockTrackingTable({
             <div
               key={`${stock.symbol}-${index}`}
               className={`grid grid-cols-4 p-3 items-center ${
-                index !== trendingStocks.length - 1 ? "border-b border-gray-200" : ""
+                index !== trendingStocks.length - 1
+                  ? "border-b border-gray-200"
+                  : ""
               }`}
             >
               {/* Stock Info */}
               <div className="flex items-center">
                 <Link href={`/search-result?q=${stock?.symbol}`}>
                   <div>
-                    <div className="text-[#2e7d32] font-medium">{stock.symbol}</div>
+                    <div className="text-[#2e7d32] font-medium">
+                      {stock.symbol}
+                    </div>
                   </div>
                 </Link>
               </div>
@@ -91,7 +99,9 @@ export default function StockTrackingTable({
                   }`}
                 >
                   {stock.priceChange !== null && stock.percentChange !== null
-                    ? `${stock.priceChange >= 0 ? "+" : ""}${stock.priceChange.toFixed(
+                    ? `${
+                        stock.priceChange >= 0 ? "+" : ""
+                      }${stock.priceChange.toFixed(
                         2
                       )} (${stock.percentChange.toFixed(2)}%)`
                     : "No change data"}
@@ -122,7 +132,9 @@ export default function StockTrackingTable({
                     {stock?.targetMean !== null ? (
                       <span
                         className={`text-sm font-medium ${
-                          stock.targetMean >= 0 ? "text-green-500" : "text-red-500"
+                          stock.targetMean >= 0
+                            ? "text-green-500"
+                            : "text-red-500"
                         }`}
                       >
                         $ {stock.targetMean.toFixed(2)}
@@ -155,16 +167,38 @@ export default function StockTrackingTable({
                   </div>
                 ) : (
                   <>
-                    {stock.upsidePercent ? (
-                      <span
-                        className={`font-medium ${
-                          parseFloat(stock.upsidePercent) >= 0
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {stock.upsidePercent}%
-                      </span>
+                    {stock?.buy !== undefined &&
+                    stock?.hold !== undefined &&
+                    stock?.sell !== undefined ? (
+                      (() => {
+                        const total = stock.buy + stock.hold + stock.sell;
+                        const score =
+                          total > 0 ? Math.round((stock.buy / total) * 10) : 0;
+
+                        return (
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-yellow-400 flex items-center justify-center">
+                              <span className="text-base sm:text-lg font-bold">
+                                {score}
+                              </span>
+                            </div>
+                            <div className="flex flex-col text-xs">
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 sm:w-3 h-2 sm:h-3 bg-green-500 rounded-sm"></div>
+                                <span>{stock.buy} Buy</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 sm:w-3 h-2 sm:h-3 bg-yellow-400 rounded-sm"></div>
+                                <span>{stock.hold} Hold</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 sm:w-3 h-2 sm:h-3 bg-red-500 rounded-sm"></div>
+                                <span>{stock.sell} Sell</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()
                     ) : (
                       <div className="text-green-500 text-sm">No data</div>
                     )}
@@ -193,8 +227,9 @@ export default function StockTrackingTable({
                 <Unlock size={32} />
               </div>
               <p className="text-sm text-gray-600 max-w-xs">
-                To get access to full price targets and upside potential, please upgrade
-                your subscription. Manage your investments with more flexibility.
+                To get access to full price targets and upside potential, please
+                upgrade your subscription. Manage your investments with more
+                flexibility.
               </p>
               <Link href="/explore-plan">
                 <Button className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition">
