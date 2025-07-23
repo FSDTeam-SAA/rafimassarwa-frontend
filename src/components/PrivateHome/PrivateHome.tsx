@@ -18,13 +18,14 @@ interface NewsItem {
   symbol?: string;
   createdAt?: number;
   newsTitle: string;
+  lang?: string;
 }
 
 const PrivateHome = () => {
   const axiosInstance = useAxios();
-  const { dictionary } = useLanguage();
+  const { dictionary, selectedLangCode } = useLanguage();
 
-  const { data: stockNews = [] } = useQuery<NewsItem[]>({
+  const { data: stockNews = [], isLoading } = useQuery<NewsItem[]>({
     queryKey: ["private-news"],
     queryFn: async () => {
       const res = await axiosInstance("/admin/news/all-news");
@@ -32,10 +33,16 @@ const PrivateHome = () => {
     },
   });
 
+  const filteredNews = stockNews?.filter(
+    (news) => news?.lang === selectedLangCode
+  );
+
   const truncateText = (text: string, maxLength: number) => {
     if (text?.length <= maxLength) return text;
     return text?.substring(0, maxLength) + "...";
   };
+
+  if(isLoading) return <div className="min-h-screen flex flex-col items-center justify-center">Loading...</div>
 
   return (
     <div className="mt-28 container mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,15 +73,15 @@ const PrivateHome = () => {
 
       <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6 lg:gap-10">
         <div className="col-span-1 lg:col-span-2">
-          {stockNews[4] && (
-            <Link href={`/news/${stockNews[4]._id}`} rel="noopener noreferrer">
+          {filteredNews[4] && (
+            <Link href={`/news/${filteredNews[4]._id}`} rel="noopener noreferrer">
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[4].newsImage ||
+                    filteredNews[4].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[4].newsTitle}
+                  alt={filteredNews[4].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -82,31 +89,29 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[4].symbol}
+                    {filteredNews[4].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(
-                      stockNews[4]?.createdAt || 0
-                    ).toLocaleDateString()}
+                    {new Date(filteredNews[4]?.createdAt || 0).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[4].newsTitle, 80)}
+                  {truncateText(filteredNews[4].newsTitle, 80)}
                 </h1>
               </div>
             </Link>
           )}
 
-          {stockNews[3] && (
-            <Link href={`/news/${stockNews[3]._id}`} rel="noopener noreferrer">
+          {filteredNews[3] && (
+            <Link href={`/news/${filteredNews[3]._id}`} rel="noopener noreferrer">
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[3].newsImage ||
+                    filteredNews[3].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[3].newsTitle}
+                  alt={filteredNews[3].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -114,17 +119,15 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[3].symbol}
+                    {filteredNews[3].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(
-                      stockNews[3]?.createdAt || 0
-                    ).toLocaleDateString()}
+                    {new Date(filteredNews[3]?.createdAt || 0).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[3].newsTitle, 80)}
+                  {truncateText(filteredNews[3].newsTitle, 80)}
                 </h1>
               </div>
             </Link>
@@ -132,15 +135,15 @@ const PrivateHome = () => {
         </div>
 
         <div className="col-span-1 lg:col-span-3">
-          {stockNews[0] && (
-            <Link href={`/news/${stockNews[0]._id}`} rel="noopener noreferrer">
+          {filteredNews[0] && (
+            <Link href={`/news/${filteredNews[0]._id}`} rel="noopener noreferrer">
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[0].newsImage ||
+                    filteredNews[0].newsImage ||
                     "/placeholder.svg?height=450&width=800"
                   }
-                  alt={stockNews[0].newsTitle}
+                  alt={filteredNews[0].newsTitle}
                   width={800}
                   height={450}
                   className="w-full object-cover"
@@ -148,21 +151,19 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center justify-center gap-2 mt-4 mb-2">
                   <span className="text-sm text-gray-500 uppercase font-medium">
-                    {stockNews[0].symbol}
+                    {filteredNews[0].symbol}
                   </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-sm text-gray-500">
-                    {new Date(
-                      stockNews[0]?.createdAt || 0
-                    ).toLocaleDateString()}
+                    {new Date(filteredNews[0]?.createdAt || 0).toLocaleDateString()}
                   </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-xs text-blue-600 uppercase font-medium px-2 py-1 bg-blue-50 rounded">
-                    {stockNews[0].symbol}
+                    {filteredNews[0].symbol}
                   </span>
                 </div>
                 <h1 className="font-bold my-4 md:my-5 text-2xl md:text-[40px] w-full lg:w-[90%] mx-auto text-center leading-tight">
-                  {stockNews[0].newsTitle}
+                  {filteredNews[0].newsTitle}
                 </h1>
               </div>
             </Link>
@@ -170,15 +171,15 @@ const PrivateHome = () => {
         </div>
 
         <div className="col-span-1 lg:col-span-2">
-          {stockNews[1] && (
-            <Link href={`/news/${stockNews[1]._id}`} rel="noopener noreferrer">
+          {filteredNews[1] && (
+            <Link href={`/news/${filteredNews[1]._id}`} rel="noopener noreferrer">
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[1].newsImage ||
+                    filteredNews[1].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[1].newsTitle}
+                  alt={filteredNews[1].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -186,31 +187,29 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[1].symbol}
+                    {filteredNews[1].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(
-                      stockNews[1]?.createdAt || 0
-                    ).toLocaleDateString()}
+                    {new Date(filteredNews[1]?.createdAt || 0).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[1].newsTitle, 80)}
+                  {truncateText(filteredNews[1].newsTitle, 80)}
                 </h1>
               </div>
             </Link>
           )}
 
-          {stockNews[2] && (
-            <Link href={`/news/${stockNews[2]._id}`} rel="noopener noreferrer">
+          {filteredNews[2] && (
+            <Link href={`/news/${filteredNews[2]._id}`} rel="noopener noreferrer">
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
-                    stockNews[2].newsImage ||
+                    filteredNews[2].newsImage ||
                     "/placeholder.svg?height=270&width=500"
                   }
-                  alt={stockNews[2].newsTitle}
+                  alt={filteredNews[2].newsTitle}
                   width={500}
                   height={270}
                   className="w-full object-cover"
@@ -218,17 +217,15 @@ const PrivateHome = () => {
                 />
                 <div className="flex items-center gap-2 mt-2 mb-1">
                   <span className="text-xs text-gray-500 uppercase font-medium">
-                    {stockNews[2].symbol}
+                    {filteredNews[2].symbol}
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(
-                      stockNews[2]?.createdAt || 0
-                    ).toLocaleDateString()}
+                    {new Date(filteredNews[2]?.createdAt || 0).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
-                  {truncateText(stockNews[2].newsTitle, 80)}
+                  {truncateText(filteredNews[2].newsTitle, 80)}
                 </h1>
               </div>
             </Link>
@@ -237,7 +234,7 @@ const PrivateHome = () => {
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-center my-8 md:my-16 gap-4 md:gap-2">
-        {stockNews.slice(4, 8).map((news) => (
+        {filteredNews.slice(4, 8).map((news) => (
           <Link
             key={news._id}
             href={`/news/${news._id}`}
