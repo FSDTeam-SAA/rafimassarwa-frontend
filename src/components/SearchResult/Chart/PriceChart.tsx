@@ -84,11 +84,23 @@ const PriceChart = () => {
   return (
     <div>
       <div className="flex space-x-2 sm:text-[32px] text-xl">
-        <span className="font-bold">{priceData?.priceInfo?.currentPrice.toFixed(2)}</span>
-        <span className="text-green-600 font-semibold">
-          +{priceData?.priceInfo?.change?.toFixed(2)} ({priceData?.priceInfo?.percentChange?.toFixed(2)}
-          %)
+        <span className="font-bold">
+          {priceData?.priceInfo?.currentPrice.toFixed(2)}
         </span>
+        {typeof priceData?.priceInfo?.change === "number" &&
+          priceData.priceInfo.change !== 0 && (
+            <span
+              className={`font-semibold ${
+                priceData.priceInfo.change > 0
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {priceData.priceInfo.change > 0 ? "+" : ""}
+              {priceData.priceInfo.change.toFixed(2)} (
+              {priceData.priceInfo.percentChange?.toFixed(2)}%)
+            </span>
+          )}
       </div>
 
       <div className=" mt-4 overflow-x-auto">

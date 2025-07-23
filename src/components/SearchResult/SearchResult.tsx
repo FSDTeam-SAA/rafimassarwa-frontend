@@ -223,9 +223,11 @@ const SearchResult = () => {
 
                 <div className="relative group inline-block">
                   {/* Tooltip Trigger Icon */}
-                  <div className="h-5 w-5 rounded-full bg-gray-500 text-white flex justify-center items-center cursor-pointer text-sm">
-                    ?
-                  </div>
+                  <Link href={'/graphic-concept'}>
+                    <div className="h-5 w-5 rounded-full bg-gray-500 text-white flex justify-center items-center cursor-pointer text-sm">
+                      ?
+                    </div>
+                  </Link>
 
                   {/* Tooltip Box */}
                   <div className="absolute z-10 hidden group-hover:block bg-white border border-gray-300 shadow-lg px-2 py-1 rounded-md w-max min-w-[150px] top-full mt-1 left-1/2 -translate-x-1/2">
@@ -401,7 +403,12 @@ const SearchResult = () => {
                 </text>
 
                 <text
-                  x={`${stockData?.valuationBar?.currentPrice < stockData?.valuationBar?.fairValue ? 118 : 344}`}
+                  x={`${
+                    stockData?.valuationBar?.currentPrice <
+                    stockData?.valuationBar?.fairValue
+                      ? 118
+                      : 344
+                  }`}
                   y="88"
                   textAnchor="middle"
                   className={`text-sm font-bold`}

@@ -17,6 +17,10 @@ interface StockNewsMainProps {
 }
 
 export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
+  if (!firstNews) {
+    return <div className="text-center text-gray-500"></div>;
+  }
+
   return (
     <div className="w-full mb-[80px] container mx-auto">
       <h1 className="text-2xl font-bold mb-6">Stock Market News</h1>
@@ -25,7 +29,7 @@ export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
         {/* Main Article */}
         <div className="flex gap-10">
           <div className="w-1/2">
-            <Link href={`${firstNews?.url}`} >
+            <Link href={`${firstNews?.url}`}>
               {firstNews?.image && (
                 <Image
                   src={firstNews?.image || `${"/images/news-placeholder.png"}`}
@@ -52,7 +56,7 @@ export default function StockNewsMain({ firstNews }: StockNewsMainProps) {
                 {shortTimeAgo(firstNews?.datetime)}
               </span>
               <div>
-                <Link href={`${firstNews?.url}`} >
+                <Link href={`${firstNews?.url}`}>
                   <Button
                     variant="outline"
                     size="sm"

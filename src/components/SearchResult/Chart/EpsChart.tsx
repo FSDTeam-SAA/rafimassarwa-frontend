@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useRef } from "react";
@@ -24,7 +25,6 @@ const EpsChart = () => {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
 
-  // Fetch API data using React Query
   const { data, isLoading } = useQuery({
     queryKey: ["earnings-surprise", query],
     queryFn: async () => {
@@ -42,73 +42,86 @@ const EpsChart = () => {
 
     const myChart = echarts.init(chartRef.current);
 
-    // Define a type for the earnings data
     type EarningsSurprise = {
       period: string;
       estimate: number;
       actual: number;
-      [key: string]: unknown; // for any additional properties
+      quarter: number;
+      year: number;
     };
 
-    // Prepare data: filter & slice to latest MAX_POINTS
     const filteredData = (data || [])
       .filter(
         (item: EarningsSurprise) =>
           item.period && item.estimate != null && item.actual != null
       )
       .slice(0, MAX_POINTS)
-      .reverse(); // reverse to chronological order if needed
+      .reverse();
 
-    // Map data for series
-    // x-axis value: timestamp (for time axis)
-    // y-axis value: estimate or actual
+    const quarterLabels = filteredData.map(
+      (item: EarningsSurprise) => `Q${item.quarter}`
+    );
 
-    const estimateData = filteredData.map((item: EarningsSurprise) => [
-      new Date(item.period).getTime(),
-      item.estimate,
-    ]);
+    const yearLabels = filteredData.map((item: EarningsSurprise, index: number, arr: { year: any; }[]) => {
+      const current = item.year;
+      const prev = arr[index - 1]?.year;
+      return prev !== current ? `${current}` : "";
+    });
 
-    const actualData = filteredData.map((item: EarningsSurprise) => [
-      new Date(item.period).getTime(),
-      item.actual,
-    ]);
+    const estimateData = filteredData.map((item: EarningsSurprise) => item.estimate);
+    const actualData = filteredData.map((item: EarningsSurprise) => item.actual);
 
     const option: EChartsOption = {
       tooltip: {
         trigger: "axis",
-        axisPointer: {
-          type: "cross",
-        },
-        formatter: (params: Array<{ seriesName: string; value: [number, number] }>) => {
-          // params is array of series at hovered point
+        axisPointer: { type: "shadow" },
+        formatter: (params: any[]) => {
           return params
             .map(
               (p) =>
-                `${p.seriesName} <br/> Date: ${new Date(
-                  p.value[0]
-                ).toLocaleDateString()} <br/> Value: ${p.value[1]}`
+                `${p.seriesName}<br/>Quarter: ${quarterLabels[p.dataIndex]} ${
+                  yearLabels[p.dataIndex] || ""
+                }<br/>Value: ${p.value}`
             )
             .join("<br/><br/>");
         },
       },
-      xAxis: {
-        type: "time",
-        name: "Date",
-        nameLocation: "middle",
-        nameGap: 30,
-        axisLabel: {
-          formatter: (value: number) =>
-            new Date(value).toLocaleDateString("en-US", {
-              month: "short",
-              year: "numeric",
-            }),
-        },
+      grid: {
+        top: 60,
+        bottom: 80, // more space for double x-axis
       },
+      xAxis: [
+        {
+          type: "category",
+          data: quarterLabels,
+          position: "bottom",
+          offset: 0,
+          axisTick: {
+            alignWithLabel: true,
+          },
+          axisLabel: {
+            fontWeight: "bold",
+            fontSize: 13,
+          },
+        },
+        {
+          type: "category",
+          data: yearLabels,
+          position: "bottom",
+          offset: 25, // push down below quarters
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: {
+            color: "#666",
+            fontSize: 12,
+          },
+        },
+      ],
       yAxis: {
         type: "value",
-        name: "Value",
+        name: "EPS",
         nameLocation: "middle",
-        nameGap: 40,
+        nameGap: 50,
       },
       series: [
         {
@@ -130,7 +143,6 @@ const EpsChart = () => {
 
     myChart.setOption(option);
 
-    // Resize on window resize
     const handleResize = () => myChart.resize();
     window.addEventListener("resize", handleResize);
 
