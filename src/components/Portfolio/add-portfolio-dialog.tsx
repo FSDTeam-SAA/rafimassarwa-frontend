@@ -51,6 +51,8 @@ export function AddPortfolioDialog() {
         },
     });
 
+    console.log("Token from dialog", session)
+
     const { data: portfolioData } = useQuery({
         queryKey: ["portfolio"],
         queryFn: async () => {

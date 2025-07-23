@@ -10,6 +10,7 @@ import { usePortfolio } from "../../context/portfolioContext";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useUserPayment } from "@/components/context/paymentContext";
 
 // Define interfaces
 interface PortfolioStock {
@@ -63,14 +64,14 @@ export default function ChartPage() {
         if (
             isPortfolioSuccess &&
             portfolioData &&
-            portfolioData.stocks.length > 0 &&
+            portfolioData?.stocks?.length > 0 &&
             !selectedStock
         ) {
             setSelectedStock(portfolioData.stocks[0].symbol);
             setInitialLoadComplete(true);
         } else if (
             isPortfolioSuccess &&
-            (!portfolioData || portfolioData.stocks.length === 0)
+            (!portfolioData || portfolioData?.stocks?.length === 0)
         ) {
             setInitialLoadComplete(true);
         }
@@ -92,6 +93,9 @@ export default function ChartPage() {
     const clearComparisons = () => {
         setComparisonStocks([]);
     };
+
+
+    const { paymentType } = useUserPayment()
 
     // Loading State
     if (isPortfolioLoading && !initialLoadComplete) {
@@ -156,17 +160,14 @@ export default function ChartPage() {
                             />
                         </div>
                     </div>
-                    <div className="mt-20">
-                        <StockPremiumBanner />
-                    </div>
+                    {
+                        (paymentType === "free" || paymentType === "Premium") && (
+                            <div className="mt-20">
+                                <StockPremiumBanner />
+                            </div>
+                        )
+                    }
                 </div>
-                {/* <div className="col-span-1">
-                    <div className="md:w-[200px] h-full">
-                        <div className="bg-green-50 h-full rounded-xl flex items-center justify-center">
-                            <div className="font-bold text-3xl -rotate-90 tracking-wider hidden md:flex">Banner Ads</div>
-                        </div>
-                    </div>
-                </div> */}
             </div>
         </main>
     );
