@@ -1,9 +1,11 @@
 "use client";
+
 import { useSocketContext } from "@/providers/SocketProvider";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface Notification {
   link: string;
@@ -15,7 +17,11 @@ interface Notification {
 export default function NotificationsPage() {
   const { newsNotification } = useSocketContext();
 
-  toast(newsNotification?.message);
+  useEffect(() => {
+    if (newsNotification) {
+      toast(newsNotification?.message);
+    }
+  }, [newsNotification]);
 
   const axiosInstance = useAxios();
 
@@ -28,9 +34,7 @@ export default function NotificationsPage() {
   });
 
   return (
-    <div className="container mx-auto px-6 py-4 mt-16">
-      <h1 className="text-4xl font-bold mb-5 text-center">Notifications</h1>
-
+    <div className="container mx-auto px-6 py-4 mt-16 min-h-[80vh] flex justify-center items-center">
       {/* <div className="border-b mb-2">
         <div className="flex text-sm">
           <button
@@ -91,11 +95,12 @@ export default function NotificationsPage() {
       </div> */}
 
       <div className="space-y-0">
+        <h1 className="text-4xl font-bold mb-5 text-center">Notifications</h1>
         {allNotifications?.length > 0 ? (
           allNotifications?.map((notification: Notification) => (
             <Link
               href={`${notification?.link}`}
-              
+
               key={notification?._id}
             >
               <div className="flex items-center gap-2 py-4 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer transition-all duration-300">

@@ -259,10 +259,11 @@ export default function Navbar() {
                   <p
                     className={cn(
                       "font-semibold text-gray-700 leading-tight transition-all duration-300",
-                      "text-xs" // Fixed size
+                      "text-xs max-w-[70px] line-clamp-1" // Fixed size
                     )}
+                    title={userData?.data?.userName || session.user.name}
                   >
-                    {userData?.data?.userName || session.user.name || "User"}
+                    {userData?.data?.userName || session.user.name}
                   </p>
                   <p
                     className={cn(
@@ -573,6 +574,7 @@ export default function Navbar() {
                     <Link href="/explore-plan">
                       <Button
                         className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition"
+                        onClick={() => setShowUpgradeModal(false)}
                       >
                         Upgrade Plan
                       </Button>
@@ -583,7 +585,7 @@ export default function Navbar() {
 
               {/* Stock search bar - desktop only */}
               <div
-              dir={selectedLangCode === "ar" ? "ltr" : " ltr"}
+                dir={selectedLangCode === "ar" ? "ltr" : " ltr"}
                 className="hidden lg:block relative w-[200px] mx-4"
                 ref={searchRef}
               >

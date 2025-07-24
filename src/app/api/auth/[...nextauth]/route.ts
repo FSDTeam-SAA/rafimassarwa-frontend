@@ -182,9 +182,6 @@ const handler = NextAuth({
           console.error("Error contacting backend during Azure AD login:", error);
         }
       }
-
-      console.log(token)
-
       return token;
     },
 

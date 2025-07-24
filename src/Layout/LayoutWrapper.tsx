@@ -4,7 +4,9 @@ import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer/Footer";
 import Navbar from "@/components/Navbar/Navbar";
 import { PortfolioProvider } from "@/components/context/portfolioContext";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { toast } from "sonner";
+import { useSocketContext } from "@/providers/SocketProvider";
 
 export default function LayoutWrapper({
   children,
@@ -23,6 +25,15 @@ export default function LayoutWrapper({
 
   const shouldHideFooterSpecific =
     pathname.includes("my-portfolio") || pathname.includes("stock");
+
+  const { newsNotification } = useSocketContext();
+
+  useEffect(() => {
+    if (newsNotification) {
+      toast(newsNotification?.message);
+    }
+  }, [newsNotification]);
+
   return (
     <>
       <Suspense>
