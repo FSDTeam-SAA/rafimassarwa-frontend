@@ -39,9 +39,11 @@ export default function RootLayout({
             <LanguageProvider>
               <TableReloadProvider>
                 <PaymentProvider>
-                  <LayoutWrapper>
-                    <SocketProvider>{children}</SocketProvider>
-                  </LayoutWrapper>
+                  <SocketProvider>
+                    <LayoutWrapper>
+                      {children}
+                    </LayoutWrapper>
+                  </SocketProvider>
                 </PaymentProvider>
               </TableReloadProvider>
             </LanguageProvider>
