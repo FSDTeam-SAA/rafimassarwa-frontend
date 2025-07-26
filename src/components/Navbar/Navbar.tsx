@@ -748,8 +748,160 @@ export default function Navbar() {
                       <span className="sr-only">Toggle menu</span>
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-[80%] sm:w-[350px]">
-                    <div className="mt-6 flex flex-col space-y-4">
+                  <SheetContent side="left" className="w-[100%] sm:w-[350px]">
+                    {/* Add Search Bar at the top */}
+                    <div className="relative mb-4" ref={searchRef}>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder={dictionary.searchStocks}
+                          value={searchQuery}
+                          onChange={handleSearchChange}
+                          onFocus={() => searchQuery.length > 0 && setShowResults(true)}
+                          className="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                        />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      </div>
+
+                      {/* Search results dropdown */}
+                      {showResults && (
+                        <div className="absolute top-8 -left-5 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 mt-2 max-h-96 w-svw overflow-y-auto">
+                          {isLoading ? (
+                            <div className="p-4 text-center text-gray-500">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto"></div>
+                              <p className="mt-2 text-sm">Searching...</p>
+                            </div>
+                          ) : searchData?.results?.length ? (
+                            <>
+                              <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Search className="w-4 h-4 text-green-500" />
+                                  <span className="text-sm font-medium text-gray-700">
+                                    Search Results
+                                  </span>
+                                </div>
+                                <div className="relative">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6 text-gray-600 hover:text-green-600"
+                                    onClick={() =>
+                                      setShowFilterOptions((prev) => !prev)
+                                    }
+                                  >
+                                    <Filter className="w-4 h-4 text-green-500" />
+                                  </Button>
+                                  {showFilterOptions && (
+                                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                      {["oneOlive", "twoOlive", "treeOlive"].map(
+                                        (option) => (
+                                          <div
+                                            key={option}
+                                            className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${selectedFilter === option
+                                              ? "bg-green-50 text-green-600 font-semibold"
+                                              : ""
+                                              }`}
+                                            onClick={() => {
+                                              setSelectedFilter(option);
+                                              setShowFilterOptions(false);
+                                              // Optionally trigger filtering logic here
+                                            }}
+                                          >
+                                            {option === "oneOlive" ? "One Olive" : option === "twoOlive" ? "Two Olives" : "Tree Olive"}
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {searchData.results.map((stock, index) => (
+                                <Link
+                                  key={`${stock.symbol}-${index}`}
+                                  href={`/search-result?q=${stock.symbol}`}
+                                  onClick={handleStockSelect}
+                                >
+                                  <div className="w-[95vw] flex items-center justify-between p-2 hover:bg-gray-50 border-b last:border-none cursor-pointer">
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                        {stock.logo ? (
+                                          <Image
+                                            src={stock.logo}
+                                            alt="Logo"
+                                            width={30}
+                                            height={30}
+                                            className="rounded-full object-contain"
+                                          />
+                                        ) : (
+                                          <span className="text-xs text-gray-400">
+                                            N/A
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <p className="font-semibold text-gray-900">
+                                            {stock.symbol}
+                                          </p>
+                                          {stock.flag && (
+                                            <Image
+                                              src={stock.flag}
+                                              alt="Flag"
+                                              width={16}
+                                              height={16}
+                                              className="w-4 h-4"
+                                              onError={(e) => {
+                                                e.currentTarget.style.display =
+                                                  "none";
+                                              }}
+                                            />
+                                          )}
+                                          <span className="text-xs text-gray-600">
+                                            {stock.exchange}
+                                          </span>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                          {stock.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="font-semibold text-sm text-gray-900">
+                                        ${stock.price?.toFixed(2)}
+                                      </p>
+                                      <p
+                                        className={`text-xs font-medium ${stock.change >= 0
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                          }`}
+                                      >
+                                        {stock.change >= 0 ? "+" : ""}
+                                        {stock.change?.toFixed(2)} (
+                                        {stock.percentChange?.toFixed(2)}%)
+                                      </p>
+                                    </div>
+                                  </div>
+                                </Link>
+                              ))}
+                            </>
+                          ) : (
+                            <div className="p-4 text-center text-gray-500">
+                              <p>
+                                No results found for <strong>{searchQuery}</strong>
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Add Language Switcher */}
+                    <div className="px-2 mb-4">
+                      <LanguageSwitcher />
+                    </div>
+
+                    <div className="flex flex-col space-y-4">
                       {/* Mobile navigation links */}
                       {navigationLinks.map((link) => {
                         const Icon = link.icon;
@@ -781,9 +933,10 @@ export default function Navbar() {
                           </a>
                         );
                       })}
-                      {/* Mobile auth section */}
-                      {renderMobileAuthSection()}
                     </div>
+
+                    {/* Mobile auth section */}
+                    {renderMobileAuthSection()}
                   </SheetContent>
                 </Sheet>
               </div>
@@ -802,3 +955,6 @@ export default function Navbar() {
     </>
   );
 }
+
+
+

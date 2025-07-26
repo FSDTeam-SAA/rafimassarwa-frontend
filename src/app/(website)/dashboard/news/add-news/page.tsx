@@ -1,6 +1,6 @@
 "use client"
 import type React from "react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Upload, X } from "lucide-react"
 import Image from "next/image"
 import useAxios from "@/hooks/useAxios"
@@ -25,6 +25,11 @@ const Page = () => {
   const router = useRouter()
   const [image, setImage] = useState<{ file: File; preview: string } | null>(null)
   const [language, setLanguage] = useState<"en" | "ar">("en")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click()
+  }
 
   const {
     register,
@@ -160,22 +165,20 @@ const Page = () => {
             <button
               type="button"
               onClick={() => setLanguage("en")}
-              className={`px-3 py-3 w-[100px] border border-green-500 rounded-md text-sm font-medium transition-colors ${
-                language === "en"
-                  ? "bg-green-500 text-white font-medium shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-3 py-3 w-[100px] border border-green-500 rounded-md text-sm font-medium transition-colors ${language === "en"
+                ? "bg-green-500 text-white font-medium shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               English
             </button>
             <button
               type="button"
               onClick={() => setLanguage("ar")}
-              className={`px-3 py-3 rounded-md text-sm w-[100px] border border-green-500 font-medium transition-colors ${
-                language === "ar"
-                  ? "bg-green-500 text-white font-medium shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-3 py-3 rounded-md text-sm w-[100px] border border-green-500 font-medium transition-colors ${language === "ar"
+                ? "bg-green-500 text-white font-medium shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               العربية
             </button>
@@ -228,9 +231,8 @@ const Page = () => {
                 <input
                   id="stocksName"
                   placeholder={language === "ar" ? "أدخل اسم السهم" : "Enter Stock's Name"}
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${
-                    errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
-                  } ${language === "ar" ? "text-right" : "text-left"}`}
+                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
+                    } ${language === "ar" ? "text-right" : "text-left"}`}
                   dir={language === "ar" ? "rtl" : "ltr"}
                   {...register("stockName", {
                     required: language === "ar" ? "اسم السهم مطلوب" : "Stock name is required",
@@ -260,9 +262,8 @@ const Page = () => {
                 <input
                   id="newsTitle"
                   placeholder={language === "ar" ? "أدخل عنوان الخبر" : "Enter News Title"}
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${
-                    errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
-                  } ${language === "ar" ? "text-right" : "text-left"}`}
+                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
+                    } ${language === "ar" ? "text-right" : "text-left"}`}
                   dir={language === "ar" ? "rtl" : "ltr"}
                   {...register("newsTitle", {
                     required: language === "ar" ? "عنوان الخبر مطلوب" : "News title is required",
@@ -274,7 +275,7 @@ const Page = () => {
                           : "Title must be at least 3 characters long",
                     },
                     maxLength: {
-                      value: 100,
+                      value: 200,
                       message:
                         language === "ar"
                           ? "يجب أن يكون العنوان أقل من 100 حرف"
@@ -361,8 +362,8 @@ const Page = () => {
                 ) : (
                   <div className="border-2 border-dashed border-gray-300 rounded-md p-12 text-center">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <div className="h-12 w-12 text-gray-400">
-                        <Upload className="mx-auto h-12 w-12" />
+                      <div className="h-12 w-12 cursor-pointer text-gray-400">
+                        <Upload className="mx-auto h-12 w-12" onClick={triggerFileInput} />
                       </div>
                       <div className="flex text-sm text-gray-500">
                         <label htmlFor="file-upload" className="relative cursor-pointer">
@@ -376,6 +377,7 @@ const Page = () => {
                             className="sr-only"
                             accept="image/jpeg,image/png,image/jpg,image/webp"
                             onChange={handleImageUpload}
+                            ref={fileInputRef}
                           />
                         </label>
                       </div>
