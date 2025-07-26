@@ -1,18 +1,22 @@
+"use client"
+
 import React from 'react'
 import { Card, CardContent } from "@/components/ui/card"
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/ui/carousel"
 import Image from 'next/image'
 import { FaStar } from 'react-icons/fa'
 
+// Import Swiper React components
+import { Swiper, SwiperSlide } from 'swiper/react'
+
+// Import Swiper styles
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+
+// import required modules
+import { Pagination, Navigation } from 'swiper/modules'
 
 export default function Review() {
-
 
     const reviews = [
         {
@@ -71,64 +75,68 @@ export default function Review() {
         },
     ]
 
-
     return (
-        <section className='py-12 md:py-16 lg:py-20'>
-            <div className="container mx-auto">
-                <div className="pb-10">
-                    <h2 className='text-[40px] font-bold'>Our Client Reviews</h2>
+        <section className="py-12 md:py-16 lg:py-20">
+            <div className="container mx-auto px-4">
+                <div className="pb-10 text-center">
+                    <h2 className="text-3xl md:text-4xl font-bold">Our Client Reviews</h2>
                 </div>
-                <Carousel
-                    opts={{
-                        align: "start",
+
+                <Swiper
+                    slidesPerView={1}
+                    spaceBetween={20}
+                    pagination={{
+                        clickable: true,
                     }}
-                    className="w-full"
+                    breakpoints={{
+                        640: {
+                            slidesPerView: 2,
+                            spaceBetween: 20,
+                        },
+                        1024: {
+                            slidesPerView: 3,
+                            spaceBetween: 30,
+                        },
+                    }}
+                    modules={[Pagination, Navigation]}
+                    className="mySwiper"
                 >
-                    <CarouselContent>
-                        {reviews.map((review, index) => (
-                            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                                <div className="p-1">
-                                    <Card>
-                                        <CardContent className="p-6">
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex gap-3 items-center">
-                                                    <Image
-                                                        src={review.clientImage}
-                                                        alt={`${review.clientName}`}
-                                                        width={1000}
-                                                        height={1000}
-                                                        className='w-10 h-10 rounded-full'
-                                                    />
-                                                    <div className="">
-                                                        <h5>{review.clientName}</h5>
-                                                        <p>{review.role}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    {Array.from({ length: 5 }).map((_, starIndex) => {
-                                                        const isGolden = starIndex < review.stars;
-                                                        return (
-                                                            <FaStar
-                                                                key={starIndex}
-                                                                className={isGolden ? 'text-[#FF8A00]' : 'text-gray-300'}
-                                                            />
-                                                        );
-                                                    })}
-                                                </div>
+                    {reviews.map((review) => (
+                        <SwiperSlide key={review.id}>
+                            <Card className="h-full">
+                                <CardContent className="p-6 flex flex-col h-full">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex gap-3 items-center">
+                                            <Image
+                                                src={review.clientImage}
+                                                alt={review.clientName}
+                                                width={40}
+                                                height={40}
+                                                className="w-10 h-10 rounded-full"
+                                            />
+                                            <div>
+                                                <h5 className="font-semibold">{review.clientName}</h5>
+                                                <p className="text-sm text-gray-500">{review.role}</p>
                                             </div>
-                                            <div className="text-center mt-4 px-6 text-[16px] font-semibold">
-                                                <p>{review.comment}</p>
-                                                <p>{review.description}</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className='hidden lg:flex'/>
-                    <CarouselNext className='hidden lg:flex'/>
-                </Carousel>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            {Array.from({ length: 5 }).map((_, starIndex) => (
+                                                <FaStar
+                                                    key={starIndex}
+                                                    className={starIndex < review.stars ? 'text-[#FF8A00]' : 'text-gray-300'}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="text-center mt-4 px-2">
+                                        <p className="text-lg font-semibold mb-2">{review.comment}</p>
+                                        <p className="text-sm text-gray-600">{review.description}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
             </div>
         </section>
     )

@@ -22,6 +22,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 interface ApiFeature {
   name: string;
   active: boolean;
+  ar_name: string;
 }
 
 interface ApiFeatureGroup {
@@ -32,7 +33,9 @@ interface ApiFeatureGroup {
 interface ApiSubscriptionPlan {
   _id: string;
   title: string;
+  ar_title: string;
   description: string;
+  ar_description: string;
   monthly_price: number;
   yearly_price: number;
   features: ApiFeatureGroup[];
@@ -44,7 +47,9 @@ interface ApiSubscriptionPlan {
 interface SubscriptionPlan {
   id: string;
   title: string;
+  ar_title: string;
   description: string;
+  ar_description: string;
   price: number;
   features: {
     featuresType: string;
@@ -52,7 +57,7 @@ interface SubscriptionPlan {
   };
   duration: "monthly" | "yearly";
   allFeatures: ApiFeatureGroup[];
-  originalData: ApiSubscriptionPlan; // Store original API data
+  originalData: ApiSubscriptionPlan;
 }
 
 export default function SubscriptionPricing() {
@@ -65,7 +70,6 @@ export default function SubscriptionPricing() {
   const [error, setError] = useState<string | null>(null);
   const { dictionary, selectedLangCode } = useLanguage();
 
-  // Fetch subscription plans from API
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -78,14 +82,15 @@ export default function SubscriptionPricing() {
         }
         const data = await response.json();
         if (data.success && data.data) {
-          // Store original API data
           setOriginalApiData(data.data);
 
           const transformedPlans = data.data.map(
             (plan: ApiSubscriptionPlan) => ({
               id: plan._id,
               title: plan.title.toUpperCase(),
+              ar_title: plan.ar_title,
               description: plan.description,
+              ar_description: plan.ar_description,
               price: isAnnual ? plan.yearly_price : plan.monthly_price,
               features: {
                 featuresType: "CORE FEATURES",
@@ -99,7 +104,7 @@ export default function SubscriptionPricing() {
                 ? "yearly"
                 : ("monthly" as "monthly" | "yearly"),
               allFeatures: plan.features,
-              originalData: plan, // Store reference to original data
+              originalData: plan,
             })
           );
           setPlans(transformedPlans);
@@ -112,16 +117,17 @@ export default function SubscriptionPricing() {
       }
     };
     fetchPlans();
-  }, [isAnnual]); // Remove isAnnual dependency to avoid refetching
+  }, [isAnnual]);
 
-  // Update plans when billing cycle changes
   useEffect(() => {
     if (originalApiData.length > 0) {
       const updatedPlans = originalApiData.map((apiPlan) => ({
         id: apiPlan._id,
         title: apiPlan.title.toUpperCase(),
+        ar_title: apiPlan.ar_title,
         description: apiPlan.description,
-        price: isAnnual ? apiPlan.yearly_price : apiPlan.monthly_price, // Use actual API prices
+        ar_description: apiPlan.ar_description,
+        price: isAnnual ? apiPlan.yearly_price : apiPlan.monthly_price,
         features: {
           featuresType: "CORE FEATURES",
           type:
@@ -138,7 +144,6 @@ export default function SubscriptionPricing() {
     }
   }, [isAnnual, originalApiData]);
 
-  // Helper function to get features by type
   const getFeaturesByType = (plan: SubscriptionPlan, featureType: string) => {
     const featureGroup = plan.allFeatures?.find(
       (f) => f.featuresType.toLowerCase() === featureType.toLowerCase()
@@ -146,7 +151,6 @@ export default function SubscriptionPricing() {
     return featureGroup?.type || [];
   };
 
-  // Helper function to check if feature is active for plan
   const isFeatureActive = (plan: SubscriptionPlan, featureName: string) => {
     for (const featureGroup of plan.allFeatures || []) {
       const feature = featureGroup.type.find((f) => f.name === featureName);
@@ -196,21 +200,22 @@ export default function SubscriptionPricing() {
             ? dictionary.pricingDesc
             : dictionary.pricingDesc}
         </p>
-        <p className="text-sm text-gray-500 max-w-4xl mx-auto">
-          Every plan includes expert-grade tools, intelligent insights, and
-          powerful portfolio-building features.
+        <p className="text-sm text-gray-500 max-w-4xl mx-auto" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
+          {selectedLangCode === "en"
+            ? "Every plan includes expert-grade tools, intelligent insights, and powerful portfolio-building features."
+            : "تتضمن كل خطة أدوات احترافية، رؤى ذكية، وميزات قوية لبناء المحفظة الاستثمارية."}
         </p>
       </div>
 
       <div className="flex items-center justify-center mb-6 lg:mb-20">
         <span
-          className={`mr-3 text-xs lg:text-sm font-medium ${
-            !isAnnual ? "text-gray-900" : "text-gray-500"
-          }`}
+          className={`mr-3 text-xs lg:text-sm font-medium ${!isAnnual ? "text-gray-900" : "text-gray-500"
+            }`}
+          dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
         >
           {selectedLangCode === "en"
             ? dictionary.monthlyBilling
-            : dictionary.monthlyBilling}
+            : "الدفع الشهري"}
         </span>
         <Switch
           checked={isAnnual}
@@ -218,13 +223,14 @@ export default function SubscriptionPricing() {
           className="mx-2 data-[state=checked]:bg-[#493EF9]"
         />
         <span
-          className={`ml-3 text-xs lg:text-sm font-medium ${
-            isAnnual ? "text-gray-900" : "text-gray-500"
-          }`}
+          className={`ml-3 text-xs lg:text-sm font-medium ${isAnnual ? "text-gray-900" : "text-gray-500"
+            }`}
+          dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+
         >
           {selectedLangCode === "en"
             ? dictionary.annualBilling
-            : dictionary.annualBilling}
+            : " اشتراك سنوي مع خصم %15"}
         </span>
       </div>
 
@@ -232,51 +238,58 @@ export default function SubscriptionPricing() {
         {plans.map((plan) => (
           <Card
             key={plan.id}
-            className={`relative ${
-              plan.title === "PREMIUM"
-                ? "border-2 border-blue-500 shadow-xl lg:scale-105"
-                : plan.title === "ULTIMATE"
+            className={`relative ${plan.title === "PREMIUM"
+              ? "border-2 border-blue-500 shadow-xl lg:scale-105"
+              : plan.title === "ULTIMATE"
                 ? "border-2 border-green-500 shadow-lg"
                 : "border border-gray-200"
-            }`}
+              }`}
+            dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
           >
             {plan.title === "PREMIUM" && (
-              <div className="absolute -top-4 left-1/2 transform w-full -translate-x-1/2 flex gap-2 justify-center">
+              <div className="absolute -top-4 left-1/2 transform w-full -translate-x-1/2 flex gap-2 justify-center" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
                 <Badge className="bg-[linear-gradient(90deg,_#3773F8_25%,_#4F46E5_100%)] text-white py-1 lg:py-2 px-2 lg:px-6 md:px-2">
-                  MOST POPULAR
+                  {selectedLangCode === "en" ? "MOST POPULAR" : "الأكثر شعبية"}
                 </Badge>
                 <IoTriangleSharp className="h-8 w-8 text-[#4F46E5]" />
-                <Badge className="bg-[linear-gradient(90deg,_#3773F8_25%,_#4F46E5_100%)] text-white flex gap-2 lg:py-2 py-1 px-2 lg:px-6 md:px-2">
+                <Badge className="bg-[linear-gradient(90deg,_#3773F8_25%,_#4F46E5_100%)] text-white flex gap-2 lg:py-2 py-1 px-2 lg:px-6 md:px-2" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
                   <Star fill="yellow" className="text-[yellow] h-4 w-4" />{" "}
-                  Recommended
+                  {selectedLangCode === "en" ? "Recommended" : "موصى به"}
                 </Badge>
               </div>
             )}
             {plan.title === "ULTIMATE" && (
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-green-500 text-white">🏆 All Access</Badge>
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
+                <Badge className="bg-green-500 text-white">
+                  {selectedLangCode === "en" ? "🏆 All Access" : "🏆 وصول كامل"}
+                </Badge>
               </div>
             )}
 
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-bold">{plan.title}</CardTitle>
-              <CardDescription className="text-sm text-gray-600 min-h-[3rem] flex items-center">
-                {plan.description}
+              <CardTitle className="text-2xl font-bold" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
+                {selectedLangCode === "en" ? plan.title : plan.ar_title}
+              </CardTitle>
+
+              <CardDescription className="text-sm text-gray-600 min-h-[3rem] flex items-center" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
+                {selectedLangCode === "en" ? plan.description : plan.ar_description}
               </CardDescription>
-              <div className="mt-4">
+              <div className="mt-4" dir={selectedLangCode === "ar" ? "rtl" : "ltr"}>
                 <div className="flex items-baseline justify-center">
                   <span className="text-4xl font-bold">${plan.price}</span>
                   <span className="text-gray-500 ml-1">
-                    /{isAnnual ? "year" : "month"}
+                    /{isAnnual ? (selectedLangCode === "en" ? "year" : "سنة") : (selectedLangCode === "en" ? "month" : "شهر")}
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  billed {isAnnual ? "annually" : "monthly"}
+                  {selectedLangCode === "en" ? `${isAnnual ? "Billed Annually" : "Billed Monthly"}` : `${isAnnual ? "يُدفع سنويًا" : "يُحاسب شهريًا"}`}
                 </p>
               </div>
               {plan.title === "FREE" && (
                 <p className="text-sm text-gray-600 mt-2">
-                  No credit card required
+                  {selectedLangCode === "en"
+                    ? "No credit card required"
+                    : "لا حاجة لبطاقة ائتمان"}
                 </p>
               )}
             </CardHeader>
@@ -284,17 +297,18 @@ export default function SubscriptionPricing() {
             <CardContent className="space-y-6">
               {/* Core Features */}
               <div>
-                <h4 className="font-semibold text-sm text-gray-900 mb-3">
-                  CORE FEATURES
+                <h4 className="font-semibold text-sm text-gray-900 mb-3" dir={selectedLangCode === "en" ? "ltr" : "rtl"}>
+                  {selectedLangCode === "en" ? "CORE FEATURES" : "الميزات الأساسية"}
                 </h4>
-                <ul className="space-y-2">
+                <ul className={`space-y-2 ${selectedLangCode === "ar" ? "rtl" : "ltr"}`}>
                   {getFeaturesByType(plan, "core").map((feature) => (
                     <li
                       key={feature.name}
-                      className="flex items-center text-sm"
+                      className={`flex items-center text-sm ${selectedLangCode === "ar" && "gap-2"}`}
+                      dir={selectedLangCode === "en" ? "ltr" : "rtl"}
                     >
                       <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                      <span>{feature.name}</span>
+                      <span dir={selectedLangCode === "en" ? "ltr" : "rtl"}>{selectedLangCode === "en" ? feature.name : feature.ar_name}</span>
                     </li>
                   ))}
                 </ul>
@@ -303,29 +317,30 @@ export default function SubscriptionPricing() {
               {/* Premium Features */}
               <div>
                 <h4
-                  className={`font-semibold text-sm mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md ${
-                    plan.title === "PREMIUM" || plan.title === "ULTIMATE"
-                      ? "text-blue-600"
-                      : "text-blue-400"
-                  }`}
+                  className={`font-semibold text-sm mb-3 bg-[#EEF2FF] px-4 py-2 rounded-md ${plan.title === "PREMIUM" || plan.title === "ULTIMATE"
+                    ? "text-blue-600"
+                    : "text-blue-400"
+                    }`}
+                  dir={selectedLangCode === "en" ? "ltr" : "rtl"}
                 >
-                  PREMIUM FEATURES
+                  {selectedLangCode === "en" ? "PREMIUM FEATURES" : "الميزات المميزة"}
                 </h4>
-                <ul className="space-y-2">
+                <ul className="space-y-2" dir={selectedLangCode === "en" ? "ltr" : "rtl"}>
                   {getFeaturesByType(plan, "premium").map((feature) => (
                     <li
                       key={feature.name}
-                      className="flex items-center text-sm"
+                      className={`flex items-center text-sm ${selectedLangCode === "ar" && "gap-2"}`}
+                      dir={selectedLangCode === "en" ? "ltr" : "rtl"}
                     >
                       {isFeatureActive(plan, feature.name) ? (
                         <>
                           <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          <span>{feature.name}</span>
+                          <span dir={selectedLangCode === "en" ? "ltr" : "rtl"}>{selectedLangCode === "en" ? feature.name : feature.ar_name}</span>
                         </>
                       ) : (
                         <>
                           <ImCross className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
-                          <span className="text-gray-400">{feature.name}</span>
+                          <span dir={selectedLangCode === "en" ? "ltr" : "rtl"} className="text-gray-400">{selectedLangCode === "en" ? feature.name : feature.ar_name}</span>
                         </>
                       )}
                     </li>
@@ -336,37 +351,41 @@ export default function SubscriptionPricing() {
               {/* Ultimate Features */}
               <div>
                 <h4
-                  className={`font-semibold text-sm mb-3 bg-[#EEF2FF] pl-4 py-2 rounded-md ${
-                    plan.title === "ULTIMATE"
-                      ? "text-green-600"
-                      : "text-green-400"
-                  }`}
+                  className={`font-semibold text-sm mb-3 bg-[#EEF2FF] px-4 py-2 rounded-md ${plan.title === "ULTIMATE"
+                    ? "text-green-600"
+                    : "text-green-400"
+                    }`}
+                  dir={selectedLangCode === "en" ? "ltr" : "rtl"}
                 >
                   {plan.title === "ULTIMATE"
-                    ? "👑 ULTIMATE FEATURES"
-                    : "ULTIMATE FEATURES"}
+                    ? selectedLangCode === "en"
+                      ? "👑 ULTIMATE FEATURES"
+                      : "👑 ميزات النخبة"
+                    : selectedLangCode === "en"
+                      ? "ULTIMATE FEATURES"
+                      : "ميزات النخبة"}
                 </h4>
-                <ul className="space-y-2">
+                <ul className="space-y-2" dir={selectedLangCode === "en" ? "ltr" : "rtl"}>
                   {getFeaturesByType(plan, "ultimate").map((feature) => (
                     <li
                       key={feature.name}
-                      className="flex items-center text-sm"
+                      className={`flex items-center text-sm ${selectedLangCode === "ar" && "gap-2"}`}
                     >
                       {isFeatureActive(plan, feature.name) ? (
                         <>
                           <FaCheckSquare className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          <span>{feature.name}</span>
+                          <span dir={selectedLangCode === "en" ? "ltr" : "rtl"}>{selectedLangCode === "en" ? feature.name : feature.ar_name}</span>
                           <Badge
                             variant="secondary"
                             className="ml-2 text-xs text-nowrap bg-green-100 text-green-800"
                           >
-                            Exclusive
+                            {selectedLangCode === "en" ? "Exclusive" : "حصري"}
                           </Badge>
                         </>
                       ) : (
                         <>
                           <ImCross className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
-                          <span className="text-gray-400">{feature.name}</span>
+                          <span dir={selectedLangCode === "en" ? "ltr" : "rtl"} className="text-gray-400">{selectedLangCode === "en" ? feature.name : feature.ar_name}</span>
                         </>
                       )}
                     </li>
@@ -376,32 +395,33 @@ export default function SubscriptionPricing() {
             </CardContent>
 
             <CardFooter className="pt-6">
-              <div className="w-full space-y-4">
+              <div className="w-full space-y-4" dir={selectedLangCode === "en" ? "ltr" : "rtl"}>
                 {plan.title === "FREE" ? (
                   <Button
                     disabled
                     className="w-full bg-gray-400 cursor-not-allowed"
                   >
-                    Current Plan
+                    {selectedLangCode === "en" ? "Current Plan" : "الخطة الحالية"}
                   </Button>
                 ) : (
                   <Link
-                    href={`/plan-upgrade?subscriptionId=${plan.id}&price=${
-                      plan.price
-                    }&duration=${isAnnual ? "yearly" : "monthly"}&planType=${
-                      plan.title
-                    }`}
+                    href={`/plan-upgrade?subscriptionId=${plan.id}&price=${plan.price
+                      }&duration=${isAnnual ? "yearly" : "monthly"}&planType=${plan.title
+                      }`}
                   >
                     <Button
-                      className={`w-full ${
-                        plan.title === "PREMIUM"
-                          ? "bg-blue-600 hover:bg-blue-700"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
+                      className={`w-full ${plan.title === "PREMIUM"
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : "bg-green-600 hover:bg-green-700"
+                        }`}
                     >
                       {plan.title === "PREMIUM"
-                        ? "Unlock Pro Insights →"
-                        : "Claim Your Elite Access →"}
+                        ? selectedLangCode === "en"
+                          ? "Unlock Pro Insights →"
+                          : "اطّلع على التحليلات الاحترافية →"
+                        : selectedLangCode === "en"
+                          ? "Claim Your Elite Access →"
+                          : "انضم إلى مستوى النخبة→"}
                     </Button>
                   </Link>
                 )}
