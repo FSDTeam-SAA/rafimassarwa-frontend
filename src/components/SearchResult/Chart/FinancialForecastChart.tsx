@@ -52,13 +52,22 @@ export default function FinancialForecastChart({
 
     const labels = data.labels;
     const pastPrices = data.pastPrices || [];
-    const forecast = data.forecast || {};
-
     const chartData = [];
 
     const forecastStartIndex = pastPrices.length;
+    const forecastMonths = labels.slice(forecastStartIndex);
 
-    // Step 1: Add past price data
+    const high = targetsData?.high
+      ? parseFloat(targetsData.high.toString())
+      : null;
+    const average = targetsData?.average
+      ? parseFloat(targetsData.average.toString())
+      : null;
+    const low = targetsData?.low
+      ? parseFloat(targetsData.low.toString())
+      : null;
+
+    // 1. Past data
     for (let i = 0; i < pastPrices.length; i++) {
       chartData.push({
         month: labels[i],
@@ -66,34 +75,24 @@ export default function FinancialForecastChart({
       });
     }
 
-    // Step 2: Add transition month (same as last known price but with forecast info)
-    if (
-      forecast.high &&
-      forecast.high.length > 0 &&
-      forecast.average &&
-      forecast.average.length > 0 &&
-      forecast.low &&
-      forecast.low.length > 0 &&
-      labels[forecastStartIndex]
-    ) {
+    // 2. Starting forecast point (same month as last price)
+    if (forecastMonths.length > 0) {
       chartData.push({
-        month: labels[forecastStartIndex],
-        forecast: true,
+        month: forecastMonths[0],
         price: pastPrices[pastPrices.length - 1],
-        high: parseFloat(forecast.high[0].toString()),
-        average: parseFloat(forecast.average[0].toString()),
-        low: parseFloat(forecast.low[0].toString()),
+        high,
+        average,
+        low,
       });
     }
 
-    // Step 3: Add remaining forecast months
-    for (let i = 1; i < (forecast.high?.length ?? 0); i++) {
+    // 3. Extend forecast lines forward using same values
+    for (let i = 1; i < forecastMonths.length; i++) {
       chartData.push({
-        month: labels[forecastStartIndex + i],
-        forecast: true,
-        high: parseFloat(forecast.high![i].toString()),
-        average: parseFloat(forecast.average![i].toString()),
-        low: parseFloat(forecast.low![i].toString()),
+        month: forecastMonths[i],
+        high,
+        average,
+        low,
       });
     }
 
@@ -124,99 +123,103 @@ export default function FinancialForecastChart({
         </div>
       </CardHeader>
       <CardContent className="pr-0">
-        <div className="flex w-full">
-          {/* Chart container - takes 100% width */}
-          <div className="h-[200px] flex-1">
-            <ChartContainer
-              config={{
-                price: {
-                  label: "Price",
-                  color: "hsl(var(--chart-1))",
-                },
-                high: {
-                  label: "High",
-                  color: "hsl(142, 76%, 36%)",
-                },
-                average: {
-                  label: "Average",
-                  color: "hsl(0, 0%, 60%)",
-                },
-                low: {
-                  label: "Low",
-                  color: "hsl(0, 76%, 50%)",
-                },
-              }}
-              className="h-full w-full"
-            >
-              <ResponsiveContainer>
-                <LineChart
-                  data={chartData}
-                  margin={{ top: 20, right: 0, bottom: 20, left: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => value} // Just show the raw "Jul", "Aug", etc.
-                    tick={{ fontSize: 12 }}
-                    interval={0} // ✅ This forces showing all labels
-                  />
-                  <YAxis
-                    domain={[0, 550]}
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(value) => `$${value}`}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent formatter={(value) => `$${value}`} />
-                    }
-                  />
+        <div className="flex justify-between w-full">
+          <div className="flex items-center">
+            {/* Chart container - takes 100% width */}
+            <div className="h-[200px] lg:w-[70%]">
+              <ChartContainer
+                config={{
+                  price: {
+                    label: "Price",
+                    color: "hsl(var(--chart-1))",
+                  },
+                  high: {
+                    label: "High",
+                    color: "hsl(142, 76%, 36%)",
+                  },
+                  average: {
+                    label: "Average",
+                    color: "hsl(0, 0%, 60%)",
+                  },
+                  low: {
+                    label: "Low",
+                    color: "hsl(0, 76%, 50%)",
+                  },
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer>
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 20, right: 0, bottom: 20, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => value} // Just show the raw "Jul", "Aug", etc.
+                      tick={{ fontSize: 12 }}
+                      interval={0} // ✅ This forces showing all labels
+                    />
+                    <YAxis
+                      domain={[0, 550]}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `$${value}`}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          formatter={(value) => `$${value}`}
+                        />
+                      }
+                    />
 
-                  {/* Historical price line */}
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke="#0666a7"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: "white" }}
-                    activeDot={{ r: 5 }}
-                    connectNulls={true}
-                  />
+                    {/* Historical price line */}
+                    <Line
+                      type="monotone"
+                      dataKey="price"
+                      stroke="#0666a7"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: "white" }}
+                      activeDot={{ r: 5 }}
+                      connectNulls={true}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
 
-                  {/* Forecast lines */}
-                  <Line
-                    type="monotone"
-                    dataKey="high"
-                    stroke="var(--color-high)"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                    connectNulls={true}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="average"
-                    stroke="var(--color-average)"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                    connectNulls={true}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="low"
-                    stroke="var(--color-low)"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                    connectNulls={true}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            <div className="lg:w-[30%]">
+              <svg
+                width="230"
+                height="168"
+                viewBox="0 0 230 168"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1 82.6953L435.922 190"
+                  stroke="#FF5733"
+                  stroke-width="2"
+                  stroke-dasharray="6 2"
+                />
+                <path
+                  d="M1 82.6953L435.922 83"
+                  stroke="#828080"
+                  stroke-width="2"
+                  stroke-dasharray="6 2"
+                />
+                <path
+                  d="M1 82.6953L435.922 -17"
+                  stroke="#28A745"
+                  stroke-width="2"
+                  stroke-dasharray="6 2"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Price target cards - positioned as a separate column */}
