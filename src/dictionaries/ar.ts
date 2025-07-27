@@ -1,4 +1,5 @@
 export const arLangs = {
+  // --- Existing Content ---
   heroTitle: " المعرفة هي رأس المال الحقيقي للمستثمر الذكي",
   heroDesc:
     "تحليلات مدعومة بالذكاء الاصطناعي وبيانات لحظية لاستثمار أكثر وعيًا",
@@ -43,6 +44,28 @@ export const arLangs = {
   searchStocks: "ابحث عن الأسهم...",
   login: "تسجيل الدخول",
 
+  // Watchlist related terms from the image translation table
+  myWatchList: "قائمة متابعتي", // Correcting the label mentioned in the image
+  company: "الشركة",
+  sector: "القطاع",
+  stockRating: "تقييم السهم",
+  analystPriceTarget: "السعر المستهدف من المحللين",
+  ratingsInLast72Days: "تقييمات آخر 72 يومًا",
+  monthPercent: "نسبة التغير التنموي",
+  marketCap: "القيمة السوقية",
+  action: "إجراء",
+  buy: "شراء",
+  hold: "احتفاظ",
+  sell: "بيع",
+  setUpEmailAlerts: "إعداد تسهلات البريد الإلكتروني",
+  selectStocksForEmailAlerts: "اختر الأسهم من قائمة المراقبة لتفعيل التسهلات",
+  emailAlertsLimit: "تسهلاتك مقتصرة على حد أقصى 30 سهمًا",
+  learnMore: "أعرف المزيد",
+  upgradeToPremium: "الترقية إلى الباقة المميزة",
+  receiveEmailAlertsFor30Stocks: "احصل على تسهلات بريد إلكتروني لغاية 30 سهمًا",
+  getAdvancedAccess: "تمتع بإمكانية الوصول لأدوات تحليل تفاعلية",
+  upgradeNow: "قم بالترقية الآن",
+
   trustedPartner: "شريكك الموثوق لفهم الأسواق بعمق",
   unlockPotential:
     "أطلق العنان لإمكانياتك الاستثمارية الكامنة من خلال منصتنا المعتمدة على البيانات",
@@ -76,14 +99,12 @@ export const arLangs = {
   dataBackedDecisions: "قرارات استثمارية قائمة على البيانات",
   realTimeTracking: "تتبع المحفظة في الوقت الفعلي",
   hiddenOpportunities: "اكتشف فرص استثمارية خفية",
-  upgradeNow: "افتح ميزات الوصول إلى تحليلات حصرية وبيانات مميزة",
 
   latestArticles: "أحدث المقالات",
   marketNews: "أخبار السوق",
   deepResearch: "تحليل متعمق لأسهم Olive Stocks",
 
   trendingStocks: "الأسهم الأكثر تداولا اليوم",
-  company: "الشركة",
   stockTicker: "رمز السهم",
   priceChange: "السعر والتغير",
   score: "التقييم",
@@ -91,6 +112,42 @@ export const arLangs = {
   topStocks: "أفضل الأسهم",
   ratingsBySector: "التقييم مقارنة بمتوسط القطاع",
   upsidePotential: "القيمة الصاعدة حاليًا",
-  price : "سعر",
+  price: "سعر",
   allTopStocks: "عرض القائمة الكاملة",
+  clientReview: "آراء العملاء",
+  customer: "عميل",
+  goodExperience: "تجربة ممتازة",
+
+  // Olive details page
+  strongFinancialHealth: "صحة مالية قوية",
+  poorFinancialHealth: "صحة مالية ضعيفة",
+  oliveGreen: "أخضر زيتوني (صحي وقوي)",
+  limeGreen: "أخضر ليموني (جيد نسبياً)",
+  yellow: "أصفر (ضعيف)",
+  orange: "برتقالي (تحذير)",
+  financialHealth: "الصحة المالية",
+  competitiveAdvantage: "الميزة التنافسية",
+  valuation: "تقييم السهم",
+  undervalued: "أقل من قيمته الحقيقية",
+  fairlyValued: "مسعّر بشكل عادل",
+  overvalued: "مبالغ في تقييمه",
+  target: "السعر المستهدف",
+  cashFlow: "التدفق النقدي",
+  day: "يوم",
+  week: "أسبوع",
+  month: "شهر",
+  year: "سنة",
+  fiveYear: "5 سنوات",
+  max: "الكل",
+  globalMarket: "السوق العالمية",
+  earningsHistory: "سجل الأرباح",
+  revenue: "الإيرادات",
+  eps: "ربحية السهم (EPS)",
+  earnings: "الأرباح",
+  showing20Periods: "عرض 20 فترة زمنية",
+  daysAgo: "قبل يومين",
+  smartScore: "التقييم الذكي",
+  ratingVsIndustryAvg: "التقييم مقارنة بمتوسط القطاع",
+  seeAllTopStocks: "عرض جميع الأسهم المميزة",
+  deepResearch2 : "تحليل معمّق"
 };

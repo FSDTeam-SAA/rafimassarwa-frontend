@@ -11,7 +11,7 @@ export default function StockDashboard() {
   const axiosInstance = useAxios();
   const [showAllTrending, setShowAllTrending] = useState(false);
   const [showAllTop, setShowAllTop] = useState(false);
-  const { dictionary } = useLanguage();
+  const { dictionary, selectedLangCode } = useLanguage();
 
   const {
     data: stocks,
@@ -78,7 +78,12 @@ export default function StockDashboard() {
           {/* Trending Stocks Card */}
           <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="p-4">
-              <h2 className="text-xl font-bold">{dictionary.trendingStocks}</h2>
+              <h2
+                dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+                className="text-xl font-bold"
+              >
+                {dictionary.trendingStocks}
+              </h2>
               <StockTrackingTable
                 trendingStocks={
                   showAllTrending ? trendingStocks : trendingStocks.slice(0, 5)
@@ -101,7 +106,7 @@ export default function StockDashboard() {
           {/* Top Stocks Card */}
           <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="p-4">
-              <h2 className="text-xl font-bold">{dictionary.topStocks}</h2>
+              <h2 dir={selectedLangCode === "ar" ? "rtl" : "ltr"} className="text-xl font-bold">{dictionary.topStocks}</h2>
               <TopStocksTable
                 topStocks={showAllTop ? topStocks : topStocks.slice(0, 5)}
               />

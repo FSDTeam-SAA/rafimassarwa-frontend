@@ -25,6 +25,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import WatchlistModal from "./WatchListModal";
 import { formatCompactCurrency } from "../../../../../utils/formatCompactCurrency";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type Stock = {
   symbol: string;
@@ -53,10 +54,16 @@ export default function WatchlistTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
 
+  const { dictionary, selectedLangCode } = useLanguage();
+
   // API calling
   const axiosInstance = useAxios();
 
-  const { data: qualityStock, refetch } = useQuery({
+  const {
+    data: qualityStock,
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["wathlist-stock"],
     queryFn: async () => {
       const res = await axiosInstance("/protfolio/watchlist");
@@ -87,7 +94,7 @@ export default function WatchlistTable() {
   const columns = useMemo(
     () => [
       columnHelper.accessor("symbol", {
-        header: "Company",
+        header: dictionary.company,
         cell: (info) => (
           <div>
             <Link
@@ -112,7 +119,7 @@ export default function WatchlistTable() {
         enableSorting: true,
       }),
       columnHelper.accessor("sector", {
-        header: "Sector",
+        header: dictionary.sector,
         cell: (info) => (
           <h1 className="text-center">{info.getValue() || "N/A"}</h1>
         ),
@@ -120,7 +127,7 @@ export default function WatchlistTable() {
       }),
       columnHelper.display({
         id: "stockRating",
-        header: "Stock Rating",
+        header: dictionary.stockRating,
         cell: (info) => (
           <div className="flex justify-center items-center">
             <svg
@@ -169,7 +176,7 @@ export default function WatchlistTable() {
         enableSorting: false,
       }),
       columnHelper.accessor("analystTarget", {
-        header: "Analyst Price Target",
+        header: dictionary.analystPriceTarget,
         cell: (info) => (
           <div className="text-center">
             <p className="text-green-500 font-medium">{info.getValue()}</p>
@@ -191,9 +198,8 @@ export default function WatchlistTable() {
       columnHelper.display({
         id: "ratingTrend",
         header: () => (
-          <div className="flex items-center">
-            <p>Ratings in Last</p>
-            <p className="ml-1">72 Days</p>
+          <div>
+            <p>{dictionary.ratingsInLast72Days}</p>
           </div>
         ),
         cell: (info) => {
@@ -209,15 +215,21 @@ export default function WatchlistTable() {
               <div className="flex flex-col text-xs">
                 <div className="flex items-center gap-1">
                   <div className="w-2 sm:w-3 h-2 sm:h-3 bg-green-500 rounded-sm"></div>
-                  <span>{buy} Buy</span>
+                  <span>
+                    {buy} {dictionary.buy}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 sm:w-3 h-2 sm:h-3 bg-yellow-400 rounded-sm"></div>
-                  <span>{hold} Hold</span>
+                  <span>
+                    {hold} {dictionary.hold}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 sm:w-3 h-2 sm:h-3 bg-red-500 rounded-sm"></div>
-                  <span>{sell} Sell</span>
+                  <span>
+                    {sell} {dictionary.sell}
+                  </span>
                 </div>
               </div>
             </div>
@@ -240,7 +252,7 @@ export default function WatchlistTable() {
         },
       }),
       columnHelper.accessor("oneMonthReturn", {
-        header: "Month %",
+        header: dictionary.monthPercent,
         cell: (info) => (
           <span
             className={`font-medium ${
@@ -264,13 +276,13 @@ export default function WatchlistTable() {
         },
       }),
       columnHelper.accessor("marketCap", {
-        header: "Market Cap",
+        header: dictionary.marketCap,
         cell: (info) => formatCompactCurrency(info.getValue()),
         enableSorting: true,
       }),
       columnHelper.display({
         id: "action",
-        header: "Action",
+        header: dictionary.action,
         cell: (info) => {
           const rowData = info.row.original;
           return (
@@ -285,7 +297,7 @@ export default function WatchlistTable() {
       }),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [dictionary]
   );
 
   const data = useMemo(() => qualityStock || [], [qualityStock]);
@@ -308,10 +320,9 @@ export default function WatchlistTable() {
   });
 
   // Handle loading state
-  if (!qualityStock) {
+  if (!qualityStock && isLoading) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-        <h2 className="text-xl sm:text-2xl font-medium mb-4">Watchlist</h2>
         <div className="flex items-center justify-center py-8">
           <div className="text-gray-500">Loading stocks...</div>
         </div>
@@ -342,8 +353,13 @@ export default function WatchlistTable() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl sm:text-2xl font-medium mb-4">My Watchlist</h2>
+      <div
+        dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+        className="flex justify-between items-center"
+      >
+        <h2 className="text-xl sm:text-2xl font-medium mb-4">
+          {dictionary.myWatchList}
+        </h2>
 
         <button
           onClick={() => setIsOpen(true)}
