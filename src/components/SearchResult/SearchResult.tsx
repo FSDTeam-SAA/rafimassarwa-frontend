@@ -14,12 +14,14 @@ import useAxios from "@/hooks/useAxios";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const SearchResult = () => {
   const [isActive, setIsActive] = useState("price");
   const [isActive2, setIsActive2] = useState("revenue");
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
+  const { dictionary } = useLanguage();
 
   const axiosInstance = useAxios();
 
@@ -102,10 +104,10 @@ const SearchResult = () => {
           <div className="w-full lg:w-1/2 shadow-md lg:p-16 rounded-xl relative overflow-hidden h-[500px] border">
             {/* Axis Labels */}
             <div className="absolute top-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
-              Strong Financial Health
+              {dictionary.strongFinancialHealth}
             </div>
             <div className="absolute bottom-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
-              Poor Financial Health
+              {dictionary.poorFinancialHealth}
             </div>
             <div className="absolute top-1/2 left-[-85px] lg:left-[-45px] -translate-y-1/2 text-sm text-gray-700 font-medium transform -rotate-90 origin-center text-center">
               Low Competitive Advantage
@@ -157,10 +159,10 @@ const SearchResult = () => {
             {/* Grid Items */}
             <div className="grid grid-cols-2 gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] lg:w-[50%]">
               {[
-                { title: "Lime Green", color: "bg-green-300" },
-                { title: "Olive Green", color: "bg-[#c7ffe5]" },
-                { title: "Orange", color: "#FFA500" },
-                { title: "Yellow", color: "bg-yellow-500" },
+                { title: dictionary.limeGreen, color: "bg-green-300" },
+                { title: dictionary.oliveGreen, color: "bg-[#c7ffe5]" },
+                { title: dictionary.orange, color: "#FFA500" },
+                { title: dictionary.yellow, color: "bg-yellow-500" },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -204,7 +206,7 @@ const SearchResult = () => {
               <div className=" lg:w-1/3 flex justify-end">
                 <Link href={`/deep-research/${query}`}>
                   <button className="bg-green-500 text-white font-semibold lg:px-3 lg:py-2 rounded-lg">
-                    Deep Research
+                    {dictionary.deepResearch2}
                   </button>
                 </Link>
               </div>
@@ -223,7 +225,7 @@ const SearchResult = () => {
 
                 <div className="relative group inline-block">
                   {/* Tooltip Trigger Icon */}
-                  <Link href={'/graphic-concept'}>
+                  <Link href={"/graphic-concept"}>
                     <div className="h-5 w-5 rounded-full bg-gray-500 text-white flex justify-center items-center cursor-pointer text-sm">
                       ?
                     </div>
@@ -349,7 +351,7 @@ const SearchResult = () => {
                   className="text-xs font-medium"
                   fill="#FFD700"
                 >
-                  Under Value
+                  {dictionary.undervalued}
                 </text>
 
                 {/* Fair Value Box */}
@@ -368,7 +370,7 @@ const SearchResult = () => {
                   className="text-xs font-medium"
                   fill="#28A745"
                 >
-                  Fair Value
+                  {dictionary.fairlyValued}
                 </text>
 
                 {/* Over Value Box */}
@@ -388,7 +390,7 @@ const SearchResult = () => {
                   className="text-xs font-medium"
                   fill="#FF5733"
                 >
-                  Over Value
+                  {dictionary.overvalued}
                 </text>
 
                 {/* Price indicators */}
@@ -500,7 +502,7 @@ const SearchResult = () => {
               }`}
               onClick={() => setIsActive("price")}
             >
-              Price
+              {dictionary.price}
             </button>
 
             <button
@@ -509,7 +511,7 @@ const SearchResult = () => {
               }`}
               onClick={() => setIsActive("target")}
             >
-              Target
+              {dictionary.target}
             </button>
 
             <button
@@ -518,7 +520,7 @@ const SearchResult = () => {
               }`}
               onClick={() => setIsActive("cashFlow")}
             >
-              Cash Flow
+              {dictionary.cashFlow}
             </button>
           </div>
         </div>
@@ -547,7 +549,7 @@ const SearchResult = () => {
               }`}
               onClick={() => setIsActive2("revenue")}
             >
-              Revenue
+              {dictionary.revenue}
             </button>
 
             <button
@@ -556,7 +558,7 @@ const SearchResult = () => {
               }`}
               onClick={() => setIsActive2("eps")}
             >
-              EPS
+              {dictionary.eps}
             </button>
 
             <button
@@ -565,7 +567,7 @@ const SearchResult = () => {
               }`}
               onClick={() => setIsActive2("earning")}
             >
-              Earning
+              {dictionary.earnings}
             </button>
           </div>
         </div>

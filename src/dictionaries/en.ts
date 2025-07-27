@@ -44,6 +44,29 @@ export const enLangs = {
   searchStocks: "Search stocks...",
   login: "Log in",
 
+  // Watchlist related terms from the image translation table
+  myWatchList: "My Watch List", // Note: This corrects the label mentioned in the image ('Olive Stocks Portfolio' was incorrect)
+  company: "Company",
+  sector: "Sector",
+  stockRating: "Stock Rating",
+  analystPriceTarget: "Analyst Price Target",
+  ratingsInLast72Days: "Ratings in Last 72 Days",
+  monthPercent: "Month %",
+  marketCap: "Market Cap",
+  action: "Action",
+  buy: "Buy",
+  hold: "Hold",
+  sell: "Sell",
+  setUpEmailAlerts: "Set Up Email Alerts",
+  selectStocksForEmailAlerts:
+    "Select Stocks from your watchlist for email alerts",
+  emailAlertsLimit: "Your account is limited to email alerts on 30 stocks",
+  learnMore: "Learn More",
+  upgradeToPremium: "Upgrade to Premium",
+  receiveEmailAlertsFor30Stocks: "Receive email alerts for up to 30 stocks",
+  getAdvancedAccess: "Get advanced access to interactive research tools",
+  upgradeNow: "Upgrade Now",
+
   // Hero Section
   oliveStocks: "Olive Stocks",
   trustedPartner: "Your Trusted Partner for Market Insights",
@@ -65,7 +88,7 @@ export const enLangs = {
     "We empower everyone with access to institutional-grade research and tools.",
 
   // Essential Services
-  essentialServices : "Essential Services",
+  essentialServices: "Essential Services",
   deepStockAnalysis: "Deep Stock Analysis",
   aiBackedData: "Research stocks with AI-backed data.",
   buildStrongPortfolio: "Build a Strong Portfolio",
@@ -85,7 +108,6 @@ export const enLangs = {
   dataBackedDecisions: "Data-Backed Investment Decisions",
   realTimeTracking: "Real-Time Portfolio Tracking",
   hiddenOpportunities: "Discover Hidden Investment Opportunities",
-  upgradeNow: "Upgrade Now",
 
   // Latest Articles Section
   latestArticles: "Latest Articles",
@@ -94,14 +116,49 @@ export const enLangs = {
 
   // Stock Tables
   trendingStocks: "Trending Stocks",
-  company: "Company",
   stockTicker: "Stock Ticker",
   priceChange: "Price & Change",
   score: "Score",
-  lastDays :"Rating in Last 30 Days",
+  lastDays: "Rating in Last 30 Days",
   topStocks: "Top Stocks",
   ratingsBySector: "Ratings vs Sector Avg.",
   upsidePotential: "Upside Potential",
-  price : "Price",
+  price: "Price",
   allTopStocks: "See All Top Stocks",
+  clientReview: "Our Client Reviews",
+  customer: "Customer",
+  goodExperience: "Good experience",
+
+  // Olive details page
+  strongFinancialHealth: "Strong Financial Health",
+  poorFinancialHealth: "Poor Financial Health",
+  oliveGreen: "Olive Green",
+  limeGreen: "Lime Green",
+  yellow: "Yellow",
+  orange: "Orange",
+  financialHealth: "Financial Health",
+  competitiveAdvantage: "Competitive Advantage",
+  valuation: "Valuation",
+  undervalued: "Under Value",
+  fairlyValued: "Fairly Value",
+  overvalued: "Over Value",
+  target: "Target",
+  cashFlow: "Cash Flow",
+  day: "Day",
+  week: "Week",
+  month: "Month",
+  year: "Year",
+  fiveYear: "5 Year",
+  max: "Max",
+  globalMarket: "Global Market",
+  earningsHistory: "Earnings History",
+  revenue: "Revenue",
+  eps: "EPS",
+  earnings: "Earnings",
+  showing20Periods: "Showing 20 periods",
+  daysAgo: "2d ago",
+  smartScore: "Smart Score",
+  ratingVsIndustryAvg: "Rating vs. Industry Avg.",
+  seeAllTopStocks: "See all top stocks",
+  deepResearch2 : "Deep Research"
 };

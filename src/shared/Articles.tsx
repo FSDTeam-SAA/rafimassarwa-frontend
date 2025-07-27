@@ -113,18 +113,18 @@ export default function Articles() {
     <section className="py-16 px-2 lg:px-0">
       <div className="container mx-auto">
         <div className="pb-4">
-          <h2 className="text-3xl font-semibold">
+          <h2 dir={selectedLangCode === "ar" ? "rtl" : "ltr"} className="text-3xl font-semibold">
             {dictionary.latestArticles}
           </h2>
         </div>
 
-        <Tabs defaultValue="allstocks">
+        <Tabs dir={selectedLangCode === "ar" ? "rtl" : "ltr"} defaultValue="allstocks">
           <TabsList className="bg-transparent mb-3 text-[16px]">
             {tabsData.map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+                
               >
                 {tab.title}
               </TabsTrigger>

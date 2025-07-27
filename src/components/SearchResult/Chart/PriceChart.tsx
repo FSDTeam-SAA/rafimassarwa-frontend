@@ -11,6 +11,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
 import { useSearchParams } from "next/navigation";
+import { useLanguage } from "@/providers/LanguageProvider";
 // import { YAxis } from "@/components/ui/media-chart/media-chart";
 
 const chartConfig = {
@@ -22,19 +23,21 @@ const chartConfig = {
 
 const PriceChart = () => {
   const [isActive, setIsActive] = useState("Day");
+  const { dictionary } = useLanguage();
 
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
 
-  const { data: priceData } = useQuery({
-    queryKey: ["price-chart-data"],
+  const { data: priceData, isLoading } = useQuery({
+    queryKey: ["price-chart-data", query, isActive],
     queryFn: async () => {
       const res = await axiosInstance(
-        `/stocks/stocks-overview?symbol=${query}`
+        `/stocks/stocks-overview?symbol=${query}&range=${isActive}`
       );
       return res.data?.data;
     },
+    enabled: !!query,
   });
 
   interface ChartDataItem {
@@ -62,7 +65,7 @@ const PriceChart = () => {
       case "Year":
         startTime = now - 365 * 24 * 60 * 60 * 1000; // 1 year
         break;
-      case "5 Year":
+      case "5Year":
         startTime = now - 5 * 365 * 24 * 60 * 60 * 1000; // 5 years
         break;
       case "Max":
@@ -111,7 +114,7 @@ const PriceChart = () => {
             }`}
             onClick={() => setIsActive("Day")}
           >
-            Day
+            {dictionary.day}
           </button>
 
           <button
@@ -120,7 +123,7 @@ const PriceChart = () => {
             }`}
             onClick={() => setIsActive("Week")}
           >
-            Week
+            {dictionary.week}
           </button>
 
           <button
@@ -129,7 +132,7 @@ const PriceChart = () => {
             }`}
             onClick={() => setIsActive("Month")}
           >
-            Month
+            {dictionary.month}
           </button>
 
           <button
@@ -138,14 +141,14 @@ const PriceChart = () => {
             }`}
             onClick={() => setIsActive("Year")}
           >
-            Year
+            {dictionary.year}
           </button>
 
           <button
             className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "5 Year" ? "bg-green-500 text-white" : ""
+              isActive === "5Year" ? "bg-green-500 text-white" : ""
             }`}
-            onClick={() => setIsActive("5 Year")}
+            onClick={() => setIsActive("5Year")}
           >
             5 Year
           </button>
@@ -156,98 +159,110 @@ const PriceChart = () => {
             }`}
             onClick={() => setIsActive("Max")}
           >
-            Max
+            {dictionary.max}
           </button>
         </div>
       </div>
 
       <div className="mt-5">
-        <Card>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="w-full h-[400px]">
-              <AreaChart
-                accessibilityLayer
-                data={getFilteredChartData(priceData?.chart || [], isActive)}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="time"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    switch (isActive) {
-                      case "Day":
-                        return date.toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        });
-                      case "Week":
-                        return date.toLocaleDateString("en-US", {
-                          weekday: "short",
-                        });
-                      case "Month":
-                        return date.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        });
-                      case "Year":
-                        return date.toLocaleDateString("en-US", {
-                          month: "short",
-                        });
-                      case "5 Year":
-                      case "Max":
-                        return date.toLocaleDateString("en-US", {
-                          year: "numeric",
-                        });
-                      default:
-                        return date.toLocaleDateString();
-                    }
+        {isLoading ? (
+          <div>
+            <h1 className="h-[400px] w-full flex flex-col justify-center items-center text-xl">
+              Loading...
+            </h1>
+          </div>
+        ) : (
+          <Card>
+            <CardContent>
+              <ChartContainer config={chartConfig} className="w-full h-[400px]">
+                <AreaChart
+                  accessibilityLayer
+                  data={getFilteredChartData(priceData?.chart || [], isActive)}
+                  margin={{
+                    left: 12,
+                    right: 12,
                   }}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={10}
-                  width={60}
-                  domain={([dataMin, dataMax]: [number, number]) => {
-                    if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1];
-                    const buffer = (dataMax - dataMin) * 0.1 || 1;
-                    return [
-                      Math.floor(dataMin - buffer),
-                      Math.ceil(dataMax + buffer),
-                    ];
-                  }}
-                  tickFormatter={(value) => {
-                    if (value >= 1_000_000_000)
-                      return (value / 1_000_000_000).toFixed(1) + "B";
-                    if (value >= 1_000_000)
-                      return (value / 1_000_000).toFixed(1) + "M";
-                    if (value >= 1_000) return (value / 1_000).toFixed(1) + "K";
-                    return value.toFixed(2);
-                  }}
-                />
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="time"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => {
+                      const date = new Date(value); // Assuming value is already ms
+                      switch (isActive) {
+                        case "Day":
+                          return date.toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          });
+                        case "Week":
+                          return date.toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          });
+                        case "Month":
+                          return date.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          });
+                        case "Year":
+                          return date.toLocaleDateString("en-US", {
+                            month: "short",
+                          });
+                        case "5Year":
+                        case "Max":
+                          return date.toLocaleDateString("en-US", {
+                            year: "numeric",
+                          });
+                        default:
+                          return date.toLocaleDateString();
+                      }
+                    }}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    width={60}
+                    domain={([dataMin, dataMax]: [number, number]) => {
+                      if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1];
+                      const buffer = (dataMax - dataMin) * 0.1 || 1;
+                      return [
+                        Math.floor(dataMin - buffer),
+                        Math.ceil(dataMax + buffer),
+                      ];
+                    }}
+                    tickFormatter={(value) => {
+                      if (value >= 1_000_000_000)
+                        return (value / 1_000_000_000).toFixed(1) + "B";
+                      if (value >= 1_000_000)
+                        return (value / 1_000_000).toFixed(1) + "M";
+                      if (value >= 1_000)
+                        return (value / 1_000).toFixed(1) + "K";
+                      return value.toFixed(2);
+                    }}
+                  />
 
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" hideLabel />}
-                />
-                <Area
-                  dataKey="price"
-                  type="linear"
-                  fill="green"
-                  fillOpacity={0.3}
-                  stroke="#139430"
-                />
-              </AreaChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="dot" hideLabel />}
+                  />
+                  <Area
+                    dataKey="price"
+                    type="linear"
+                    fill="green"
+                    fillOpacity={0.3}
+                    stroke="#139430"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

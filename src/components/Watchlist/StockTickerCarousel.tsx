@@ -10,6 +10,21 @@ import { useSocketContext } from "@/providers/SocketProvider";
 import Image from "next/image";
 
 export default function StockTickerCarousel() {
+  const staticStockNames = [
+    { name: "S&P 500" },
+    { name: "Dow 30" },
+    { name: "APPLE INC" },
+    { name: "Russell 2000" },
+    { name: "MICROSOFT CORP" },
+    { name: "TESLA INC" },
+    { name: "META PLATFORMS INC-CLASS A" },
+  ];
+
+  const getStockName = (name: string) => {
+    const match = staticStockNames.find((s) => s.name === name);
+    return match?.name || name;
+  };
+
   const { notifications } = useSocketContext();
   return (
     <div className="mx-auto container w-full lg:mt-20 mt-8">
@@ -26,7 +41,7 @@ export default function StockTickerCarousel() {
                   <div className="">
                     <div className="">
                       <div className="text-[12px] text-blue-600 font-semibold">
-                        {stock.name}
+                        {getStockName(stock.name)}
                       </div>
                       <div className="text-[12px] font-bold text-black">
                         {parseFloat(stock.currentPrice)?.toFixed(2)}
@@ -51,7 +66,7 @@ export default function StockTickerCarousel() {
                   <div className="h-10 w-20">
                     <Image
                       src="/images/svgTrack.svg"
-                      alt="svg iamge"
+                      alt="svg image"
                       width={200}
                       height={100}
                       className="object-cover"

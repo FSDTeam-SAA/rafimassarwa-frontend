@@ -10,6 +10,7 @@ import { CanvasRenderer } from "echarts/renderers";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
 import { useSearchParams } from "next/navigation";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 echarts.use([GridComponent, ScatterChart, CanvasRenderer, UniversalTransition]);
 
@@ -24,6 +25,7 @@ const EpsChart = () => {
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
+  const { dictionary } = useLanguage();
 
   const { data, isLoading } = useQuery({
     queryKey: ["earnings-surprise", query],
@@ -62,14 +64,20 @@ const EpsChart = () => {
       (item: EarningsSurprise) => `Q${item.quarter}`
     );
 
-    const yearLabels = filteredData.map((item: EarningsSurprise, index: number, arr: { year: any; }[]) => {
-      const current = item.year;
-      const prev = arr[index - 1]?.year;
-      return prev !== current ? `${current}` : "";
-    });
+    const yearLabels = filteredData.map(
+      (item: EarningsSurprise, index: number, arr: { year: any }[]) => {
+        const current = item.year;
+        const prev = arr[index - 1]?.year;
+        return prev !== current ? `${current}` : "";
+      }
+    );
 
-    const estimateData = filteredData.map((item: EarningsSurprise) => item.estimate);
-    const actualData = filteredData.map((item: EarningsSurprise) => item.actual);
+    const estimateData = filteredData.map(
+      (item: EarningsSurprise) => item.estimate
+    );
+    const actualData = filteredData.map(
+      (item: EarningsSurprise) => item.actual
+    );
 
     const option: EChartsOption = {
       tooltip: {
@@ -158,7 +166,7 @@ const EpsChart = () => {
   return (
     <div>
       <div>
-        <h1 className="text-xl font-medium">Earnings History</h1>
+        <h1 className="text-xl font-medium">{dictionary.earningsHistory}</h1>
         <p>Showing last {Math.min(data.length, MAX_POINTS)} periods</p>
       </div>
       <div ref={chartRef} style={{ height: "400px", width: "100%" }} />
