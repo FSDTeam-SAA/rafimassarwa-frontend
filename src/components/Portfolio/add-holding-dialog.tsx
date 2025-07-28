@@ -30,7 +30,7 @@ export default function AddToPortfolioDialog({ onDialogClose }: AddToPortfolioDi
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button className="bg-green-500 hover:bg-green-600 text-white">
-                    <Plus className="mr-2 h-4 w-4" /> Add Holding
+                    <Plus className="mr-2 h-4 w-4" /> Add Stock
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] md:max-w-lg lg:max-w-2xl p-4 pb-36">
