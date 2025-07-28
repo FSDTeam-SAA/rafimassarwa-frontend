@@ -75,7 +75,7 @@ export default function RecentActivity() {
                                             <p>6-Month Return</p>
                                             <span className={`text-xs ${recentActivity.sixMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.sixMonthReturn ? "▲" : "▼"}
-                                                {recentActivity.sixMonthReturn}%
+                                                {recentActivity?.sixMonthReturn?.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>
@@ -84,7 +84,7 @@ export default function RecentActivity() {
                                             <p>12-Month Return</p>
                                             <span className={`text-xs ${recentActivity.twelveMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.twelveMonthReturn ? "▲" : "▼"}
-                                                {recentActivity.twelveMonthReturn}%
+                                                {recentActivity?.twelveMonthReturn?.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>
@@ -93,7 +93,7 @@ export default function RecentActivity() {
                                             <p>YTD Return</p>
                                             <span className={`text-xs ${recentActivity.ytdReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.ytdReturn ? "▲" : "▼"}
-                                                {recentActivity.ytdReturn}%
+                                                {recentActivity?.ytdReturn?.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>
@@ -102,7 +102,7 @@ export default function RecentActivity() {
                                             <p>Total Return</p>
                                             <span className={`text-xs ${recentActivity.totalReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.totalReturn ? "▲" : "▼"}
-                                                {recentActivity.totalReturn}%
+                                                {recentActivity?.totalReturn?.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>

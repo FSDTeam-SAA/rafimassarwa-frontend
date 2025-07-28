@@ -586,7 +586,7 @@ export default function Navbar() {
               {/* Stock search bar - desktop only */}
               <div
                 dir={selectedLangCode === "ar" ? "ltr" : " ltr"}
-                className="hidden lg:block relative w-[200px] mx-4"
+                className="block relative w-[200px] mx-4"
                 ref={searchRef}
               >
                 <input
