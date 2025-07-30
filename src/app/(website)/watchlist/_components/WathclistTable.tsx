@@ -7,6 +7,7 @@ import {
   ChevronUp,
   ChevronDown,
   Trash,
+  Unlock,
 } from "lucide-react";
 import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
@@ -26,6 +27,15 @@ import { toast } from "sonner";
 import WatchlistModal from "./WatchListModal";
 import { formatCompactCurrency } from "../../../../../utils/formatCompactCurrency";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useUserPayment } from "@/components/context/paymentContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AlertDialogHeader } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 type Stock = {
   symbol: string;
@@ -53,7 +63,8 @@ const columnHelper = createColumnHelper<Stock>();
 export default function WatchlistTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
-
+  const { paymentType } = useUserPayment();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { dictionary, selectedLangCode } = useLanguage();
 
   // API calling
@@ -362,11 +373,47 @@ export default function WatchlistTable() {
         </h2>
 
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            if (paymentType === "free") {
+              return setShowUpgradeModal(true);
+            }
+            setIsOpen(true);
+          }}
           className="py-2 px-5 rounded-lg bg-green-500 text-white hover:bg-green-600"
         >
           + Add To Watchlist
         </button>
+
+        {/* Upgrade Modal */}
+        <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+          <DialogContent className="sm:max-w-[480px] p-6">
+            <AlertDialogHeader className="space-y-2">
+              <DialogTitle className="text-lg font-semibold">
+                Upgrade Required
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Our free plan does not allow you to access this page. <br />
+                Upgrade your plan to unlock this page.
+              </DialogDescription>
+            </AlertDialogHeader>
+
+            <div className="mt-4 flex flex-col items-center justify-center text-center">
+              <div className="w-20 h-20 rounded-full text-white bg-green-600 flex items-center justify-center mb-4">
+                <Unlock size={32} />
+              </div>
+              <p className="text-sm text-gray-600 max-w-xs">
+                To get access to full price targets and upside potential, please
+                upgrade your subscription. Manage your investments with more
+                flexibility.
+              </p>
+              <Link href="/explore-plan">
+                <Button className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition">
+                  Upgrade Plan
+                </Button>
+              </Link>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex"></div>
 
