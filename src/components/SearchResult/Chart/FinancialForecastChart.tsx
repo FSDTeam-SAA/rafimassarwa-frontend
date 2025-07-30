@@ -117,13 +117,13 @@ export default function FinancialForecastChart({
             </div>
           </div>
         </div>
-        <div className="flex justify-between px-24 pt-3 pb-2 text-sm text-gray-500 font-medium">
+        <div className="flex justify-between lg:px-24 pt-3 pb-2 text-sm text-gray-500 font-medium">
           <div>Past 12 Months</div>
           <div>12 Month Forecast</div>
         </div>
       </CardHeader>
-      <CardContent className="pr-0">
-        <div className="flex justify-between w-full">
+      <CardContent className="pr-0 pl-0 lg:pl-4 overflow-auto lg:overflow-hidden">
+        <div className="flex justify-between w-full h-[200px] lg:h-auto p-0 ">
           <div className="flex items-center">
             {/* Chart container - takes 100% width */}
             <div className="h-[200px] lg:w-[70%]">
@@ -223,20 +223,20 @@ export default function FinancialForecastChart({
           </div>
 
           {/* Price target cards - positioned as a separate column */}
-          <div className="flex flex-col justify-between gap-4 py-6 px-4">
-            <div className="text-right">
+          <div className="flex flex-col justify-between gap-4 lg:py-6 lg:px-4">
+            <div className="text-right w-[50px] lg:w-auto">
               <div className="text-gray-500 text-xs">High</div>
               <div className="font-semibold text-green-500 text-[10px]">
                 {targetsData?.high}
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-right w-[50px] lg:w-auto">
               <div className="text-gray-500 text-[10px]">Average</div>
               <div className="font-semibold text-[10px]">
                 {targetsData?.average}
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-right w-[50px] lg:w-auto">
               <div className="text-gray-500 text-xs">Low</div>
               <div className="font-semibold text-red-500 text-[10px]">
                 {targetsData?.low}
@@ -245,7 +245,7 @@ export default function FinancialForecastChart({
           </div>
         </div>
 
-        <div className="flex justify-between mt-6 px-6">
+        <div className="flex flex-col lg:flex-row items-center justify-between mt-6 px-6">
           <div className="text-center flex items-center gap-2">
             <div className="font-medium">Highest Price Target:</div>
             <div className="font-semibold text-green-500">
@@ -267,3 +267,5 @@ export default function FinancialForecastChart({
     </Card>
   );
 }
+
+
