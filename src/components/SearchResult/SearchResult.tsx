@@ -103,7 +103,7 @@ const SearchResult = () => {
           {/* Quadrant Section */}
           <div className="w-full lg:w-1/2 shadow-md lg:p-16 rounded-xl relative overflow-hidden h-[500px] border">
             {/* Axis Labels */}
-            <div className="absolute top-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
+            <div className="absolute top-[16px] left-1/2 -translate-x-1/2 text-center text-[12px] lg:text-sm text-gray-700 font-medium">
               {dictionary.strongFinancialHealth}
             </div>
             <div className="absolute bottom-[16px] left-1/2 -translate-x-1/2 text-center text-sm text-gray-700 font-medium">
@@ -138,7 +138,7 @@ const SearchResult = () => {
 
             {/* Dual-sided Horizontal Arrow */}
             <svg
-              className="absolute top-[53%] lg:top-1/2 left-7 lg:left-0 -translate-y-1/2 w-[83%] lg:w-[100%]"
+              className="absolute top-[50%] lg:top-1/2 left-7 lg:left-0 -translate-y-1/2 w-[83%] lg:w-[100%]"
               width="100%"
               height="20"
               viewBox="0 0 500 20"
@@ -166,7 +166,7 @@ const SearchResult = () => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className={`border px-2 py-5 lg:px-4 lg:py-10 rounded-lg text-center shadow-md ${
+                  className={`border px-2 py-5 lg:px-4 lg:py-10 rounded-lg text-center shadow-md h-40 lg:h-44 ${
                     stockData?.quadrant === item.title && item.color
                   }`}
                 >
@@ -188,8 +188,8 @@ const SearchResult = () => {
           {/* Results Section */}
           <div className="w-full lg:w-1/2 shadow-md p-6 rounded-xl border bg-white">
             <div className="flex gap-3 lg:gap-0 justify-between items-center mb-10">
-              <div className="flex items-center gap-4 lg:w-1/3">
-                <h1 className="text-xl font-bold mb-2 text-gray-800 truncate ">
+              <div className="flex items-center gap-1 lg:gap-4 lg:w-1/3">
+                <h1 className="lg:text-xl font-bold mb-2 text-gray-800 truncate ">
                   {stockData?.company}
                 </h1>
                 {stockData?.logo && (
@@ -198,14 +198,14 @@ const SearchResult = () => {
                     alt="Company Logo"
                     width={1000}
                     height={1000}
-                    className="h-[38px] w-[38px] rounded-full"
+                    className="lg:h-[38px] h-[25px] w-[25px] lg:w-[38px] rounded-full"
                   />
                 )}
               </div>
 
               <div className=" lg:w-1/3 flex justify-end">
                 <Link href={`/deep-research/${query}`}>
-                  <button className="bg-green-500 text-white font-semibold lg:px-3 lg:py-2 rounded-lg">
+                  <button className="bg-green-500 text-sm lg:text-lg text-white font-semibold py-1 px-1 lg:px-3 lg:py-2 rounded-lg">
                     {dictionary.deepResearch2}
                   </button>
                 </Link>
@@ -219,14 +219,15 @@ const SearchResult = () => {
                       : "/images/chadRed.png"
                   }
                   alt="Chad Logo"
-                  width={40}
-                  height={40}
+                  width={1000}
+                  height={1000}
+                  className="lg:h-[40px] lg:w-[40px] h-[30px] w-[30px]"
                 />
 
                 <div className="relative group inline-block">
                   {/* Tooltip Trigger Icon */}
                   <Link href={"/graphic-concept"}>
-                    <div className="h-5 w-5 rounded-full bg-gray-500 text-white flex justify-center items-center cursor-pointer text-sm">
+                    <div className="lg:h-5 lg:w-5 h-4 w-4 rounded-full bg-gray-500 text-white flex justify-center items-center cursor-pointer text-sm">
                       ?
                     </div>
                   </Link>
@@ -248,7 +249,7 @@ const SearchResult = () => {
                 viewBox="0 0 369 191"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="mx-auto h-[230px] w-[80%]"
+                className="mx-auto h-[130px] lg:h-[230px] w-[95%] lg:w-[80%]"
               >
                 <Link href={`/graphic-concept`}>
                   <rect
@@ -326,7 +327,7 @@ const SearchResult = () => {
                 viewBox="0 0 587 94"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-full h-[93px]"
+                className="w-full h-[50px] lg:h-[93px]"
               >
                 {/* Main curved path */}
                 <path
@@ -486,7 +487,7 @@ const SearchResult = () => {
       </div>
 
       {/* section 2 */}
-      <div className="w-full shadow-lg p-6 border rounded-xl bg-white mt-20">
+      <div className="w-full shadow-lg p-3 lg:p-6 border rounded-xl bg-white mt-20">
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-0 justify-between items-center border-b-2 border-[#737373] pb-2">
           <div>
             <h1 className=" text-3xl font-semibold">{stockData?.company}</h1>
