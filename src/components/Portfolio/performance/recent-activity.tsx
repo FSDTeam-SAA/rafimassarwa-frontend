@@ -66,7 +66,7 @@ export default function RecentActivity() {
                                             <p>1-Month Return</p>
                                             <span className={`text-xs ${recentActivity.oneMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.oneMonthReturn ? "▲" : "▼"}
-                                                {recentActivity.oneMonthReturn}%
+                                                {recentActivity?.oneMonthReturn == null ? "0.00" : recentActivity.oneMonthReturn.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>
@@ -75,7 +75,7 @@ export default function RecentActivity() {
                                             <p>6-Month Return</p>
                                             <span className={`text-xs ${recentActivity.sixMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.sixMonthReturn ? "▲" : "▼"}
-                                                {recentActivity?.sixMonthReturn?.toFixed(2)}%
+                                                {recentActivity?.sixMonthReturn == null ? "0.00" : recentActivity.sixMonthReturn.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>

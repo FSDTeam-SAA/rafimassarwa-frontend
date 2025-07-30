@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Pencil } from "lucide-react"
+import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Pencil, Unlock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button"
 import { usePortfolio } from "../context/portfolioContext"
 import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
 import { useTableReload } from "../context/table-reload-context"
+import { useUserPayment } from "../context/paymentContext"
 
 interface TransactionData {
   portfolioId: string
@@ -115,6 +116,7 @@ export default function PortfolioTable() {
 
 
   const { shouldReloadTable, setShouldReloadTable } = useTableReload();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
 
   // Fetch watchlist data
@@ -301,9 +303,16 @@ export default function PortfolioTable() {
     })
   }
 
+  const { paymentType } = useUserPayment()
+
   const handleWatchlistToggle = (symbol: string, isChecked: boolean) => {
+
     if (isChecked) {
-      addToWatchlist(symbol)
+      if (paymentType === "free") {
+        setShowUpgradeModal(true)
+      } else {
+        addToWatchlist(symbol)
+      }
     } else {
       removeFromWatchlist(symbol)
     }
@@ -702,6 +711,39 @@ export default function PortfolioTable() {
           onCheckedChange={(checked) => handleWatchlistToggle(item.symbol, checked)}
           className="data-[state=checked]:bg-green-500"
         />
+        <Dialog
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+        >
+          <DialogContent className="sm:max-w-[480px] p-6">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-lg font-semibold">
+                Upgrade Required
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Our free plan does not allow you to access this feature. <br />
+                Upgrade your plan to unlock.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-4 flex flex-col items-center justify-center text-center">
+              <div className="w-20 h-20 rounded-full text-white bg-green-600 flex items-center justify-center mb-4">
+                <Unlock size={32} />
+              </div>
+              <p className="text-sm text-gray-600 max-w-xs">
+                To get access, please upgrade your subscription. Manage your investments with more flexibility.
+              </p>
+              <Link href="/explore-plan">
+                <Button
+                  className="border rounded-md px-4 py-2 bg-green-600 hover:bg-green-600 mt-5 transition"
+                  onClick={() => setShowUpgradeModal(false)}
+                >
+                  Upgrade Plan
+                </Button>
+              </Link>
+            </div>
+          </DialogContent>
+        </Dialog>
       </TableCell>
 
       <TableCell className="w-[100px] text-center">
