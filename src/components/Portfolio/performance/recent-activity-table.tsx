@@ -87,7 +87,7 @@ export default function RecentActivityTable() {
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className='text-center text-sm'>{transaction.portfolioPercentage || 'N/A'}</TableCell>
+                                        <TableCell className='text-center text-sm'>{typeof transaction.portfolioPercentage === "number" ? transaction.portfolioPercentage.toFixed(2) : parseFloat(transaction.portfolioPercentage).toFixed(2) || 'N/A'}%</TableCell>
                                         <TableCell className='text-sm text-red-500'>
                                             <div className={`flex items-center justify-center gap-1 ${Number(transaction.monthlyGains) > 0 ? "text-green-500" : "text-red-500"}`}>
                                                 {Number(transaction.monthlyGains) > 0 ? <FiArrowUp /> : <FiArrowDown />}
