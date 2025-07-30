@@ -36,7 +36,6 @@ export function PerformanceMetrics({
 
                 <div className="flex justify-center items-center h-24 md:h-32 mb-6">
                     <span className={`text-3xl md:text-4xl font-bold ${isNegativeSuccessRate ? "text-red-500" : "text-green-500"}`}>
-                        {isNegativeSuccessRate && "-"}
                         {successRate}
                     </span>
                 </div>
