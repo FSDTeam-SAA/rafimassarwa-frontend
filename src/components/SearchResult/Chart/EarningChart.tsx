@@ -86,7 +86,7 @@ const EarningChart = () => {
             ?.map((item: EarningData, index: number) => (
               <TableBody key={index}>
                 <TableRow>
-                  <TableCell className="">REV</TableCell>
+                  <TableCell className="text-xs lg:text-sm">REV</TableCell>
                   <TableCell>
                     {item?.estimate}
                     <span className="text-xs text-muted-foreground">(est)</span>
@@ -107,7 +107,7 @@ const EarningChart = () => {
                 </TableRow>
 
                 <TableRow>
-                  <TableCell className="font-medium">EPS</TableCell>
+                  <TableCell className="text-xs lg:text-sm">EPS</TableCell>
                   <TableCell>
                     {item?.estimate}
                     <span className="text-xs text-muted-foreground">(est)</span>
