@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/carousel";
 import { useSocketContext } from "@/providers/SocketProvider";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function StockTickerCarousel() {
   const staticStockNames = [
@@ -20,12 +21,20 @@ export default function StockTickerCarousel() {
     { name: "META PLATFORMS INC-CLASS A" },
   ];
 
+  const linkedStocks = [
+    "APPLE INC",
+    "MICROSOFT CORP",
+    "TESLA INC",
+    "META PLATFORMS INC-CLASS A",
+  ];
+
   const getStockName = (name: string) => {
     const match = staticStockNames.find((s) => s.name === name);
     return match?.name || name;
   };
 
   const { notifications } = useSocketContext();
+
   return (
     <div className="mx-auto container w-full lg:mt-20 mt-8">
       <Carousel opts={{ align: "start" }} className="w-full">
@@ -35,27 +44,33 @@ export default function StockTickerCarousel() {
               key={index}
               className="basis-[220px] md:basis-[240px]"
             >
-              <div className="px-4 py-3">
+              <div className="px-4 py-3 hover:bg-gray-50 rounded-md transition">
                 <div className="flex items-center gap-4">
                   {/* Stock Info */}
-                  <div className="">
-                    <div className="">
-                      <div className="text-[12px] text-blue-600 font-semibold">
-                        {getStockName(stock.name)}
-                      </div>
-                      <div className="text-[12px] font-bold text-black">
-                        {parseFloat(stock.currentPrice)?.toFixed(2)}
-                      </div>
+                  <div>
+                    <div className="text-[12px] text-blue-600 font-semibold">
+                      {linkedStocks.includes(stock.name) ? (
+                        <Link
+                          href={`/search-result?q=${(stock.symbol)}`}
+                          className="hover:underline"
+                        >
+                          {getStockName(stock.name)}
+                        </Link>
+                      ) : (
+                        getStockName(stock.name)
+                      )}
+                    </div>
+                    <div className="text-[12px] font-bold text-black">
+                      {parseFloat(stock.currentPrice)?.toFixed(2)}
                     </div>
                     <div>
                       <span
-                        className={`text-xs font-medium text-green-500 ${
+                        className={`text-xs font-medium ${
                           parseFloat(stock.change) >= 0
                             ? "text-green-600"
                             : "text-red-600"
                         }`}
                       >
-                        {/* {stock.trend === "up" ? "+" : "-"} */}
                         {parseFloat(stock.change)?.toFixed(2)} (
                         {parseFloat(stock.percent)?.toFixed(2)}%)
                       </span>
@@ -78,7 +93,6 @@ export default function StockTickerCarousel() {
           ))}
         </CarouselContent>
 
-        {/* Custom styled controls */}
         <CarouselNext className="!right-0 !bg-white !shadow-md hover:!bg-gray-100 transition" />
       </Carousel>
       <hr />
