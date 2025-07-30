@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useState, useEffect } from "react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -12,7 +12,6 @@ import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
 import { useSearchParams } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
-// import { YAxis } from "@/components/ui/media-chart/media-chart";
 
 const chartConfig = {
   desktop: {
@@ -21,9 +20,27 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+interface ChartDataItem {
+  time: number;
+  close: number;
+  volume: number;
+}
+
 const PriceChart = () => {
   const [isActive, setIsActive] = useState("Day");
   const { dictionary } = useLanguage();
+  const [windowWidth, setWindowWidth] = useState(1024);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setWindowWidth(window.innerWidth);
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
+  const isMobile = windowWidth <= 640;
 
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
@@ -40,13 +57,7 @@ const PriceChart = () => {
     enabled: !!query,
   });
 
-  interface ChartDataItem {
-    time: number;
-    close: number;
-    volume: number;
-  }
-
-  const getFilteredChartData = (chartData: ChartDataItem[], period: string) => {
+  const getFilteredChartData = (chartData: ChartDataItem[] = [], period: string) => {
     if (!chartData || chartData.length === 0) return [];
 
     const now = Date.now();
@@ -54,211 +65,207 @@ const PriceChart = () => {
 
     switch (period) {
       case "Day":
-        startTime = now - 24 * 60 * 60 * 1000; // 1 day
+        startTime = now - 24 * 60 * 60 * 1000;
         break;
       case "Week":
-        startTime = now - 7 * 24 * 60 * 60 * 1000; // 1 week
+        startTime = now - 7 * 24 * 60 * 60 * 1000;
         break;
       case "Month":
-        startTime = now - 30 * 24 * 60 * 60 * 1000; // 1 month
+        startTime = now - 30 * 24 * 60 * 60 * 1000;
         break;
       case "Year":
-        startTime = now - 365 * 24 * 60 * 60 * 1000; // 1 year
+        startTime = now - 365 * 24 * 60 * 60 * 1000;
         break;
       case "5Year":
-        startTime = now - 5 * 365 * 24 * 60 * 60 * 1000; // 5 years
-        break;
-      case "Max":
-        startTime = 0; // Show all data
+        startTime = now - 5 * 365 * 24 * 60 * 60 * 1000;
         break;
       default:
-        startTime = now - 24 * 60 * 60 * 1000; // Default to 1 day
+        startTime = now - 24 * 60 * 60 * 1000;
     }
 
     return chartData
       .filter((item) => item.time >= startTime && !isNaN(item.close))
       .map((item) => ({
-        time: new Date(item.time).toLocaleDateString(),
-        price: parseFloat(item.close.toFixed(2)), // Ensure price is a number, fallback 0 if invalid
+        time: item.time,
+        price: parseFloat(item.close.toFixed(2)),
         volume: item.volume,
       }));
   };
 
+  const getXAxisTicks = (data: { time: number; price: number; volume: number }[] = []) => {
+    if (!data.length) return [];
+
+    const sampleCount = isActive === "Week" ? 5 : isActive === "5Year" ? 6 : null;
+    if (!sampleCount) return undefined;
+
+    const interval = Math.floor(data.length / sampleCount);
+    return data
+      .filter((_, index) => index % interval === 0)
+      .map((item) => item.time);
+  };
+
+  const formatTimeTick = (timestamp: number) => {
+    const date = new Date(timestamp);
+
+    switch (isActive) {
+      case "Day":
+        return date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+
+      case "Week":
+      case "Month":
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+
+      case "Year":
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+        });
+
+      case "5Year":
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+        });
+
+      default:
+        return date.toLocaleDateString();
+    }
+  };
+
   return (
-    <div>
-      <div className="flex space-x-2 sm:text-[32px] text-xl">
-        <span className="font-bold">
-          {priceData?.priceInfo?.currentPrice.toFixed(2)}
-        </span>
-        {typeof priceData?.priceInfo?.change === "number" &&
-          priceData.priceInfo.change !== 0 && (
-            <span
-              className={`font-semibold ${
-                priceData.priceInfo.change > 0
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              {priceData.priceInfo.change > 0 ? "+" : ""}
-              {priceData.priceInfo.change.toFixed(2)} (
-              {priceData.priceInfo.percentChange?.toFixed(2)}%)
-            </span>
-          )}
-      </div>
-
-      <div className=" mt-4 overflow-x-auto">
-        <div className="flex gap-2 w-max min-w-full px-2">
-          <button
-            className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "Day" ? "bg-green-500 text-white" : ""
-            }`}
-            onClick={() => setIsActive("Day")}
-          >
-            {dictionary.day}
-          </button>
-
-          <button
-            className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "Week" ? "bg-green-500 text-white" : ""
-            }`}
-            onClick={() => setIsActive("Week")}
-          >
-            {dictionary.week}
-          </button>
-
-          <button
-            className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "Month" ? "bg-green-500 text-white" : ""
-            }`}
-            onClick={() => setIsActive("Month")}
-          >
-            {dictionary.month}
-          </button>
-
-          <button
-            className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "Year" ? "bg-green-500 text-white" : ""
-            }`}
-            onClick={() => setIsActive("Year")}
-          >
-            {dictionary.year}
-          </button>
-
-          <button
-            className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "5Year" ? "bg-green-500 text-white" : ""
-            }`}
-            onClick={() => setIsActive("5Year")}
-          >
-            5 Year
-          </button>
-
-          <button
-            className={`rounded-full px-5 w-[120px] border border-green-500 py-2 text-green-500 font-semibold ${
-              isActive === "Max" ? "bg-green-500 text-white" : ""
-            }`}
-            onClick={() => setIsActive("Max")}
-          >
-            {dictionary.max}
-          </button>
+    <div className="px-2 sm:px-4">
+      {/* Price Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <div className="flex items-baseline gap-2 text-xl sm:text-2xl">
+          <span className="font-bold">
+            {priceData?.priceInfo?.currentPrice?.toFixed(2) || "0.00"}
+          </span>
+          {typeof priceData?.priceInfo?.change === "number" &&
+            priceData.priceInfo.change !== 0 && (
+              <span
+                className={`text-sm sm:text-base font-semibold ${
+                  priceData.priceInfo.change > 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {priceData.priceInfo.change > 0 ? "+" : ""}
+                {priceData.priceInfo.change.toFixed(2)} (
+                {priceData.priceInfo.percentChange?.toFixed(2)}%)
+              </span>
+            )}
         </div>
       </div>
 
+      {/* Time Period Buttons */}
+      <div className="mt-4 overflow-x-auto">
+        <div className="flex gap-2 w-max min-w-full pb-2">
+          {["Day", "Week", "Month", "Year", "5Year"].map((period) => {
+            const periodKeyMap: Record<string, keyof typeof dictionary> = {
+              Day: "day",
+              Week: "week",
+              Month: "month",
+              Year: "year",
+              "5Year": "fiveYear",
+            };
+            const dictKey = periodKeyMap[period] ?? period.toLowerCase();
+            return (
+              <button
+                key={period}
+                className={`rounded-full px-3 sm:px-4 w-[70px] sm:w-[90px] border border-green-500 py-1 text-green-500 font-semibold text-xs sm:text-sm ${
+                  isActive === period ? "bg-green-500 text-white" : ""
+                }`}
+                onClick={() => setIsActive(period)}
+              >
+                {period === "5Year"
+                  ? "5Y"
+                  : dictionary[dictKey] ?? period}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Chart Area */}
       <div className="mt-5">
         {isLoading ? (
-          <div>
-            <h1 className="h-[400px] w-full flex flex-col justify-center items-center text-xl">
-              Loading...
-            </h1>
+          <div className="h-[250px] sm:h-[350px] w-full flex flex-col justify-center items-center text-xl">
+            Loading...
           </div>
         ) : (
-          <Card>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="w-full h-[400px]">
-                <AreaChart
-                  accessibilityLayer
-                  data={getFilteredChartData(priceData?.chart || [], isActive)}
-                  margin={{
-                    left: 12,
-                    right: 12,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="time"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => {
-                      const date = new Date(value); // Assuming value is already ms
-                      switch (isActive) {
-                        case "Day":
-                          return date.toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          });
-                        case "Week":
-                          return date.toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          });
-                        case "Month":
-                          return date.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          });
-                        case "Year":
-                          return date.toLocaleDateString("en-US", {
-                            month: "short",
-                          });
-                        case "5Year":
-                        case "Max":
-                          return date.toLocaleDateString("en-US", {
-                            year: "numeric",
-                          });
-                        default:
-                          return date.toLocaleDateString();
-                      }
+          <Card className="w-full">
+            <CardContent className="p-2 sm:p-4">
+              <ChartContainer
+                config={chartConfig}
+                className="w-full h-[250px] sm:h-[350px] md:h-[400px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={getFilteredChartData(priceData?.chart, isActive)}
+                    margin={{
+                      top: 10,
+                      right: 10,
+                      left: isMobile ? 0 : 10,
+                      bottom: isMobile ? 0 : 10,
                     }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    width={60}
-                    domain={([dataMin, dataMax]: [number, number]) => {
-                      if (isNaN(dataMin) || isNaN(dataMax)) return [0, 1];
-                      const buffer = (dataMax - dataMin) * 0.1 || 1;
-                      return [
-                        Math.floor(dataMin - buffer),
-                        Math.ceil(dataMax + buffer),
-                      ];
-                    }}
-                    tickFormatter={(value) => {
-                      if (value >= 1_000_000_000)
-                        return (value / 1_000_000_000).toFixed(1) + "B";
-                      if (value >= 1_000_000)
-                        return (value / 1_000_000).toFixed(1) + "M";
-                      if (value >= 1_000)
-                        return (value / 1_000).toFixed(1) + "K";
-                      return value.toFixed(2);
-                    }}
-                  />
+                  >
+                    <CartesianGrid vertical={false} stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="time"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tickFormatter={formatTimeTick}
+                      ticks={getXAxisTicks(getFilteredChartData(priceData?.chart, isActive))}
+                      tick={{ fontSize: isMobile ? 10 : 12 }}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={10}
+                      width={isMobile ? 40 : 50}
+                      domain={["auto", "auto"]}
+                      tickFormatter={(value) => value.toFixed(2)}
+                      tick={{ fontSize: isMobile ? 10 : 12 }}
+                    />
 
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" hideLabel />}
-                  />
-                  <Area
-                    dataKey="price"
-                    type="linear"
-                    fill="green"
-                    fillOpacity={0.3}
-                    stroke="#139430"
-                  />
-                </AreaChart>
+                    <ChartTooltip
+                      cursor={{ stroke: "#ddd", strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="dot" hideLabel />}
+                      wrapperStyle={{ fontSize: isMobile ? "12px" : "14px" }}
+                      labelFormatter={(value) =>
+                        new Date(value).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      }
+                    />
+                    <Area
+                      dataKey="price"
+                      type="linear"
+                      fill="url(#colorPrice)"
+                      fillOpacity={0.2}
+                      stroke="#139430"
+                      strokeWidth={isMobile ? 1.5 : 2}
+                      activeDot={{ r: isMobile ? 4 : 6 }}
+                    />
+                    <defs>
+                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#139430" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#139430" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                  </AreaChart>
+                </ResponsiveContainer>
               </ChartContainer>
             </CardContent>
           </Card>
