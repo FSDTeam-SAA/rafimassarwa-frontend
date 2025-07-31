@@ -206,7 +206,7 @@ export default function FinancialDashboard() {
   }
 
   return (
-    <div className="w-[75vw] mt-16 border border-gray-100 p-4 rounded-lg shadow-lg">
+    <div className="lg:w-[75vw] mt-16 border border-gray-100 p-4 rounded-lg shadow-lg">
       <div className="grid md:grid-cols-2 gap-6">
         {/* Calendar Section */}
         <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
