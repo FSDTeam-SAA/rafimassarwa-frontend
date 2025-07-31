@@ -71,7 +71,7 @@ const MyPortfolio = () => {
   // If portfolio is empty
   if (portfolioData?.stocks?.length === 0) {
     return (
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center -ml-10">
         <div className="">
           <SocketProvider>
             <AddToPortfolio />

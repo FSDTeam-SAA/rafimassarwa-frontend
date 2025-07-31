@@ -164,7 +164,7 @@ export default function AddToPortfolio() {
     }
 
     return (
-        <section className="absolute top-0 lg:w-[80vw] w-screen bg-[#f0f7f0] h-screen flex justify-center items-center z-50"> {/* Added z-50 to ensure it's on top */}
+        <section className="absolute top-0 lg:w-[85vw] w-screen bg-[#f0f7f0] h-screen flex justify-center items-center z-50 "> {/* Added z-50 to ensure it's on top */}
             <div className="container mx-auto px-4">
                 <div className="mx-auto max-w-4xl text-center">
                     <h2 className="text-xl font-semibold text-red-500 md:text-xl lg:text-3xl mb-12">
