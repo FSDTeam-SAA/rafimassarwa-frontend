@@ -319,24 +319,29 @@ export default function Navbar() {
 
     // Logged out state - shows login button
     return (
-      <div className="flex items-center gap-3">
-        <Link href="/login" className="hidden lg:block flex-shrink-0">
-          <Button
-            className={cn(
-              "bg-green-500 hover:bg-green-600 transition-all duration-300 rounded-full",
-              "px-3 py-2 text-sm" // Fixed size
-            )}
-          >
-            <LogIn
-              className={cn("transition-all duration-300", "h-3 w-3 mr-1")} // Fixed size
-            />
-            <span
-              className={cn("transition-all duration-300", "hidden xl:inline")} // Fixed visibility
+      <div className="flex items-center gap-5 mr-3 ml-3">
+        <div>
+          <Link href="/login" className="hidden lg:block flex-shrink-0">
+            <Button
+              className={cn(
+                "bg-green-500 hover:bg-green-600 transition-all duration-300 rounded-full",
+                "px-3 py-2 text-sm" // Fixed size
+              )}
             >
-              {dictionary.login}
-            </span>
-          </Button>
-        </Link>
+              <LogIn
+                className={cn("transition-all duration-300", "h-3 w-3 mr-1")} // Fixed size
+              />
+              <span
+                className={cn(
+                  "transition-all duration-300",
+                  "hidden xl:inline"
+                )} // Fixed visibility
+              >
+                {dictionary.login}
+              </span>
+            </Button>
+          </Link>
+        </div>
 
         <div>
           <LanguageSwitcher />
@@ -388,7 +393,7 @@ export default function Navbar() {
           {userData?.data?.role === "admin" && (
             <Link href="/dashboard">
               <Button
-                className="w-full justify-start text-green-600 hover:text-green-600 hover:bg-green-50"
+                className="w-full justify-start bg-green-600 hover:bg-green-600 mb-3"
                 size="sm"
               >
                 <MdDashboard className="mr-2 h-4 w-4" />
@@ -420,10 +425,6 @@ export default function Navbar() {
             Log in
           </Button>
         </Link>
-
-        <div>
-          <LanguageSwitcher />
-        </div>
       </div>
     );
   };
@@ -559,7 +560,8 @@ export default function Navbar() {
                       Upgrade Required
                     </DialogTitle>
                     <DialogDescription className="text-sm text-muted-foreground">
-                      Our free plan does not allow you to access this page. <br />
+                      Our free plan does not allow you to access this page.{" "}
+                      <br />
                       Upgrade your plan to unlock this page.
                     </DialogDescription>
                   </DialogHeader>
@@ -569,7 +571,9 @@ export default function Navbar() {
                       <Unlock size={32} />
                     </div>
                     <p className="text-sm text-gray-600 max-w-xs">
-                      To get access, multiple portfolios, please upgrade your subscription. Manage your investments with more flexibility.
+                      To get access, multiple portfolios, please upgrade your
+                      subscription. Manage your investments with more
+                      flexibility.
                     </p>
                     <Link href="/explore-plan">
                       <Button
@@ -633,17 +637,22 @@ export default function Navbar() {
                                   (option) => (
                                     <div
                                       key={option}
-                                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${selectedFilter === option
-                                        ? "bg-green-50 text-green-600 font-semibold"
-                                        : ""
-                                        }`}
+                                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                        selectedFilter === option
+                                          ? "bg-green-50 text-green-600 font-semibold"
+                                          : ""
+                                      }`}
                                       onClick={() => {
                                         setSelectedFilter(option);
                                         setShowFilterOptions(false);
                                         // Optionally trigger filtering logic here
                                       }}
                                     >
-                                      {option === "oneOlive" ? "One Olive" : option === "twoOlive" ? "Two Olives" : "Tree Olive"}
+                                      {option === "oneOlive"
+                                        ? "One Olive"
+                                        : option === "twoOlive"
+                                        ? "Two Olives"
+                                        : "Tree Olive"}
                                     </div>
                                   )
                                 )}
@@ -707,10 +716,11 @@ export default function Navbar() {
                                   ${stock.price?.toFixed(2)}
                                 </p>
                                 <p
-                                  className={`text-xs font-medium ${stock.change >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                    }`}
+                                  className={`text-xs font-medium ${
+                                    stock.change >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
                                 >
                                   {stock.change >= 0 ? "+" : ""}
                                   {stock.change?.toFixed(2)} (
@@ -735,6 +745,10 @@ export default function Navbar() {
               {/* Render auth section (right side) */}
               {renderAuthSection()}
 
+              <div className="mr-3 ml-3 lg:hidden">
+                <LanguageSwitcher />
+              </div>
+
               {/* Mobile menu button - hidden on desktop */}
               <div className="lg:hidden">
                 <Sheet open={open} onOpenChange={setOpen}>
@@ -757,7 +771,9 @@ export default function Navbar() {
                           placeholder={dictionary.searchStocks}
                           value={searchQuery}
                           onChange={handleSearchChange}
-                          onFocus={() => searchQuery.length > 0 && setShowResults(true)}
+                          onFocus={() =>
+                            searchQuery.length > 0 && setShowResults(true)
+                          }
                           className="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                         />
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -793,24 +809,31 @@ export default function Navbar() {
                                   </Button>
                                   {showFilterOptions && (
                                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                      {["oneOlive", "twoOlive", "treeOlive"].map(
-                                        (option) => (
-                                          <div
-                                            key={option}
-                                            className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${selectedFilter === option
+                                      {[
+                                        "oneOlive",
+                                        "twoOlive",
+                                        "treeOlive",
+                                      ].map((option) => (
+                                        <div
+                                          key={option}
+                                          className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                            selectedFilter === option
                                               ? "bg-green-50 text-green-600 font-semibold"
                                               : ""
-                                              }`}
-                                            onClick={() => {
-                                              setSelectedFilter(option);
-                                              setShowFilterOptions(false);
-                                              // Optionally trigger filtering logic here
-                                            }}
-                                          >
-                                            {option === "oneOlive" ? "One Olive" : option === "twoOlive" ? "Two Olives" : "Tree Olive"}
-                                          </div>
-                                        )
-                                      )}
+                                          }`}
+                                          onClick={() => {
+                                            setSelectedFilter(option);
+                                            setShowFilterOptions(false);
+                                            // Optionally trigger filtering logic here
+                                          }}
+                                        >
+                                          {option === "oneOlive"
+                                            ? "One Olive"
+                                            : option === "twoOlive"
+                                            ? "Two Olives"
+                                            : "Tree Olive"}
+                                        </div>
+                                      ))}
                                     </div>
                                   )}
                                 </div>
@@ -871,10 +894,11 @@ export default function Navbar() {
                                         ${stock.price?.toFixed(2)}
                                       </p>
                                       <p
-                                        className={`text-xs font-medium ${stock.change >= 0
-                                          ? "text-green-600"
-                                          : "text-red-600"
-                                          }`}
+                                        className={`text-xs font-medium ${
+                                          stock.change >= 0
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                        }`}
                                       >
                                         {stock.change >= 0 ? "+" : ""}
                                         {stock.change?.toFixed(2)} (
@@ -888,17 +912,13 @@ export default function Navbar() {
                           ) : (
                             <div className="p-4 text-center text-gray-500">
                               <p>
-                                No results found for <strong>{searchQuery}</strong>
+                                No results found for{" "}
+                                <strong>{searchQuery}</strong>
                               </p>
                             </div>
                           )}
                         </div>
                       )}
-                    </div>
-
-                    {/* Add Language Switcher */}
-                    <div className="px-2 mb-4">
-                      <LanguageSwitcher />
                     </div>
 
                     <div className="flex flex-col space-y-4">
@@ -923,10 +943,11 @@ export default function Navbar() {
                                 setOpen(false); // ✅ close sidebar
                               }
                             }}
-                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${isActive
-                              ? "text-green-600 bg-green-50"
-                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                              }`}
+                            className={`flex items-center gap-3 px-2 py-2 text-base font-medium rounded-lg transition-colors ${
+                              isActive
+                                ? "text-green-600 bg-green-50"
+                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                            }`}
                           >
                             <Icon size={20} />
                             {link.name}
@@ -955,6 +976,3 @@ export default function Navbar() {
     </>
   );
 }
-
-
-
