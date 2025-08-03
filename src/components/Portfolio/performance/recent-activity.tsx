@@ -159,7 +159,7 @@ export default function RecentActivity() {
                                             <p>YTD Return</p>
                                             <span className={`text-xs ${portfolioDetails.ytdReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {portfolioDetails.ytdReturn ? "▲" : "▼"}
-                                                {portfolioDetails.ytdReturn}%
+                                                {portfolioDetails.ytdReturn?.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>
@@ -222,7 +222,7 @@ export default function RecentActivity() {
                                             <p>Gain</p>
                                             <span className={`text-xs ${mostProfitableTrade.gain > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {mostProfitableTrade.gain ? "▲" : "▼"}
-                                                {mostProfitableTrade.gain}%
+                                                {mostProfitableTrade.gain?.toFixed(2)}%
                                             </span>
                                         </div>
                                     </li>
