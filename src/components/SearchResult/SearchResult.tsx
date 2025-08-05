@@ -159,15 +159,27 @@ const SearchResult = () => {
             {/* Grid Items */}
             <div className="grid grid-cols-2 gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] lg:w-[50%]">
               {[
-                { title: dictionary.limeGreen, color: "bg-green-300" },
-                { title: dictionary.oliveGreen, color: "bg-[#c7ffe5]" },
-                { title: dictionary.orange, color: "#FFA500" },
-                { title: dictionary.yellow, color: "bg-yellow-500" },
+                {
+                  id: "Lime Green",
+                  title: dictionary.limeGreen,
+                  color: "bg-green-300",
+                },
+                {
+                  id: "Olive Green",
+                  title: dictionary.oliveGreen,
+                  color: "bg-[#c7ffe5]",
+                },
+                { id: "Orange", title: dictionary.orange, color: "#FFA500" },
+                {
+                  id: "Yellow",
+                  title: dictionary.yellow,
+                  color: "bg-yellow-500",
+                },
               ].map((item, i) => (
                 <div
                   key={i}
-                  className={`border px-2 py-5 lg:px-4 lg:py-10 rounded-lg text-center shadow-md h-40 lg:h-44 ${
-                    stockData?.quadrant === item.title && item.color
+                  className={`border px-2 py-5 lg:px-4 lg:py-10 rounded-lg text-center shadow-md h-40 lg:h-48 ${
+                    stockData?.quadrant === item.id && item.color
                   }`}
                 >
                   <Image
@@ -177,7 +189,7 @@ const SearchResult = () => {
                     height={60}
                     className="mx-auto"
                   />
-                  <h1 className="mt-4 text-lg font-semibold text-gray-800">
+                  <h1 className="mt-4 text-xs lg:text-lg font-semibold text-gray-800">
                     {item.title}
                   </h1>
                 </div>
