@@ -4,20 +4,20 @@ import Image from "next/image";
 import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { shortTimeAgo } from "../../utils/shortTimeAgo";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 interface StockNewsItem {
-  category: string;
-  datetime: number;
-  headline: string;
-  id: number;
-  image: string;
-  related: string;
+  _id: string;
+  newsTitle: string;
+  newsDescription: string;
+  newsImage: string;
+  views: number;
+  symbol: string;
   source: string;
-  summary: string;
-  url: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 interface DeepResearchItem {
@@ -43,7 +43,7 @@ export default function Articles() {
   const { data: stockNews } = useQuery({
     queryKey: ["stocks-news"],
     queryFn: async () => {
-      const res = await axiosInstance("/admin/news/market-news");
+      const res = await axiosInstance("/admin/news/all-news");
       return res.data.data as StockNewsItem[];
     },
   });
@@ -52,7 +52,7 @@ export default function Articles() {
     queryKey: ["related-stocks-news"],
     queryFn: async () => {
       const res = await axiosInstance(
-        `/admin/news/market-news?symbol=${relatedStockParams}`
+        `/admin/news/all-news?symbol=${relatedStockParams}`
       );
       return res.data.data as StockNewsItem[];
     },
@@ -113,19 +113,21 @@ export default function Articles() {
     <section className="py-16 px-2 lg:px-0">
       <div className="container mx-auto">
         <div className="pb-4">
-          <h2 dir={selectedLangCode === "ar" ? "rtl" : "ltr"} className="text-3xl font-semibold">
+          <h2
+            dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+            className="text-3xl font-semibold"
+          >
             {dictionary.latestArticles}
           </h2>
         </div>
 
-        <Tabs dir={selectedLangCode === "ar" ? "rtl" : "ltr"} defaultValue="allstocks">
+        <Tabs
+          dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+          defaultValue="allstocks"
+        >
           <TabsList className="bg-transparent mb-3 text-[16px]">
             {tabsData.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                
-              >
+              <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.title}
               </TabsTrigger>
             ))}
@@ -136,7 +138,39 @@ export default function Articles() {
               {tab.data && tab.data.length > 0 ? (
                 <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
                   {tab.value === "deep-research"
-                    ? (tab.data as DeepResearchItem[]).slice(0, 3).map((item) => (
+                    ? (tab.data as DeepResearchItem[])
+                        .slice(0, 3)
+                        .map((item) => (
+                          <Link key={item._id} href={`/news/${item?._id}`}>
+                            <div className="p-4 border rounded-2xl">
+                              <Image
+                                src={
+                                  item.newsImage ||
+                                  "/placeholder.svg?height=300&width=600"
+                                }
+                                alt={item.newsTitle}
+                                width={600}
+                                height={300}
+                                className="w-full h-[300px] object-cover rounded-lg"
+                              />
+                              <h5 className="font-medium text-[16px] text-[#595959] py-3">
+                                {item.source}
+                              </h5>
+                              <h2 className="text-lg font-medium pb-3 line-clamp-2">
+                                {item.newsTitle}
+                              </h2>
+                              <div className="flex justify-between items-center">
+                                <p className="font-normal text-[16px]">
+                                  {formatISODate(item.createdAt)}
+                                </p>
+                                <span className="uppercase text-base font-semibold px-5 py-1 border border-[#28A745] rounded-3xl">
+                                  {item.symbol}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        ))
+                    : (tab.data as StockNewsItem[]).slice(0, 6).map((item) => (
                         <Link key={item._id} href={`/news/${item?._id}`}>
                           <div className="p-4 border rounded-2xl">
                             <Image
@@ -161,33 +195,6 @@ export default function Articles() {
                               </p>
                               <span className="uppercase text-base font-semibold px-5 py-1 border border-[#28A745] rounded-3xl">
                                 {item.symbol}
-                              </span>
-                            </div>
-                          </div>
-                        </Link>
-                      ))
-                    : (tab.data as StockNewsItem[]).slice(60, 63).map((item) => (
-                        <Link key={item.id} href={item?.url}>
-                          <div className="p-4 border rounded-2xl">
-                            <Image
-                              src={item.image || "/images/news-placeholder.png"}
-                              alt={item.headline}
-                              width={600}
-                              height={300}
-                              className="w-full h-[300px] object-cover rounded-lg"
-                            />
-                            <h5 className="font-medium text-[16px] text-[#595959] py-3">
-                              {item.category}
-                            </h5>
-                            <h2 className="text-lg font-medium pb-3">
-                              {item.headline.slice(0, 75)}.....
-                            </h2>
-                            <div className="flex justify-between items-center">
-                              <p className="font-normal text-[16px]">
-                                {shortTimeAgo(item.datetime)}
-                              </p>
-                              <span className="uppercase text-base font-semibold px-5 py-1 border border-[#28A745] rounded-3xl">
-                                {item.source}
                               </span>
                             </div>
                           </div>

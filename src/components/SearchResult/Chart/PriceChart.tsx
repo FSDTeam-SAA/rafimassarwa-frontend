@@ -1,6 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+} from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -28,7 +35,7 @@ interface ChartDataItem {
 
 const PriceChart = () => {
   const [isActive, setIsActive] = useState("Day");
-  const { dictionary } = useLanguage();
+  const { dictionary, selectedLangCode } = useLanguage();
   const [windowWidth, setWindowWidth] = useState(1024);
 
   useEffect(() => {
@@ -57,7 +64,10 @@ const PriceChart = () => {
     enabled: !!query,
   });
 
-  const getFilteredChartData = (chartData: ChartDataItem[] = [], period: string) => {
+  const getFilteredChartData = (
+    chartData: ChartDataItem[] = [],
+    period: string
+  ) => {
     if (!chartData || chartData.length === 0) return [];
 
     const now = Date.now();
@@ -92,10 +102,13 @@ const PriceChart = () => {
       }));
   };
 
-  const getXAxisTicks = (data: { time: number; price: number; volume: number }[] = []) => {
+  const getXAxisTicks = (
+    data: { time: number; price: number; volume: number }[] = []
+  ) => {
     if (!data.length) return [];
 
-    const sampleCount = isActive === "Week" ? 5 : isActive === "5Year" ? 6 : null;
+    const sampleCount =
+      isActive === "Week" ? 5 : isActive === "5Year" ? 6 : null;
     if (!sampleCount) return undefined;
 
     const interval = Math.floor(data.length / sampleCount);
@@ -164,7 +177,10 @@ const PriceChart = () => {
 
       {/* Time Period Buttons */}
       <div className="mt-4 overflow-x-auto">
-        <div className="flex gap-2 w-max min-w-full pb-2">
+        <div
+          dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+          className="flex gap-2 w-max min-w-full pb-2"
+        >
           {["Day", "Week", "Month", "Year", "5Year"].map((period) => {
             const periodKeyMap: Record<string, keyof typeof dictionary> = {
               Day: "day",
@@ -183,7 +199,7 @@ const PriceChart = () => {
                 onClick={() => setIsActive(period)}
               >
                 {period === "5Year"
-                  ? "5Y"
+                  ? dictionary?.fiveYear
                   : dictionary[dictKey] ?? period}
               </button>
             );
@@ -221,7 +237,9 @@ const PriceChart = () => {
                       axisLine={false}
                       tickMargin={8}
                       tickFormatter={formatTimeTick}
-                      ticks={getXAxisTicks(getFilteredChartData(priceData?.chart, isActive))}
+                      ticks={getXAxisTicks(
+                        getFilteredChartData(priceData?.chart, isActive)
+                      )}
                       tick={{ fontSize: isMobile ? 10 : 12 }}
                     />
                     <YAxis
@@ -236,7 +254,9 @@ const PriceChart = () => {
 
                     <ChartTooltip
                       cursor={{ stroke: "#ddd", strokeWidth: 1 }}
-                      content={<ChartTooltipContent indicator="dot" hideLabel />}
+                      content={
+                        <ChartTooltipContent indicator="dot" hideLabel />
+                      }
                       wrapperStyle={{ fontSize: isMobile ? "12px" : "14px" }}
                       labelFormatter={(value) =>
                         new Date(value).toLocaleString("en-US", {
@@ -259,9 +279,23 @@ const PriceChart = () => {
                       activeDot={{ r: isMobile ? 4 : 6 }}
                     />
                     <defs>
-                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#139430" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#139430" stopOpacity={0} />
+                      <linearGradient
+                        id="colorPrice"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#139430"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#139430"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                   </AreaChart>
