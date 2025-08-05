@@ -11,7 +11,7 @@ export default function ProfileLayout({
   return (
     <>
       <SidebarProvider>
-        <div className="">
+        <div className="w-[425px] lg:w-auto">
           <SidebarTrigger className="lg:hidden mt-2 ml-1" />
           <div className="">
             <OverviewSidebar />
