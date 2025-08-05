@@ -353,15 +353,15 @@ const SearchResult = () => {
                 <rect
                   x="0.5"
                   y="1.33398"
-                  width="87"
+                  width="115"
                   height="23"
                   stroke="#C8C8C8"
                 />
                 <text
-                  x="44"
+                  x="55"
                   y="16"
                   textAnchor="middle"
-                  className="text-xs font-medium"
+                  className="text-xs font-medium border border-red-600"
                   fill="#FFD700"
                 >
                   {dictionary.undervalued}
