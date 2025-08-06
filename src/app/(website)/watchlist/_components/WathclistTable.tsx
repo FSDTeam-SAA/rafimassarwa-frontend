@@ -51,6 +51,7 @@ type Stock = {
   lastRatingDate: string;
   sector: string;
   logo: string;
+  currentPrice?: string; // Added to fix the error
   olives?: {
     valuation?: string;
     competitiveAdvantage?: string;
@@ -71,7 +72,7 @@ export default function WatchlistTable() {
   const axiosInstance = useAxios();
 
   const {
-    data: qualityStock,
+    data: qualityStock = [],
     refetch,
     isLoading,
   } = useQuery({
@@ -142,7 +143,7 @@ export default function WatchlistTable() {
         cell: (info) => (
           <div className="flex justify-center items-center">
             <svg
-              width="250"
+              width="150"
               height="100"
               viewBox="0 0 369 191"
               fill="none"
@@ -289,6 +290,11 @@ export default function WatchlistTable() {
       columnHelper.accessor("marketCap", {
         header: dictionary.marketCap,
         cell: (info) => formatCompactCurrency(info.getValue()),
+        enableSorting: true,
+      }),
+      columnHelper.accessor("currentPrice", {
+        header: "Price",
+        cell: (info) => info.getValue() || "N/A",
         enableSorting: true,
       }),
       columnHelper.display({

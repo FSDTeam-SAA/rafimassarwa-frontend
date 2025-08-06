@@ -44,6 +44,7 @@ type Stock = {
   lastRatingDate: string;
   sector: string;
   logo: string;
+  currentPrice: string;
   olives?: {
     valuation?: string;
     competitiveAdvantage?: string;
@@ -192,7 +193,7 @@ export default function Portfolio({ title }: { title: string }) {
         cell: (info) => (
           <div className="flex justify-center items-center">
             <svg
-              width="250"
+              width="150"
               height="100"
               viewBox="0 0 369 191"
               fill="none"
@@ -334,6 +335,11 @@ export default function Portfolio({ title }: { title: string }) {
       columnHelper.accessor("marketCap", {
         header: "Market Cap",
         cell: (info) => formatCompactCurrency(info.getValue()) || "N/A",
+        enableSorting: true,
+      }),
+      columnHelper.accessor("currentPrice", {
+        header: "Price",
+        cell: (info) => info.getValue() || "N/A",
         enableSorting: true,
       }),
       columnHelper.display({
