@@ -42,6 +42,7 @@ type Stock = {
   lastRatingDate: string;
   sector: string;
   logo: string;
+  currentPrice?: number | string; // Added property for table accessor
   olives?: {
     valuation?: string;
     competitiveAdvantage?: string;
@@ -209,7 +210,7 @@ export default function StockOfMonth() {
         cell: (info) => (
           <div className="flex justify-center items-center">
             <svg
-              width="250"
+              width="150"
               height="100"
               viewBox="0 0 369 191"
               fill="none"
@@ -351,6 +352,11 @@ export default function StockOfMonth() {
       columnHelper.accessor("marketCap", {
         header: "Market Cap",
         cell: (info) => formatCompactCurrency(info.getValue()),
+        enableSorting: true,
+      }),
+      columnHelper.accessor("currentPrice", {
+        header: "Price",
+        cell: (info) => info.getValue() || "N/A",
         enableSorting: true,
       }),
       columnHelper.display({
