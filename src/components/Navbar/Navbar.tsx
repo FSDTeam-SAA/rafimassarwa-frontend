@@ -342,10 +342,6 @@ export default function Navbar() {
             </Button>
           </Link>
         </div>
-
-        <div>
-          <LanguageSwitcher />
-        </div>
       </div>
     );
   };
