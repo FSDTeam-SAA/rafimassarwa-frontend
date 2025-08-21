@@ -342,6 +342,10 @@ export default function Navbar() {
             </Button>
           </Link>
         </div>
+
+        <div className="hidden lg:block">
+          <LanguageSwitcher />
+        </div>
       </div>
     );
   };
