@@ -160,7 +160,7 @@ const EpsChart = () => {
     };
   }, [data]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <div className="text-center text-lg h-[400px]">Loading...</div>;
   if (!data || data.length === 0) return <p>No data available.</p>;
 
   return (

@@ -30,6 +30,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const MAX_POINTS = 30;
+
 const RevenueChart = () => {
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
@@ -37,35 +39,52 @@ const RevenueChart = () => {
   const { dictionary } = useLanguage();
 
   const { data: revenueData, isLoading } = useQuery({
-    queryKey: ["revenue-data"],
+    queryKey: ["revenue-data", query],
     queryFn: async () => {
+      if (!query) return [];
       const res = await axiosInstance(
         `/stocks/stock/earnings-surprise?symbol=${query}`
       );
       return res.data;
     },
+    enabled: !!query,
   });
 
-  // Define the type for revenue data items
   interface RevenueDataItem {
-    period: string | number | Date;
+    period: string;
     estimate: number;
     actual: number;
+    quarter: number;
+    year: number;
   }
 
-  // Transform API data to chart format
-  const chartData =
+  // Filter and slice last MAX_POINTS
+  const filteredData: RevenueDataItem[] =
     revenueData
-      ?.slice(0, 20)
-      ?.map((item: RevenueDataItem) => ({
-        period: new Date(item.period).toLocaleDateString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
-        desktop: item.estimate, // Estimate data
-        mobile: item.actual, // Actual data
-      }))
-      .reverse() || [];
+      ?.filter(
+        (item: RevenueDataItem) =>
+          item.period && item.estimate != null && item.actual != null
+      )
+      ?.slice(0, MAX_POINTS)
+      ?.reverse() || [];
+
+  // Quarter labels
+  const quarterLabels = filteredData.map((item) => `Q${item.quarter}`);
+
+  // Year labels (only show when year changes)
+  const yearLabels = filteredData.map((item, index, arr) => {
+    const current = item.year;
+    const prev = arr[index - 1]?.year;
+    return prev !== current ? `${current}` : "";
+  });
+
+  // Chart data with quarter/year keys
+  const chartData = filteredData.map((item, i) => ({
+    quarter: quarterLabels[i],
+    year: yearLabels[i],
+    desktop: item.estimate,
+    mobile: item.actual,
+  }));
 
   return (
     <div className="">
@@ -80,19 +99,44 @@ const RevenueChart = () => {
           <ChartContainer className="w-full h-[400px]" config={chartConfig}>
             <BarChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
+
+              {/* Quarter labels (top) */}
               <XAxis
-                dataKey="period"
+                xAxisId="0"
+                dataKey="quarter"
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value}
+                height={30}
               />
+
+              {/* Year labels (bottom) */}
+              <XAxis
+                xAxisId="1"
+                dataKey="year"
+                tickLine={false}
+                axisLine={false}
+                height={20}
+                tick={{ fontSize: 12, fill: "#666" }}
+                orientation="bottom"
+              />
+
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dashed" />}
+                content={({ payload }) => {
+                  if (!payload || !payload.length) return null;
+                  return (
+                    <ChartTooltipContent
+                      indicator="dashed"
+                      title={`${payload[0].payload.quarter} ${payload[0].payload.year}`}
+                      payload={payload}
+                    />
+                  );
+                }}
               />
-              <Bar dataKey="desktop" fill="#bce4c5" radius={4} />
-              <Bar dataKey="mobile" fill="#28a745" radius={4} />
+
+              <Bar xAxisId="0" dataKey="desktop" fill="#bce4c5" radius={4} />
+              <Bar xAxisId="0" dataKey="mobile" fill="#28a745" radius={4} />
             </BarChart>
           </ChartContainer>
         </CardContent>
