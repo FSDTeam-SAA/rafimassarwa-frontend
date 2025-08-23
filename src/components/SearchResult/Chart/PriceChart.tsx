@@ -107,8 +107,25 @@ const PriceChart = () => {
   ) => {
     if (!data.length) return [];
 
-    const sampleCount =
-      isActive === "Week" ? 5 : isActive === "5Year" ? 6 : null;
+    // For 5Year period, ensure we get unique years
+    if (isActive === "5Year") {
+      const yearTicks = new Set<number>();
+      const result: number[] = [];
+
+      // Find data points that represent the start of each year
+      data.forEach((item) => {
+        const year = new Date(item.time).getFullYear();
+        if (!yearTicks.has(year)) {
+          yearTicks.add(year);
+          result.push(item.time);
+        }
+      });
+
+      return result.length > 0 ? result : undefined;
+    }
+
+    // For other periods, use the original logic
+    const sampleCount = isActive === "Week" ? 5 : null;
     if (!sampleCount) return undefined;
 
     const interval = Math.floor(data.length / sampleCount);

@@ -107,7 +107,7 @@ export default function Articles() {
   ];
 
   if (isLoading)
-    return <div className="text-center text-xl font-semibold">Loading....</div>;
+    return <div className="text-center text-xl"></div>;
 
   return (
     <section className="py-16 px-2 lg:px-0">
