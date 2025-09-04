@@ -169,7 +169,7 @@ const SearchResult = () => {
                   title: dictionary.oliveGreen,
                   color: "bg-[#c7ffe5]",
                 },
-                { id: "Orange", title: dictionary.orange, color: "#FFA500" },
+                { id: "Orange", title: dictionary.orange, color: "bg-[#FFA500]" },
                 {
                   id: "Yellow",
                   title: dictionary.yellow,

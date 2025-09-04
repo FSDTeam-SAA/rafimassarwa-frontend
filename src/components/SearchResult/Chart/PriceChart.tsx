@@ -78,7 +78,7 @@ const PriceChart = () => {
         startTime = now - 24 * 60 * 60 * 1000;
         break;
       case "Week":
-        startTime = now - 7 * 24 * 60 * 60 * 1000;
+        startTime = now - 10 * 24 * 60 * 60 * 1000;
         break;
       case "Month":
         startTime = now - 30 * 24 * 60 * 60 * 1000;
@@ -112,7 +112,6 @@ const PriceChart = () => {
       const yearTicks = new Set<number>();
       const result: number[] = [];
 
-      // Find data points that represent the start of each year
       data.forEach((item) => {
         const year = new Date(item.time).getFullYear();
         if (!yearTicks.has(year)) {
@@ -121,10 +120,17 @@ const PriceChart = () => {
         }
       });
 
-      return result.length > 0 ? result : undefined;
+      // remove only the first tick
+      return result.length > 1 ? result.slice(1) : result;
     }
 
-    // For other periods, use the original logic
+    if (isActive === "Year") {
+      // take all monthly ticks, then remove first and last
+      const result = data.map((item) => item.time);
+      return result.length > 2 ? result.slice(1, -1) : result;
+    }
+
+    // For other periods, keep your existing logic
     const sampleCount = isActive === "Week" ? 5 : null;
     if (!sampleCount) return undefined;
 
