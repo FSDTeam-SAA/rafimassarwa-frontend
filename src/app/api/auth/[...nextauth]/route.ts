@@ -4,6 +4,26 @@ import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
 import AzureADProvider from "next-auth/providers/azure-ad"; // ✅ Correct for Azure AD
 import { loginUser } from "@/app/actions/auth";
+import jwt from "jsonwebtoken";
+
+function generateAppleClientSecret() {
+  const privateKey = process.env.APPLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
+
+  return jwt.sign(
+    {
+      iss: process.env.APPLE_TEAM_ID, // Team ID
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // valid 24h
+      aud: "https://appleid.apple.com",
+      sub: process.env.APPLE_CLIENT_ID,
+    },
+    privateKey,
+    {
+      algorithm: "ES256",
+      keyid: process.env.APPLE_KEY_ID,
+    }
+  );
+}
 
 const handler = NextAuth({
   providers: [
@@ -46,11 +66,11 @@ const handler = NextAuth({
     }),
 
     AppleProvider({
-      clientId: process.env.APPLE_CLIENT_ID || "",
-      clientSecret: process.env.APPLE_CLIENT_SECRET || "",
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: generateAppleClientSecret(),
       authorization: {
         params: {
-          scope: "name email openid",
+          scope: "name email",
           response_mode: "form_post",
         },
       },
@@ -59,7 +79,9 @@ const handler = NextAuth({
       profile(profile) {
         return {
           id: profile.sub,
-          name: profile.name || `${profile.firstName || ""} ${profile.lastName || ""}`.trim(),
+          name:
+            profile.name ||
+            `${profile.firstName || ""} ${profile.lastName || ""}`.trim(),
           email: profile.email,
           image: null,
           role: "user",
@@ -93,21 +115,26 @@ const handler = NextAuth({
         token.rememberMe = user.rememberMe;
 
         const now = Math.floor(Date.now() / 1000);
-        token.exp = user.rememberMe ? now + 30 * 24 * 60 * 60 : now + 24 * 60 * 60;
+        token.exp = user.rememberMe
+          ? now + 30 * 24 * 60 * 60
+          : now + 24 * 60 * 60;
       }
 
       if (account?.provider === "google" && user?.email) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: user.name,
-              email: user.email,
-              profilePhoto: user.image,
-              gLogin: true,
-            }),
-          });
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: user.name,
+                email: user.email,
+                profilePhoto: user.image,
+                gLogin: true,
+              }),
+            }
+          );
 
           const data = await res.json();
 
@@ -127,16 +154,19 @@ const handler = NextAuth({
 
       if (account?.provider === "apple" && user?.email) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: user.name,
-              email: user.email,
-              profilePhoto: user.image,
-              gLogin: true,
-            }),
-          });
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: user.name,
+                email: user.email,
+                profilePhoto: user.image,
+                gLogin: true,
+              }),
+            }
+          );
 
           const data = await res.json();
 
@@ -156,16 +186,19 @@ const handler = NextAuth({
 
       if (account?.provider === "azure-ad" && user?.email) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: user.name,
-              email: user.email,
-              profilePhoto: user.image,
-              gLogin: true,
-            }),
-          });
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: user.name,
+                email: user.email,
+                profilePhoto: user.image,
+                gLogin: true,
+              }),
+            }
+          );
 
           const data = await res.json();
 
@@ -179,7 +212,10 @@ const handler = NextAuth({
             console.error("Azure AD login failed:", data);
           }
         } catch (error) {
-          console.error("Error contacting backend during Azure AD login:", error);
+          console.error(
+            "Error contacting backend during Azure AD login:",
+            error
+          );
         }
       }
       return token;
