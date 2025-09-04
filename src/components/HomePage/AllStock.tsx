@@ -176,14 +176,12 @@ export default function StockTrackingTable({
                     stock?.sell !== undefined ? (
                       (() => {
                         const total = stock.buy + stock.hold + stock.sell;
-                        const score =
-                          total > 0 ? Math.round((stock.buy / total) * 10) : 0;
 
                         return (
                           <div className="flex items-center gap-2 sm:gap-3">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-yellow-400 flex items-center justify-center">
                               <span className="text-base sm:text-lg font-bold">
-                                {score}
+                                {total}
                               </span>
                             </div>
                             <div className="flex flex-col text-xs">
