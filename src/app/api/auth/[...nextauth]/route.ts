@@ -7,22 +7,19 @@ import { loginUser } from "@/app/actions/auth";
 import jwt from "jsonwebtoken";
 
 function generateAppleClientSecret() {
-  const privateKey = process.env.APPLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
-
-  return jwt.sign(
-    {
-      iss: process.env.APPLE_TEAM_ID, // Team ID
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // valid 24h
-      aud: "https://appleid.apple.com",
-      sub: process.env.APPLE_CLIENT_ID,
-    },
-    privateKey,
-    {
-      algorithm: "ES256",
-      keyid: process.env.APPLE_KEY_ID,
-    }
+  const privateKey = (process.env.APPLE_PRIVATE_KEY || "").replace(
+    /\\n/g,
+    "\n"
   );
+
+  return jwt.sign({}, privateKey, {
+    algorithm: "ES256",
+    keyid: process.env.APPLE_KEY_ID,
+    issuer: process.env.APPLE_TEAM_ID, // Apple Team ID
+    audience: "https://appleid.apple.com",
+    subject: process.env.APPLE_CLIENT_ID, // Service ID (clientId)
+    expiresIn: "180d", // max 6 months
+  });
 }
 
 const handler = NextAuth({
@@ -73,22 +70,6 @@ const handler = NextAuth({
           scope: "name email",
           response_mode: "form_post",
         },
-      },
-      checks: ["pkce"],
-      idToken: true,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name:
-            profile.name ||
-            `${profile.firstName || ""} ${profile.lastName || ""}`.trim(),
-          email: profile.email,
-          image: null,
-          role: "user",
-          rememberMe: false,
-          accessToken: "",
-          refreshToken: "",
-        };
       },
     }),
 
