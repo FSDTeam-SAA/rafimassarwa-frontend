@@ -234,8 +234,6 @@ export default function Home() {
   const isReturnPercentPositive = dailyReturnPercent >= 0;
   const isMonthlyReturnPercentPositive = overviewData?.monthlyReturnPercent >= 0;
 
-  console.log(isMonthlyReturnPercentPositive)
-
   const isOverallReturnPositive = overviewData?.overallReturnPercent >= 0;
 
 

@@ -629,9 +629,9 @@ export default function PortfolioTable() {
 
       <TableCell className="w-[120px] text-center">
         <div
-          className={`flex items-center gap-1 justify-center ${item.percent < 0 ? "text-red-500" : "text-green-500"}`}
+          className={`flex items-center gap-1 justify-center ${Number(item.oneMonthReturn) < 0 ? "text-red-500" : "text-green-500"}`}
         >
-          {item.percent < 0 ? <FaCaretDown /> : <FaCaretUp />}
+          {Number(item.oneMonthReturn) < 0 ? <FaCaretDown /> : <FaCaretUp />}
           {item.oneMonthReturn}
         </div>
       </TableCell>
