@@ -67,7 +67,7 @@ export default function PerformanceDashboard() {
             id="murakkab"
             checked={showMurakkab}
             onCheckedChange={() => setShowMurakkab(!showMurakkab)}
-            className="h-5 w-5 rounded-full bg-green-500 border-green-500 text-white"
+            className="h-5 w-5 rounded-full bg-blue-500 border-blue-500 text-white"
           />
           <Label htmlFor="murakkab" className="text-base font-medium">
             Olive Stock&apos;s Average
@@ -91,7 +91,7 @@ export default function PerformanceDashboard() {
             id="portfolio"
             checked={showPortfolio}
             onCheckedChange={() => setShowPortfolio(!showPortfolio)}
-            className="h-5 w-5 rounded-full bg-red-500 border-red-500 text-white"
+            className="h-5 w-5 rounded-full bg-orange-500 border-orange-500 text-white"
           />
           <Label htmlFor="portfolio" className="text-base font-medium">
             My Portfolio
@@ -116,7 +116,7 @@ export default function PerformanceDashboard() {
                         {/* Top half for positive values */}
                         <div className="flex-1 flex items-end justify-center gap-4 relative">
                           <div
-                            className="w-7 bg-green-500 rounded-t-sm"
+                            className="w-7 bg-blue-500 rounded-t-sm"
                             style={{
                               height:
                                 showMurakkab && data.murakkabAverage >= 0
@@ -136,7 +136,7 @@ export default function PerformanceDashboard() {
                             }}
                           />
                           <div
-                            className="w-7 bg-red-500 rounded-t-sm"
+                            className="w-7 bg-orange-500 rounded-t-sm"
                             style={{
                               height:
                                 showPortfolio && data.myPortfolio >= 0
@@ -191,7 +191,7 @@ export default function PerformanceDashboard() {
                           <div
                             className={`flex items-center gap-1 ${data.murakkabAverageSecondary &&
                               data.murakkabAverageSecondary >= 0
-                              ? "text-green-500"
+                              ? "text-blue-500"
                               : "text-red-500"
                               }`}
                           >
@@ -208,7 +208,7 @@ export default function PerformanceDashboard() {
 
                         {showSP500 && (
                           <div
-                            className={`flex items-center gap-1 ${data.sp500 >= 0 ? "text-green-500" : "text-red-500"
+                            className={`flex items-center gap-1 ${data.sp500 >= 0 ? "text-yellow-500" : "text-red-500"
                               }`}
                           >
                             {data.sp500 >= 0 ? "▲" : "▼"}{" "}
@@ -219,7 +219,7 @@ export default function PerformanceDashboard() {
                         {showPortfolio && (
                           <div
                             className={`flex items-center gap-1 ${data.myPortfolio >= 0
-                              ? "text-green-500"
+                              ? "text-orange-500"
                               : "text-red-500"
                               }`}
                           >
