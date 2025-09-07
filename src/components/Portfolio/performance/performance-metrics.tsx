@@ -14,7 +14,7 @@ export function PerformanceMetrics({
     profitableTransactions,
     totalTransactions,
 }: PerformanceMetricsProps) {
-    const isNegativeReturn = averageReturn < 0
+    const isNegativeReturn = averageReturn < 0 
     const isNegativeSuccessRate = successRate < 0
 
     return (
