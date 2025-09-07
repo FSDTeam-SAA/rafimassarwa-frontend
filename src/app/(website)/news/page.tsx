@@ -76,7 +76,7 @@ const NewsPage = () => {
   }
 
   return (
-    <div className="lg:my-20 my-5">
+    <div className="lg:mb-20 mt-14 my-5">
       <BannerAds />
       <TipRanksLabs
         rightSide={rightSide}

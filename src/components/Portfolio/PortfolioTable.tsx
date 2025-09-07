@@ -777,7 +777,7 @@ export default function PortfolioTable() {
   )
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-[100px] lg:mb-20 mb-5">
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-16 lg:mb-12 mb-5">
       {/* Transaction Dialog */}
       <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">

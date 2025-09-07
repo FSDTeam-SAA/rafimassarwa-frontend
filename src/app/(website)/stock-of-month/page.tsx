@@ -6,8 +6,8 @@ import StockOfMonths from "@/components/stock-of-months/StockOfMonths";
 
 export default function page() {
   return (
-    <>
-      <div className="mt-28">
+    <div className="lg:-mt-8">
+      <div>
         <StockTickerCarousel />
       </div>
       <div>
@@ -19,6 +19,6 @@ export default function page() {
       <div>
         <LatestArticles />
       </div>
-    </>
+    </div>
   );
 }

@@ -18,7 +18,7 @@ export default function Page() {
     };
 
     return (
-        <div className='lg:w-[95%]'>
+        <div className='lg:w-[95%] lg:-mt-4'>
             <ProfileInfo
                 selectedImage={selectedImage}
                 imagePreview={imagePreview}

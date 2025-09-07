@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxios from "@/hooks/useAxios";
 import YoutubeVideo from "./YoutubeVideo/YoutubeVideo";
 import { useLanguage } from "@/providers/LanguageProvider";
+import BannerAds from "../News/BannerAds";
 
 interface NewsItem {
   _id: string;
@@ -42,10 +43,15 @@ const PrivateHome = () => {
     return text?.substring(0, maxLength) + "...";
   };
 
-  if(isLoading) return <div className="min-h-screen flex flex-col items-center justify-center">Loading...</div>
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        Loading...
+      </div>
+    );
 
   return (
-    <div className="mt-28 container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:-mt-14">
       <div className="mb-5">
         <StockTickerCarousel />
       </div>
@@ -74,7 +80,10 @@ const PrivateHome = () => {
       <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6 lg:gap-10">
         <div className="col-span-1 lg:col-span-2">
           {filteredNews[4] && (
-            <Link href={`/news/${filteredNews[4]._id}`} rel="noopener noreferrer">
+            <Link
+              href={`/news/${filteredNews[4]._id}`}
+              rel="noopener noreferrer"
+            >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
@@ -93,7 +102,9 @@ const PrivateHome = () => {
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(filteredNews[4]?.createdAt || 0).toLocaleDateString()}
+                    {new Date(
+                      filteredNews[4]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
@@ -104,7 +115,10 @@ const PrivateHome = () => {
           )}
 
           {filteredNews[3] && (
-            <Link href={`/news/${filteredNews[3]._id}`} rel="noopener noreferrer">
+            <Link
+              href={`/news/${filteredNews[3]._id}`}
+              rel="noopener noreferrer"
+            >
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
@@ -123,7 +137,9 @@ const PrivateHome = () => {
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(filteredNews[3]?.createdAt || 0).toLocaleDateString()}
+                    {new Date(
+                      filteredNews[3]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
@@ -136,7 +152,10 @@ const PrivateHome = () => {
 
         <div className="col-span-1 lg:col-span-3">
           {filteredNews[0] && (
-            <Link href={`/news/${filteredNews[0]._id}`} rel="noopener noreferrer">
+            <Link
+              href={`/news/${filteredNews[0]._id}`}
+              rel="noopener noreferrer"
+            >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
@@ -155,7 +174,9 @@ const PrivateHome = () => {
                   </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-sm text-gray-500">
-                    {new Date(filteredNews[0]?.createdAt || 0).toLocaleDateString()}
+                    {new Date(
+                      filteredNews[0]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-xs text-blue-600 uppercase font-medium px-2 py-1 bg-blue-50 rounded">
@@ -172,7 +193,10 @@ const PrivateHome = () => {
 
         <div className="col-span-1 lg:col-span-2">
           {filteredNews[1] && (
-            <Link href={`/news/${filteredNews[1]._id}`} rel="noopener noreferrer">
+            <Link
+              href={`/news/${filteredNews[1]._id}`}
+              rel="noopener noreferrer"
+            >
               <div className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
@@ -191,7 +215,9 @@ const PrivateHome = () => {
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(filteredNews[1]?.createdAt || 0).toLocaleDateString()}
+                    {new Date(
+                      filteredNews[1]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
@@ -202,7 +228,10 @@ const PrivateHome = () => {
           )}
 
           {filteredNews[2] && (
-            <Link href={`/news/${filteredNews[2]._id}`} rel="noopener noreferrer">
+            <Link
+              href={`/news/${filteredNews[2]._id}`}
+              rel="noopener noreferrer"
+            >
               <div className="mt-6 md:mt-8 cursor-pointer hover:opacity-90 transition-opacity">
                 <Image
                   src={
@@ -221,7 +250,9 @@ const PrivateHome = () => {
                   </span>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    {new Date(filteredNews[2]?.createdAt || 0).toLocaleDateString()}
+                    {new Date(
+                      filteredNews[2]?.createdAt || 0
+                    ).toLocaleDateString()}
                   </span>
                 </div>
                 <h1 className="font-medium mt-3 text-lg md:text-xl leading-tight">
@@ -269,15 +300,19 @@ const PrivateHome = () => {
         ))}
       </div>
 
+      <div className="mb-14">
+        <BannerAds />
+      </div>
+
       <div>
         <YoutubeVideo />
       </div>
 
-      <div className="mb-12 md:mb-16">
+      <div className="mb-12 md:mb-16 lg:-mt-14 ">
         <LatestArticles />
       </div>
 
-      <div>
+      <div className="lg:-mt-24">
         <StockDashboard />
       </div>
     </div>
