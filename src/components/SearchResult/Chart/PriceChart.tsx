@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -107,7 +108,6 @@ const PriceChart = () => {
   ) => {
     if (!data.length) return [];
 
-    // For 5Year period, ensure we get unique years
     if (isActive === "5Year") {
       const yearTicks = new Set<number>();
       const result: number[] = [];
@@ -120,24 +120,30 @@ const PriceChart = () => {
         }
       });
 
-      // remove only the first tick
+      // remove first tick
       return result.length > 1 ? result.slice(1) : result;
     }
 
     if (isActive === "Year") {
-      // take all monthly ticks, then remove first and last
       const result = data.map((item) => item.time);
+      // remove first & last
       return result.length > 2 ? result.slice(1, -1) : result;
     }
 
-    // For other periods, keep your existing logic
-    const sampleCount = isActive === "Week" ? 5 : null;
-    if (!sampleCount) return undefined;
+    // For Day, Week, Month
+    if (["Day", "Week", "Month"].includes(isActive)) {
+      const sampleCount = isActive === "Day" ? 6 : isActive === "Week" ? 5 : 8; // Month
+      const interval = Math.floor(data.length / sampleCount) || 1;
 
-    const interval = Math.floor(data.length / sampleCount);
-    return data
-      .filter((_, index) => index % interval === 0)
-      .map((item) => item.time);
+      const result = data
+        .filter((_, index) => index % interval === 0)
+        .map((item) => item.time);
+
+      // remove first tick
+      return result.length > 1 ? result.slice(1) : result;
+    }
+
+    return undefined;
   };
 
   const formatTimeTick = (timestamp: number) => {
@@ -277,21 +283,31 @@ const PriceChart = () => {
 
                     <ChartTooltip
                       cursor={{ stroke: "#ddd", strokeWidth: 1 }}
-                      content={
-                        <ChartTooltipContent indicator="dot" hideLabel />
-                      }
+                      content={<ChartTooltipContent indicator="dot" />} // show label
                       wrapperStyle={{ fontSize: isMobile ? "12px" : "14px" }}
-                      labelFormatter={(value) =>
-                        new Date(value).toLocaleString("en-US", {
+                      labelFormatter={(_label: unknown, payload: any[]) => {
+                        const raw = payload?.[0]?.payload?.time;
+                        if (!raw) return "";
+
+                        const ts = typeof raw === "string" ? Number(raw) : raw;
+                        const ms = ts < 10_000_000_000 ? ts * 1000 : ts;
+
+                        const d = new Date(ms);
+                        if (isNaN(d.getTime())) return "";
+
+                        // Only show date (no time)
+                        return d.toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      }
+                        });
+                      }}
+                      formatter={(value: number) => [
+                        "price : ",
+                        Number(value).toFixed(2),
+                      ]}
                     />
+
                     <Area
                       dataKey="price"
                       type="linear"
