@@ -119,7 +119,7 @@ export default function PerformanceDashboard() {
                             className="w-7 bg-green-500 rounded-t-sm"
                             style={{
                               height:
-                                showMurakkab && data.murakkabAverage > 0
+                                showMurakkab && data.murakkabAverage >= 0
                                   ? `${getBarHeight(data.murakkabAverage)}%`
                                   : "0%",
                               opacity: showMurakkab ? 1 : 0,
@@ -129,7 +129,7 @@ export default function PerformanceDashboard() {
                             className="w-7 bg-yellow-400 rounded-t-sm"
                             style={{
                               height:
-                                showSP500 && data.sp500 > 0
+                                showSP500 && data.sp500 >= 0
                                   ? `${getBarHeight(data.sp500)}%`
                                   : "0%",
                               opacity: showSP500 ? 1 : 0,
@@ -139,7 +139,7 @@ export default function PerformanceDashboard() {
                             className="w-7 bg-red-500 rounded-t-sm"
                             style={{
                               height:
-                                showPortfolio && data.myPortfolio > 0
+                                showPortfolio && data.myPortfolio >= 0
                                   ? `${getBarHeight(data.myPortfolio)}%`
                                   : "0%",
                               opacity: showPortfolio ? 1 : 0,
@@ -190,13 +190,13 @@ export default function PerformanceDashboard() {
                         {showMurakkab && (
                           <div
                             className={`flex items-center gap-1 ${data.murakkabAverageSecondary &&
-                              data.murakkabAverageSecondary > 0
+                              data.murakkabAverageSecondary >= 0
                               ? "text-green-500"
                               : "text-red-500"
                               }`}
                           >
                             {data.murakkabAverageSecondary &&
-                              data.murakkabAverageSecondary > 0
+                              data.murakkabAverageSecondary >= 0
                               ? "▲"
                               : "▼"}{" "}
                             {data.murakkabAverageSecondary
@@ -208,22 +208,22 @@ export default function PerformanceDashboard() {
 
                         {showSP500 && (
                           <div
-                            className={`flex items-center gap-1 ${data.sp500 > 0 ? "text-green-500" : "text-red-500"
+                            className={`flex items-center gap-1 ${data.sp500 >= 0 ? "text-green-500" : "text-red-500"
                               }`}
                           >
-                            {data.sp500 > 0 ? "▲" : "▼"}{" "}
+                            {data.sp500 >= 0 ? "▲" : "▼"}{" "}
                             {Math.abs(data.sp500).toFixed(2)}%
                           </div>
                         )}
 
                         {showPortfolio && (
                           <div
-                            className={`flex items-center gap-1 ${data.myPortfolio > 0
+                            className={`flex items-center gap-1 ${data.myPortfolio >= 0
                               ? "text-green-500"
                               : "text-red-500"
                               }`}
                           >
-                            {data.myPortfolio > 0 ? "▲" : "▼"}{" "}
+                            {data.myPortfolio >= 0 ? "▲" : "▼"}{" "}
                             {Math.abs(data.myPortfolio).toFixed(2)}%
                           </div>
                         )}
