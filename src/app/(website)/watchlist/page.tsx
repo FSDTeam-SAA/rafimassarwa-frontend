@@ -7,7 +7,7 @@ import WatchlistTable from "./_components/WathclistTable";
 
 const WatchlistPage = () => {
   return (
-    <div className="px-1 lg:px-0">
+    <div className="px-1 lg:px-0 lg:-mt-8">
       <StockTickerCarousel />
       <WatchlistTable />
       <AlertsCards />

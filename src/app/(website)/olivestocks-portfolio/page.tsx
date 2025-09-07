@@ -6,13 +6,13 @@ import BannerAds from "@/components/News/BannerAds";
 
 export default function page() {
   return (
-    <>
+    <div className="lg:-mt-8">
       <StockTickerCarousel />
       <div className="container mx-auto">
         <Portfolio title="Olive Stocks Portfolio" />
       </div>
       <BannerAds />
       <Articles />
-    </>
+    </div>
   );
 }

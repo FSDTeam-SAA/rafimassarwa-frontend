@@ -9,7 +9,7 @@ import BannerAds from "@/components/News/BannerAds";
 
 export default function page() {
   return (
-    <>
+    <div className="lg:-mt-8">
       <div className="">
         <SocketProvider>
           <StockTickerCarousel />
@@ -19,6 +19,6 @@ export default function page() {
 
       <BannerAds />
       <Articles />
-    </>
+    </div>
   );
 }

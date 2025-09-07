@@ -402,18 +402,18 @@ export default function StockOfMonth() {
   });
 
   // Handle loading state
-  if (!qualityStock) {
-    return (
-      <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-        <h2 className="text-xl sm:text-2xl font-medium mb-4">
-          Stocks Of Months
-        </h2>
-        <div className="flex items-center justify-center py-8">
-          <div className="text-gray-500">Loading stocks...</div>
-        </div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
+  //       <h2 className="text-xl sm:text-2xl font-medium mb-4">
+  //         Stocks Of Months
+  //       </h2>
+  //       <div className="flex items-center justify-center py-8">
+  //         <div className="text-gray-500">Loading stocks...</div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   const SortIcon = ({ column }: { column: Column<Stock, unknown> }) => {
     const sorted = column.getIsSorted();

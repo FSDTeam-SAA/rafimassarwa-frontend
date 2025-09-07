@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function page() {
     return (
-        <div className='lg:mb-20 lg:mt-12 mt-5 mb-5'>
+        <div className='mt-2 lg:mt-0 mb-5 lg:mb-0'>
             <SupportForm />
         </div>
     )
