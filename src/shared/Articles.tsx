@@ -15,6 +15,7 @@ interface StockNewsItem {
   views: number;
   symbol: string;
   source: string;
+  lang: string;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -28,6 +29,7 @@ interface DeepResearchItem {
   views: number;
   symbol: string;
   source: string;
+  lang: string;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -48,6 +50,10 @@ export default function Articles() {
     },
   });
 
+  const filteredNews = stockNews?.filter(
+    (news) => news?.lang === selectedLangCode
+  );
+
   const { data: relatedStockNews, isLoading } = useQuery({
     queryKey: ["related-stocks-news"],
     queryFn: async () => {
@@ -58,6 +64,10 @@ export default function Articles() {
     },
   });
 
+  const relatedFilteredNews = relatedStockNews?.filter(
+    (news) => news?.lang === selectedLangCode
+  );
+
   const { data: deepResearch } = useQuery({
     queryKey: ["deep-research"],
     queryFn: async () => {
@@ -65,6 +75,10 @@ export default function Articles() {
       return res.data.data as DeepResearchItem[];
     },
   });
+
+  const filteredDeepResearch = deepResearch?.filter(
+    (news) => news?.lang === selectedLangCode
+  );
 
   const { data: relatedDeepResearch } = useQuery({
     queryKey: ["related-deep-research"],
@@ -75,6 +89,10 @@ export default function Articles() {
       return res.data.data as DeepResearchItem[];
     },
   });
+
+  const relatedFilteredDeepResearch = relatedDeepResearch?.filter(
+    (news) => news?.lang === selectedLangCode
+  );
 
   const formatISODate = (isoString: string) => {
     const date = new Date(isoString);
@@ -93,21 +111,20 @@ export default function Articles() {
       title: dictionary.marketNews,
       data:
         pathname === "/search-result"
-          ? relatedStockNews || []
-          : stockNews || [],
+          ? relatedFilteredNews || []
+          : filteredNews || [],
     },
     {
       value: "deep-research",
       title: dictionary.deepResearch,
       data:
         pathname === "/search-result"
-          ? relatedDeepResearch || []
-          : deepResearch || [],
+          ? relatedFilteredDeepResearch || []
+          : filteredDeepResearch || [],
     },
   ];
 
-  if (isLoading)
-    return <div className="text-center text-xl"></div>;
+  if (isLoading) return <div className="text-center text-xl"></div>;
 
   return (
     <section className="py-16 px-2 lg:px-0">
