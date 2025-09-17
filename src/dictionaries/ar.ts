@@ -121,6 +121,8 @@ export const arLangs = {
   // Olive details page
   strongFinancialHealth: "صحة مالية قوية",
   poorFinancialHealth: "صحة مالية ضعيفة",
+  lowCompetitiveAdvantage: "ميزة تنافسية منخفضة",
+  highCompetitiveAdvantage: "ميزة تنافسية عالية",
   oliveGreen: "أخضر زيتوني (صحي وقوي)",
   limeGreen: "أخضر ليموني (جيد نسبياً)",
   yellow: "أصفر (ضعيف)",
@@ -149,5 +151,5 @@ export const arLangs = {
   smartScore: "التقييم الذكي",
   ratingVsIndustryAvg: "التقييم مقارنة بمتوسط القطاع",
   seeAllTopStocks: "عرض جميع الأسهم المميزة",
-  deepResearch2 : "تحليل معمّق"
+  deepResearch2: "تحليل معمّق",
 };

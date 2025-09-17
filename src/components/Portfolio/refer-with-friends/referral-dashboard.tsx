@@ -205,12 +205,12 @@ export default function ReferralDashboard() {
                     </div>
                 </div>
 
-                {/* Banner Ads */}
+                {/* Banner Ads
                 <div className="md:w-[200px] h-auto">
                     <div className="bg-green-50 h-full rounded-xl flex items-center justify-center">
                         <div className="font-bold text-3xl -rotate-90 tracking-wider hidden md:flex">Banner Ads</div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     )

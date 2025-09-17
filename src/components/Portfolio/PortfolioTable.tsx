@@ -1,18 +1,33 @@
-"use client"
+"use client";
 
-import { ChevronDown, ChevronUp, Loader2, Trash, Settings, Pencil, Unlock } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
-import { FaCaretDown, FaCaretUp } from "react-icons/fa"
-import { toast } from "sonner"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useSession } from "next-auth/react"
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
+import {
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Trash,
+  Settings,
+  Pencil,
+  Unlock,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -31,72 +46,82 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { usePortfolio } from "../context/portfolioContext"
-import Portfolio from "@/components/olivestocks_portfolio/Portfolio"
-import { useTableReload } from "../context/table-reload-context"
-import { useUserPayment } from "../context/paymentContext"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { usePortfolio } from "../context/portfolioContext";
+import Portfolio from "@/components/olivestocks_portfolio/Portfolio";
+import { useTableReload } from "../context/table-reload-context";
+import { useUserPayment } from "../context/paymentContext";
 
 interface TransactionData {
-  portfolioId: string
-  symbol: string
-  price: number
-  event: "buy" | "sell"
-  quantity: number
-  date: Date
+  portfolioId: string;
+  symbol: string;
+  price: number;
+  event: "buy" | "sell";
+  quantity: number;
+  date: Date;
 }
 
 interface ColumnVisibility {
-  costBasis: boolean
-  unrealizedPL: boolean
-  plPercent: boolean
-  weight: boolean
-  valuation: boolean
-  priceTarget: boolean
+  costBasis: boolean;
+  unrealizedPL: boolean;
+  plPercent: boolean;
+  weight: boolean;
+  valuation: boolean;
+  priceTarget: boolean;
 }
 
 interface HoldingItem {
-  avgBuyPrice: number
-  change: number
-  costBasis: number
-  holdingGain: string
-  holdingPrice: string
-  logo: string
-  name: string
+  avgBuyPrice: number;
+  change: number;
+  costBasis: number;
+  holdingGain: string;
+  holdingPrice: string;
+  logo: string;
+  name: string;
   olives: {
-    financialHealth: string
-    competitiveAdvantage: string
-    valuation: string
-  }
-  oneMonthReturn: string
-  pL: number
-  percent: number
-  price: number
-  quadrant: string
-  shares: number
-  symbol: string
-  unrealized: number
-  value: string
+    financialHealth: string;
+    competitiveAdvantage: string;
+    valuation: string;
+  };
+  oneMonthReturn: string;
+  pL: number;
+  percent: number;
+  price: number;
+  quadrant: string;
+  shares: number;
+  symbol: string;
+  unrealized: number;
+  value: string;
   priceTarget: {
-    high: number
-  }
-  preMarketChangePercent: number
+    high: number;
+  };
+  preMarketChangePercent: number;
 }
 
 export default function PortfolioTable() {
-  const [editablePrices, setEditablePrices] = useState<Record<string, number>>({})
-  const [watchlistStocks, setWatchlistStocks] = useState<Set<string>>(new Set())
-  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false)
-  const [selectedStock, setSelectedStock] = useState<HoldingItem | null>(null)
-  const [transactionType, setTransactionType] = useState<"buy" | "sell">("buy")
-  const [transactionQuantity, setTransactionQuantity] = useState<number>(0)
-  const [transactionDate, setTransactionDate] = useState<Date>(new Date())
+  const [editablePrices, setEditablePrices] = useState<Record<string, number>>(
+    {}
+  );
+  const [watchlistStocks, setWatchlistStocks] = useState<Set<string>>(
+    new Set()
+  );
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState<HoldingItem | null>(null);
+  const [transactionType, setTransactionType] = useState<"buy" | "sell">("buy");
+  const [transactionQuantity, setTransactionQuantity] = useState<number>(0);
+  const [transactionDate, setTransactionDate] = useState<Date>(new Date());
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     costBasis: false,
     unrealizedPL: false,
@@ -104,43 +129,49 @@ export default function PortfolioTable() {
     weight: false,
     valuation: false,
     priceTarget: false,
-  })
+  });
 
-  const { data: session } = useSession()
-  const { selectedPortfolioId } = usePortfolio()
-  const queryClient = useQueryClient()
-  const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: "asc" | "desc" | null }>({
+  const { data: session } = useSession();
+  const { selectedPortfolioId } = usePortfolio();
+  const queryClient = useQueryClient();
+  const [sortConfig, setSortConfig] = useState<{
+    key: string | null;
+    direction: "asc" | "desc" | null;
+  }>({
     key: null,
     direction: null,
-  })
-
+  });
 
   const { shouldReloadTable, setShouldReloadTable } = useTableReload();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
 
   // Fetch watchlist data
   const { data: watchlistData } = useQuery({
     queryKey: ["watchlist-stock"],
     queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-      })
-      const data = await res.json()
-      return data.data
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+        }
+      );
+      const data = await res.json();
+      return data.data;
     },
     enabled: !!session?.user?.accessToken,
-  })
+  });
 
   // Initialize watchlist stocks
   useEffect(() => {
     if (watchlistData) {
-      const watchlistSymbols = new Set(watchlistData.map((stock: { symbol: string }) => stock.symbol))
-      setWatchlistStocks(watchlistSymbols as Set<string>)
+      const watchlistSymbols = new Set(
+        watchlistData.map((stock: { symbol: string }) => stock.symbol)
+      );
+      setWatchlistStocks(watchlistSymbols as Set<string>);
     }
-  }, [watchlistData])
+  }, [watchlistData]);
 
   const {
     mutate: getOverview,
@@ -148,187 +179,225 @@ export default function PortfolioTable() {
     isPending: isLoadingTableData,
   } = useMutation({
     mutationFn: async (portfolioId: string) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: portfolioId }),
-      })
-      if (!res.ok) throw new Error("Failed to fetch portfolio overview")
-      return res.json()
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/portfolio/overview`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: portfolioId }),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch portfolio overview");
+      return res.json();
     },
-  })
+  });
 
   useEffect(() => {
     if (overviewData?.holdings) {
-      const priceMap: Record<string, number> = {}
+      const priceMap: Record<string, number> = {};
       overviewData.holdings.forEach((item: HoldingItem) => {
-        priceMap[item.symbol] = Number.parseFloat(item.holdingPrice)
-      })
-      setEditablePrices(priceMap)
+        priceMap[item.symbol] = Number.parseFloat(item.holdingPrice);
+      });
+      setEditablePrices(priceMap);
     }
-  }, [overviewData])
+  }, [overviewData]);
 
   useEffect(() => {
     if (selectedPortfolioId) {
-      getOverview(selectedPortfolioId)
+      getOverview(selectedPortfolioId);
       if (shouldReloadTable) {
-        setShouldReloadTable(false)
+        setShouldReloadTable(false);
       }
     }
-  }, [selectedPortfolioId, getOverview, shouldReloadTable, setShouldReloadTable])
+  }, [
+    selectedPortfolioId,
+    getOverview,
+    shouldReloadTable,
+    setShouldReloadTable,
+  ]);
 
   const { mutate: DeleteStock, isPending: isDeletingStock } = useMutation({
-    mutationFn: async ({ symbol, portfolioId }: { symbol: string; portfolioId: string }) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/delete-stock`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-        body: JSON.stringify({ symbol, portfolioId }),
-      })
-      return res.json()
+    mutationFn: async ({
+      symbol,
+      portfolioId,
+    }: {
+      symbol: string;
+      portfolioId: string;
+    }) => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/protfolio/delete-stock`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+          body: JSON.stringify({ symbol, portfolioId }),
+        }
+      );
+      return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
-      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] })
+      queryClient.invalidateQueries({
+        queryKey: ["portfolio", selectedPortfolioId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["portfolio-overview"] });
       if (selectedPortfolioId) {
-        getOverview(selectedPortfolioId)
+        getOverview(selectedPortfolioId);
       }
     },
-  })
+  });
 
   // Transaction mutation
-  const { mutate: addTransaction, isPending: isAddingTransaction } = useMutation({
-    mutationFn: async (data: TransactionData) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to add transaction.")
-      }
-      setShouldReloadTable(true)
-      return response.json()
-    },
-    onSuccess: (data) => {
-      toast.success(data.message || "Transaction added successfully!")
-      queryClient.invalidateQueries({ queryKey: ["portfolio", selectedPortfolioId] })
-      queryClient.invalidateQueries({ queryKey: ["portfolioPerformance", selectedPortfolioId] })
-      if (selectedPortfolioId) {
-        getOverview(selectedPortfolioId)
-      }
-      setIsTransactionDialogOpen(false)
-      setSelectedStock(null)
-      setTransactionQuantity(0)
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error adding transaction.")
-    },
-  })
+  const { mutate: addTransaction, isPending: isAddingTransaction } =
+    useMutation({
+      mutationFn: async (data: TransactionData) => {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/protfolio/add-stock`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session?.user?.accessToken}`,
+            },
+            body: JSON.stringify(data),
+          }
+        );
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to add transaction.");
+        }
+        setShouldReloadTable(true);
+        return response.json();
+      },
+      onSuccess: (data) => {
+        toast.success(data.message || "Transaction added successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["portfolio", selectedPortfolioId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["portfolioPerformance", selectedPortfolioId],
+        });
+        if (selectedPortfolioId) {
+          getOverview(selectedPortfolioId);
+        }
+        setIsTransactionDialogOpen(false);
+        setSelectedStock(null);
+        setTransactionQuantity(0);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Error adding transaction.");
+      },
+    });
 
   const { mutate: addToWatchlist } = useMutation({
     mutationFn: async (symbol: string) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-        body: JSON.stringify({ symbol }),
-      })
-      const data = await res.json()
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist/add`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+          body: JSON.stringify({ symbol }),
+        }
+      );
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.error || "Failed to add to watchlist")
+        throw new Error(data?.error || "Failed to add to watchlist");
       }
-      return data
+      return data;
     },
     onSuccess: (data, symbol) => {
-      setWatchlistStocks((prev) => new Set([...Array.from(prev), symbol]))
-      toast.success(data.message || "Added to watchlist")
+      setWatchlistStocks((prev) => new Set([...Array.from(prev), symbol]));
+      toast.success(data.message || "Added to watchlist");
     },
     onError: (error) => {
-      toast.error(error.message || "Error adding to watchlist")
+      toast.error(error.message || "Error adding to watchlist");
     },
-  })
+  });
 
   const { mutate: removeFromWatchlist } = useMutation({
     mutationFn: async (symbol: string) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist/remove`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
-        body: JSON.stringify({ symbol }),
-      })
-      const data = await res.json()
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/protfolio/watchlist/remove`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+          body: JSON.stringify({ symbol }),
+        }
+      );
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.error || "Failed to remove from watchlist")
+        throw new Error(data?.error || "Failed to remove from watchlist");
       }
-      return data
+      return data;
     },
     onSuccess: (data, symbol) => {
       setWatchlistStocks((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(symbol)
-        return newSet
-      })
-      toast.success(data.message || "Removed from watchlist")
+        const newSet = new Set(prev);
+        newSet.delete(symbol);
+        return newSet;
+      });
+      toast.success(data.message || "Removed from watchlist");
     },
     onError: (error) => {
-      toast.error(error.message || "Error removing from watchlist")
+      toast.error(error.message || "Error removing from watchlist");
     },
-  })
+  });
 
   const handleDelete = async (stockSymbol: string) => {
     DeleteStock({
       symbol: stockSymbol,
       portfolioId: selectedPortfolioId || "",
-    })
-  }
+    });
+  };
 
   const handleSort = (key: string) => {
     setSortConfig((prev) => {
       if (prev.key === key) {
-        if (prev.direction === "asc") return { key, direction: "desc" }
-        if (prev.direction === "desc") return { key: null, direction: null }
+        if (prev.direction === "asc") return { key, direction: "desc" };
+        if (prev.direction === "desc") return { key: null, direction: null };
       }
-      return { key, direction: "asc" }
-    })
-  }
+      return { key, direction: "asc" };
+    });
+  };
 
-  const { paymentType } = useUserPayment()
+  const { paymentType } = useUserPayment();
 
   const handleWatchlistToggle = (symbol: string, isChecked: boolean) => {
-
     if (isChecked) {
       if (paymentType === "free") {
-        setShowUpgradeModal(true)
+        setShowUpgradeModal(true);
       } else {
-        addToWatchlist(symbol)
+        addToWatchlist(symbol);
       }
     } else {
-      removeFromWatchlist(symbol)
+      removeFromWatchlist(symbol);
     }
-  }
+  };
 
-  const handleColumnVisibilityChange = (column: keyof ColumnVisibility, checked: boolean) => {
+  const handleColumnVisibilityChange = (
+    column: keyof ColumnVisibility,
+    checked: boolean
+  ) => {
     setColumnVisibility((prev) => ({
       ...prev,
       [column]: checked,
-    }))
-  }
+    }));
+  };
 
   const handleTransactionSubmit = () => {
-    if (!selectedStock || !selectedPortfolioId || transactionQuantity <= 0) return
+    if (!selectedStock || !selectedPortfolioId || transactionQuantity <= 0)
+      return;
 
-    const price = editablePrices[selectedStock.symbol] ?? Number.parseFloat(selectedStock.holdingPrice)
+    const price =
+      editablePrices[selectedStock.symbol] ??
+      Number.parseFloat(selectedStock.holdingPrice);
 
     addTransaction({
       portfolioId: selectedPortfolioId,
@@ -337,64 +406,75 @@ export default function PortfolioTable() {
       event: transactionType,
       quantity: transactionQuantity,
       date: transactionDate,
-    })
-  }
+    });
+  };
 
   const openTransactionDialog = (stock: HoldingItem) => {
-    setSelectedStock(stock)
-    setIsTransactionDialogOpen(true)
-    setTransactionQuantity(1)
-    setTransactionType("buy")
-    setTransactionDate(new Date())
-  }
+    setSelectedStock(stock);
+    setIsTransactionDialogOpen(true);
+    setTransactionQuantity(1);
+    setTransactionType("buy");
+    setTransactionDate(new Date());
+  };
 
   const sortedHoldings = useMemo(() => {
     if (!overviewData?.holdings || !sortConfig.key || !sortConfig.direction) {
-      return overviewData?.holdings || []
+      return overviewData?.holdings || [];
     }
 
     return [...overviewData.holdings].sort((a: HoldingItem, b: HoldingItem) => {
-      let valueA: unknown = a[sortConfig.key as keyof HoldingItem]
-      let valueB: unknown = b[sortConfig.key as keyof HoldingItem]
+      let valueA: unknown = a[sortConfig.key as keyof HoldingItem];
+      let valueB: unknown = b[sortConfig.key as keyof HoldingItem];
 
       if (sortConfig.key === "avgBuyPrice") {
-        valueA = a.avgBuyPrice
-        valueB = b.avgBuyPrice
+        valueA = a.avgBuyPrice;
+        valueB = b.avgBuyPrice;
       }
 
-      if (valueA === undefined || valueB === undefined) return 0
+      if (valueA === undefined || valueB === undefined) return 0;
 
       if (typeof valueA === "number" && typeof valueB === "number") {
-        return sortConfig.direction === "asc" ? valueA - valueB : valueB - valueA
+        return sortConfig.direction === "asc"
+          ? valueA - valueB
+          : valueB - valueA;
       }
 
       return sortConfig.direction === "asc"
         ? String(valueA).localeCompare(String(valueB))
-        : String(valueB).localeCompare(String(valueA))
-    })
-  }, [overviewData?.holdings, sortConfig])
+        : String(valueB).localeCompare(String(valueA));
+    });
+  }, [overviewData?.holdings, sortConfig]);
 
   // Calculate totals using real data
   const totals = useMemo(() => {
-    if (!sortedHoldings.length) return null
+    if (!sortedHoldings.length) return null;
 
-    const totalMarketValue = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
-      return sum + (Number.parseFloat(item.value) || 0)
-    }, 0)
+    const totalMarketValue = sortedHoldings.reduce(
+      (sum: number, item: HoldingItem) => {
+        return sum + (Number.parseFloat(item.value) || 0);
+      },
+      0
+    );
 
-    const totalCostBasis = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
-      return sum + (item.costBasis || 0)
-    }, 0)
+    const totalCostBasis = sortedHoldings.reduce(
+      (sum: number, item: HoldingItem) => {
+        return sum + (item.costBasis || 0);
+      },
+      0
+    );
 
-    const totalUnrealizedPL = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
-      return sum + (item.unrealized || 0)
-    }, 0)
+    const totalUnrealizedPL = sortedHoldings.reduce(
+      (sum: number, item: HoldingItem) => {
+        return sum + (item.unrealized || 0);
+      },
+      0
+    );
 
     const totalPL = sortedHoldings.reduce((sum: number, item: HoldingItem) => {
-      return sum + (item.pL || 0)
-    }, 0)
+      return sum + (item.pL || 0);
+    }, 0);
 
-    const totalWeight = 100
+    const totalWeight = 100;
 
     return {
       costBasis: totalCostBasis,
@@ -402,51 +482,75 @@ export default function PortfolioTable() {
       unrealizedPL: totalUnrealizedPL,
       plPercent: totalPL,
       weight: totalWeight,
-    }
-  }, [sortedHoldings])
+    };
+  }, [sortedHoldings]);
 
   // Fixed table width calculation - base width for default columns
   const getTableWidth = () => {
     // Base width for default 12 columns (fixed width, no stretching)
-    const baseWidth = 1400 // Fixed base width for default columns
+    const baseWidth = 1400; // Fixed base width for default columns
 
     // Add width for additional columns
-    let additionalWidth = 0
-    if (columnVisibility.costBasis) additionalWidth += 140
-    if (columnVisibility.unrealizedPL) additionalWidth += 160
-    if (columnVisibility.plPercent) additionalWidth += 120
-    if (columnVisibility.weight) additionalWidth += 100
-    if (columnVisibility.valuation) additionalWidth += 140
-    if (columnVisibility.priceTarget) additionalWidth += 140
+    let additionalWidth = 0;
+    if (columnVisibility.costBasis) additionalWidth += 140;
+    if (columnVisibility.unrealizedPL) additionalWidth += 160;
+    if (columnVisibility.plPercent) additionalWidth += 120;
+    if (columnVisibility.weight) additionalWidth += 100;
+    if (columnVisibility.valuation) additionalWidth += 140;
+    if (columnVisibility.priceTarget) additionalWidth += 140;
 
-    return baseWidth + additionalWidth
-  }
+    return baseWidth + additionalWidth;
+  };
 
   const renderTableHeaders = () => (
     <TableRow className="bg-[#EAF6EC] h-[70px]">
-      <TableHead className="w-[150px] text-center font-semibold">Stock Name</TableHead>
-      <TableHead className="w-[150px] text-center font-semibold cursor-pointer" onClick={() => handleSort("name")}>
+      <TableHead className="w-[150px] text-center font-semibold">
+        Stock Name
+      </TableHead>
+      <TableHead
+        className="w-[150px] text-center font-semibold cursor-pointer"
+        onClick={() => handleSort("name")}
+      >
         <div className="inline-flex items-center space-x-1">
           <span>Company Name</span>
           <div className="flex flex-col">
             <ChevronUp
-              className={`w-3 h-3 -mb-1 ${sortConfig.key === "name" && sortConfig.direction === "asc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 -mb-1 ${
+                sortConfig.key === "name" && sortConfig.direction === "asc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
             <ChevronDown
-              className={`w-3 h-3 ${sortConfig.key === "name" && sortConfig.direction === "desc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 ${
+                sortConfig.key === "name" && sortConfig.direction === "desc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
           </div>
         </div>
       </TableHead>
-      <TableHead className="w-[120px] text-center font-semibold cursor-pointer" onClick={() => handleSort("shares")}>
+      <TableHead
+        className="w-[120px] text-center font-semibold cursor-pointer"
+        onClick={() => handleSort("shares")}
+      >
         <div className="inline-flex items-center space-x-1">
           <span>Number of Shares</span>
           <div className="flex flex-col">
             <ChevronUp
-              className={`w-3 h-3 -mb-1 ${sortConfig.key === "shares" && sortConfig.direction === "asc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 -mb-1 ${
+                sortConfig.key === "shares" && sortConfig.direction === "asc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
             <ChevronDown
-              className={`w-3 h-3 ${sortConfig.key === "shares" && sortConfig.direction === "desc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 ${
+                sortConfig.key === "shares" && sortConfig.direction === "desc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
           </div>
         </div>
@@ -459,41 +563,75 @@ export default function PortfolioTable() {
           <span>Avg. Cost Price</span>
           <div className="flex flex-col">
             <ChevronUp
-              className={`w-3 h-3 -mb-1 ${sortConfig.key === "avgBuyPrice" && sortConfig.direction === "asc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 -mb-1 ${
+                sortConfig.key === "avgBuyPrice" &&
+                sortConfig.direction === "asc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
             <ChevronDown
-              className={`w-3 h-3 ${sortConfig.key === "avgBuyPrice" && sortConfig.direction === "desc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 ${
+                sortConfig.key === "avgBuyPrice" &&
+                sortConfig.direction === "desc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
           </div>
         </div>
       </TableHead>
-      <TableHead className="w-[130px] text-center font-semibold cursor-pointer" onClick={() => handleSort("price")}>
+      <TableHead
+        className="w-[130px] text-center font-semibold cursor-pointer"
+        onClick={() => handleSort("price")}
+      >
         <div className="inline-flex items-center space-x-1">
           <span>Market Price</span>
           <div className="flex flex-col">
             <ChevronUp
-              className={`w-3 h-3 -mb-1 ${sortConfig.key === "price" && sortConfig.direction === "asc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 -mb-1 ${
+                sortConfig.key === "price" && sortConfig.direction === "asc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
             <ChevronDown
-              className={`w-3 h-3 ${sortConfig.key === "price" && sortConfig.direction === "desc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 ${
+                sortConfig.key === "price" && sortConfig.direction === "desc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
           </div>
         </div>
       </TableHead>
-      <TableHead className="w-[120px] text-center font-semibold cursor-pointer" onClick={() => handleSort("change")}>
+      <TableHead
+        className="w-[120px] text-center font-semibold cursor-pointer"
+        onClick={() => handleSort("change")}
+      >
         <div className="inline-flex items-center space-x-1">
           <span>Price Change</span>
           <div className="flex flex-col">
             <ChevronUp
-              className={`w-3 h-3 -mb-1 ${sortConfig.key === "change" && sortConfig.direction === "asc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 -mb-1 ${
+                sortConfig.key === "change" && sortConfig.direction === "asc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
             <ChevronDown
-              className={`w-3 h-3 ${sortConfig.key === "change" && sortConfig.direction === "desc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 ${
+                sortConfig.key === "change" && sortConfig.direction === "desc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
           </div>
         </div>
       </TableHead>
-      <TableHead className="w-[172px] text-center font-semibold">Olive&apos;s Rating</TableHead>
+      <TableHead className="w-[172px] text-center font-semibold">
+        Olive&apos;s Rating
+      </TableHead>
       <TableHead
         className="w-[120px] text-center font-semibold cursor-pointer"
         onClick={() => handleSort("holdingGain")}
@@ -502,31 +640,69 @@ export default function PortfolioTable() {
           <span>Holding Gain</span>
           <div className="flex flex-col">
             <ChevronUp
-              className={`w-3 h-3 -mb-1 ${sortConfig.key === "holdingGain" && sortConfig.direction === "asc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 -mb-1 ${
+                sortConfig.key === "holdingGain" &&
+                sortConfig.direction === "asc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
             <ChevronDown
-              className={`w-3 h-3 ${sortConfig.key === "holdingGain" && sortConfig.direction === "desc" ? "text-black" : "text-gray-400"}`}
+              className={`w-3 h-3 ${
+                sortConfig.key === "holdingGain" &&
+                sortConfig.direction === "desc"
+                  ? "text-black"
+                  : "text-gray-400"
+              }`}
             />
           </div>
         </div>
       </TableHead>
-      <TableHead className="w-[120px] text-center font-semibold">Monthly Return</TableHead>
-      <TableHead className="w-[130px] text-center font-semibold">Holding Value</TableHead>
+      <TableHead className="w-[120px] text-center font-semibold">
+        Monthly Return
+      </TableHead>
+      <TableHead className="w-[130px] text-center font-semibold">
+        Holding Value
+      </TableHead>
       {/* Additional columns */}
-      {columnVisibility.costBasis && <TableHead className="w-[140px] text-center font-semibold">Cost Basis</TableHead>}
+      {columnVisibility.costBasis && (
+        <TableHead className="w-[140px] text-center font-semibold">
+          Cost Basis
+        </TableHead>
+      )}
       {columnVisibility.unrealizedPL && (
-        <TableHead className="w-[160px] text-center font-semibold">Unrealized (P&L)</TableHead>
+        <TableHead className="w-[160px] text-center font-semibold">
+          Unrealized (P&L)
+        </TableHead>
       )}
-      {columnVisibility.plPercent && <TableHead className="w-[120px] text-center font-semibold">P&L%</TableHead>}
-      {columnVisibility.weight && <TableHead className="w-[100px] text-center font-semibold">Weight</TableHead>}
-      {columnVisibility.valuation && <TableHead className="w-[140px] text-center font-semibold">Fair Value</TableHead>}
+      {columnVisibility.plPercent && (
+        <TableHead className="w-[120px] text-center font-semibold">
+          P&L%
+        </TableHead>
+      )}
+      {columnVisibility.weight && (
+        <TableHead className="w-[100px] text-center font-semibold">
+          Weight
+        </TableHead>
+      )}
+      {columnVisibility.valuation && (
+        <TableHead className="w-[140px] text-center font-semibold">
+          Fair Value
+        </TableHead>
+      )}
       {columnVisibility.priceTarget && (
-        <TableHead className="w-[140px] text-center font-semibold">Price Target</TableHead>
+        <TableHead className="w-[140px] text-center font-semibold">
+          Price Target
+        </TableHead>
       )}
-      <TableHead className="w-[100px] text-center font-semibold">Watchlist</TableHead>
-      <TableHead className="w-[100px] text-center font-semibold">Actions</TableHead>
+      <TableHead className="w-[100px] text-center font-semibold">
+        Watchlist
+      </TableHead>
+      <TableHead className="w-[100px] text-center font-semibold">
+        Actions
+      </TableHead>
     </TableRow>
-  )
+  );
 
   const renderTableRow = (item: HoldingItem, index: number) => (
     <TableRow key={index} className="border-b hover:bg-gray-50">
@@ -542,9 +718,16 @@ export default function PortfolioTable() {
             />
           </div>
           <Link href={`/stock/${item.symbol.toLowerCase()}?q=${item.symbol}`}>
-            <span className="hover:underline hover:text-blue-400 font-semibold">{item.symbol}</span>
+            <span className="hover:underline hover:text-blue-400 font-semibold">
+              {item.symbol}
+            </span>
           </Link>
-          <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => openTransactionDialog(item)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-4 w-4"
+            onClick={() => openTransactionDialog(item)}
+          >
             <Pencil className="h-4 w-4 text-green-500 transition-colors" />
           </Button>
         </div>
@@ -559,17 +742,39 @@ export default function PortfolioTable() {
           maximumFractionDigits: 2,
         })}
       </TableCell>
-      <TableCell className="w-[120px] text-center">${item.price.toFixed(2)}</TableCell>
+      <TableCell className="w-[120px] text-center">
+        ${item.price.toFixed(2)}
+      </TableCell>
       <TableCell className="w-[130px] text-center">
         <div className="flex flex-col items-center">
-          <span className={`${item.change > 0 ? "text-green-500" : "text-red-500"}`}>${item.change.toFixed(2)}</span>
+          <span
+            className={`${item.change > 0 ? "text-green-500" : "text-red-500"}`}
+          >
+            ${item.change.toFixed(2)}
+          </span>
           <div className="flex items-center">
-            {item.change > 0 ? <FaCaretUp className="text-green-500" /> : <FaCaretDown className="text-red-500" />}
-            <span className={item.change > 0 ? "text-green-500" : "text-red-500"}>{item.percent.toFixed(2)}%</span>
+            {item.change >= 0 ? (
+              <FaCaretUp className="text-green-500" />
+            ) : (
+              <FaCaretDown className="text-red-500" />
+            )}
+            <span
+              className={item.change >= 0 ? "text-green-500" : "text-red-500"}
+            >
+              {item.percent.toFixed(2)}%
+            </span>
           </div>
         </div>
         <div className="flex flex-col items-center">
-          <span className={`text-xs ${item.preMarketChangePercent > 0 ? "text-green-500" : "text-red-500"}`}>pre : {item.preMarketChangePercent?.toFixed(2)}%</span>
+          <span
+            className={`text-xs ${
+              item.preMarketChangePercent >= 0
+                ? "text-green-500"
+                : "text-red-500"
+            }`}
+          >
+            pre : {item.preMarketChangePercent?.toFixed(2)}%
+          </span>
         </div>
       </TableCell>
 
@@ -619,19 +824,25 @@ export default function PortfolioTable() {
 
       <TableCell className="w-[120px] text-center">
         <div
-          className={`flex items-center gap-1 justify-center ${Number(item.holdingGain) >= 0 ? "text-green-500" : "text-red-500"
-            }`}
+          className={`flex items-center gap-1 justify-center ${
+            Number(item.holdingGain) >= 0 ? "text-green-500" : "text-red-500"
+          }`}
         >
-          {Number(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
-          {Number.isNaN(Number(item.holdingGain)) ? 0 : Number(item.holdingGain).toFixed(2)}%
+          {Number(item.holdingGain) >= 0 ? <FaCaretUp /> : <FaCaretDown />}
+          {Number.isNaN(Number(item.holdingGain))
+            ? 0
+            : Number(item.holdingGain).toFixed(2)}
+          %
         </div>
       </TableCell>
 
       <TableCell className="w-[120px] text-center">
         <div
-          className={`flex items-center gap-1 justify-center ${Number(item.oneMonthReturn) < 0 ? "text-red-500" : "text-green-500"}`}
+          className={`flex items-center gap-1 justify-center ${
+            Number(item.oneMonthReturn) >= 0 ? "text-green-500" : "text-red-500"
+          }`}
         >
-          {Number(item.oneMonthReturn) < 0 ? <FaCaretDown /> : <FaCaretUp />}
+          {Number(item.oneMonthReturn) >= 0 ? <FaCaretUp /> : <FaCaretDown />}
           {item.oneMonthReturn}
         </div>
       </TableCell>
@@ -647,51 +858,51 @@ export default function PortfolioTable() {
       {columnVisibility.costBasis && (
         <TableCell className="w-[140px] text-center">
           $
-          {
-            item.costBasis
-              ?
-              item.costBasis.toLocaleString("en-US", {
+          {item.costBasis
+            ? item.costBasis.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-              :
-              0
-          }
+            : 0}
         </TableCell>
       )}
       {columnVisibility.unrealizedPL && (
-        <TableCell className={`w-[160px] text-center ${item.unrealized >= 0 ? "text-green-600" : "text-red-600"}`}>
+        <TableCell
+          className={`w-[160px] text-center ${
+            item.unrealized >= 0 ? "text-green-600" : "text-red-600"
+          }`}
+        >
           $
-          {
-            item.unrealized
-              ?
-              item.unrealized.toLocaleString("en-US", {
+          {item.unrealized
+            ? item.unrealized.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-              :
-              0
-          }
+            : 0}
         </TableCell>
       )}
       {columnVisibility.plPercent && (
-        <TableCell className={`w-[120px] text-center ${item.pL >= 0 ? "text-green-600" : "text-red-600"}`}>
+        <TableCell
+          className={`w-[120px] text-center ${
+            item.pL >= 0 ? "text-green-600" : "text-red-600"
+          }`}
+        >
           $
-          {
-            item.pL
-              ?
-              item.pL.toLocaleString("en-US", {
+          {item.pL
+            ? item.pL.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-              :
-              0
-          }
+            : 0}
         </TableCell>
       )}
       {columnVisibility.weight && (
         <TableCell className="w-[100px] text-center">
-          {((Number.parseFloat(item.value) / (totals?.marketValue || 1)) * 100).toFixed(2)}%
+          {(
+            (Number.parseFloat(item.value) / (totals?.marketValue || 1)) *
+            100
+          ).toFixed(2)}
+          %
         </TableCell>
       )}
       {columnVisibility.valuation && (
@@ -703,18 +914,25 @@ export default function PortfolioTable() {
           })}
         </TableCell>
       )}
-      {columnVisibility.priceTarget && <TableCell className="w-[140px] text-center">${Number(item.priceTarget.high).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>}
+      {columnVisibility.priceTarget && (
+        <TableCell className="w-[140px] text-center">
+          $
+          {Number(item.priceTarget.high).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </TableCell>
+      )}
 
       <TableCell className="w-[100px] text-center">
         <Switch
           checked={watchlistStocks.has(item.symbol)}
-          onCheckedChange={(checked) => handleWatchlistToggle(item.symbol, checked)}
+          onCheckedChange={(checked) =>
+            handleWatchlistToggle(item.symbol, checked)
+          }
           className="data-[state=checked]:bg-green-500"
         />
-        <Dialog
-          open={showUpgradeModal}
-          onOpenChange={setShowUpgradeModal}
-        >
+        <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="sm:max-w-[480px] p-6">
             <DialogHeader className="space-y-2">
               <DialogTitle className="text-lg font-semibold">
@@ -731,7 +949,8 @@ export default function PortfolioTable() {
                 <Unlock size={32} />
               </div>
               <p className="text-sm text-gray-600 max-w-xs">
-                To get access, please upgrade your subscription. Manage your investments with more flexibility.
+                To get access, please upgrade your subscription. Manage your
+                investments with more flexibility.
               </p>
               <Link href="/explore-plan">
                 <Button
@@ -774,16 +993,23 @@ export default function PortfolioTable() {
         </AlertDialog>
       </TableCell>
     </TableRow>
-  )
+  );
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-[100px] lg:mb-20 mb-5">
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm mt-16 lg:mb-12 mb-5">
       {/* Transaction Dialog */}
-      <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
+      <Dialog
+        open={isTransactionDialogOpen}
+        onOpenChange={setIsTransactionDialogOpen}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add New Transaction for {selectedStock?.symbol}</DialogTitle>
-            <DialogDescription>Add a buy or sell transaction for this stock.</DialogDescription>
+            <DialogTitle>
+              Add New Transaction for {selectedStock?.symbol}
+            </DialogTitle>
+            <DialogDescription>
+              Add a buy or sell transaction for this stock.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-6 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -805,7 +1031,12 @@ export default function PortfolioTable() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Type</Label>
-              <Select value={transactionType} onValueChange={(value: "buy" | "sell") => setTransactionType(value)}>
+              <Select
+                value={transactionType}
+                onValueChange={(value: "buy" | "sell") =>
+                  setTransactionType(value)
+                }
+              >
                 <SelectTrigger className="col-span-3 w-full">
                   <SelectValue placeholder="Select transaction type" />
                 </SelectTrigger>
@@ -824,7 +1055,10 @@ export default function PortfolioTable() {
                 type="number"
                 value={transactionQuantity === 0 ? "" : transactionQuantity}
                 onChange={(e) => {
-                  const value = e.target.value === "" ? 0 : Math.max(1, Number(e.target.value));
+                  const value =
+                    e.target.value === ""
+                      ? 0
+                      : Math.max(1, Number(e.target.value));
                   setTransactionQuantity(value);
                 }}
                 className="col-span-3"
@@ -845,14 +1079,17 @@ export default function PortfolioTable() {
                 type="number"
                 value={
                   selectedStock
-                    ? (editablePrices[selectedStock.symbol] ?? selectedStock.holdingPrice) === 0
+                    ? (editablePrices[selectedStock.symbol] ??
+                        selectedStock.holdingPrice) === 0
                       ? ""
-                      : (editablePrices[selectedStock.symbol] ?? selectedStock.holdingPrice)
+                      : editablePrices[selectedStock.symbol] ??
+                        selectedStock.holdingPrice
                     : ""
                 }
                 onChange={(e) => {
                   if (selectedStock) {
-                    const value = e.target.value === "" ? 0 : Number(e.target.value);
+                    const value =
+                      e.target.value === "" ? 0 : Number(e.target.value);
                     setEditablePrices((prev) => ({
                       ...prev,
                       [selectedStock.symbol]: value,
@@ -863,10 +1100,15 @@ export default function PortfolioTable() {
                 step="0.01"
                 min="0"
                 onBlur={(e) => {
-                  if (selectedStock && (e.target.value === "" || Number(e.target.value) < 0)) {
+                  if (
+                    selectedStock &&
+                    (e.target.value === "" || Number(e.target.value) < 0)
+                  ) {
                     setEditablePrices((prev) => ({
                       ...prev,
-                      [selectedStock.symbol]: Number(selectedStock.holdingPrice), // Reset to original if empty or invalid
+                      [selectedStock.symbol]: Number(
+                        selectedStock.holdingPrice
+                      ), // Reset to original if empty or invalid
                     }));
                   }
                 }}
@@ -874,7 +1116,10 @@ export default function PortfolioTable() {
             </div>
           </div>
           <div className="flex justify-center gap-2">
-            <Button variant="outline" onClick={() => setIsTransactionDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsTransactionDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -927,14 +1172,18 @@ export default function PortfolioTable() {
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Manage Table Columns</DialogTitle>
-                <DialogDescription>Select additional columns to display in the table.</DialogDescription>
+                <DialogDescription>
+                  Select additional columns to display in the table.
+                </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="costBasis"
                     checked={columnVisibility.costBasis}
-                    onCheckedChange={(checked) => handleColumnVisibilityChange("costBasis", !!checked)}
+                    onCheckedChange={(checked) =>
+                      handleColumnVisibilityChange("costBasis", !!checked)
+                    }
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                   <Label htmlFor="costBasis">Cost Basis</Label>
@@ -943,7 +1192,9 @@ export default function PortfolioTable() {
                   <Checkbox
                     id="unrealizedPL"
                     checked={columnVisibility.unrealizedPL}
-                    onCheckedChange={(checked) => handleColumnVisibilityChange("unrealizedPL", !!checked)}
+                    onCheckedChange={(checked) =>
+                      handleColumnVisibilityChange("unrealizedPL", !!checked)
+                    }
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                   <Label htmlFor="unrealizedPL">Unrealized (P&L)</Label>
@@ -952,7 +1203,9 @@ export default function PortfolioTable() {
                   <Checkbox
                     id="plPercent"
                     checked={columnVisibility.plPercent}
-                    onCheckedChange={(checked) => handleColumnVisibilityChange("plPercent", !!checked)}
+                    onCheckedChange={(checked) =>
+                      handleColumnVisibilityChange("plPercent", !!checked)
+                    }
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                   <Label htmlFor="plPercent">P&L%</Label>
@@ -961,7 +1214,9 @@ export default function PortfolioTable() {
                   <Checkbox
                     id="weight"
                     checked={columnVisibility.weight}
-                    onCheckedChange={(checked) => handleColumnVisibilityChange("weight", !!checked)}
+                    onCheckedChange={(checked) =>
+                      handleColumnVisibilityChange("weight", !!checked)
+                    }
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                   <Label htmlFor="weight">Weight</Label>
@@ -970,7 +1225,9 @@ export default function PortfolioTable() {
                   <Checkbox
                     id="valuation"
                     checked={columnVisibility.valuation}
-                    onCheckedChange={(checked) => handleColumnVisibilityChange("valuation", !!checked)}
+                    onCheckedChange={(checked) =>
+                      handleColumnVisibilityChange("valuation", !!checked)
+                    }
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                   <Label htmlFor="valuation">Fair Value</Label>
@@ -979,7 +1236,9 @@ export default function PortfolioTable() {
                   <Checkbox
                     id="priceTarget"
                     checked={columnVisibility.priceTarget}
-                    onCheckedChange={(checked) => handleColumnVisibilityChange("priceTarget", !!checked)}
+                    onCheckedChange={(checked) =>
+                      handleColumnVisibilityChange("priceTarget", !!checked)
+                    }
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                   <Label htmlFor="priceTarget">Price Target</Label>
@@ -996,14 +1255,21 @@ export default function PortfolioTable() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table style={{ width: `${getTableWidth()}px` }} className="table-fixed">
+              <Table
+                style={{ width: `${getTableWidth()}px` }}
+                className="table-fixed"
+              >
                 <TableHeader>{renderTableHeaders()}</TableHeader>
                 <TableBody>
-                  {sortedHoldings.map((item: HoldingItem, index: number) => renderTableRow(item, index))}
+                  {sortedHoldings.map((item: HoldingItem, index: number) =>
+                    renderTableRow(item, index)
+                  )}
                   {/* Totals Row */}
                   {totals && (
                     <TableRow className="bg-gray-50 font-semibold border-t-2">
-                      <TableCell className="w-[120px] text-center">Total</TableCell>
+                      <TableCell className="w-[120px] text-center">
+                        Total
+                      </TableCell>
                       <TableCell className="w-[180px]"></TableCell>
                       <TableCell className="w-[120px]"></TableCell>
                       <TableCell className="w-[130px]"></TableCell>
@@ -1031,7 +1297,11 @@ export default function PortfolioTable() {
                       )}
                       {columnVisibility.unrealizedPL && (
                         <TableCell
-                          className={`w-[160px] text-center ${totals.unrealizedPL >= 0 ? "text-green-600" : "text-red-600"}`}
+                          className={`w-[160px] text-center ${
+                            totals.unrealizedPL >= 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
                         >
                           $
                           {totals.unrealizedPL.toLocaleString("en-US", {
@@ -1042,7 +1312,11 @@ export default function PortfolioTable() {
                       )}
                       {columnVisibility.plPercent && (
                         <TableCell
-                          className={`w-[120px] text-center ${totals.plPercent >= 0 ? "text-green-600" : "text-red-600"}`}
+                          className={`w-[120px] text-center ${
+                            totals.plPercent >= 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
                         >
                           $
                           {totals.plPercent.toLocaleString("en-US", {
@@ -1052,10 +1326,16 @@ export default function PortfolioTable() {
                         </TableCell>
                       )}
                       {columnVisibility.weight && (
-                        <TableCell className="w-[100px] text-center">{totals.weight}%</TableCell>
+                        <TableCell className="w-[100px] text-center">
+                          {totals.weight}%
+                        </TableCell>
                       )}
-                      {columnVisibility.valuation && <TableCell className="w-[140px]"></TableCell>}
-                      {columnVisibility.priceTarget && <TableCell className="w-[140px]"></TableCell>}
+                      {columnVisibility.valuation && (
+                        <TableCell className="w-[140px]"></TableCell>
+                      )}
+                      {columnVisibility.priceTarget && (
+                        <TableCell className="w-[140px]"></TableCell>
+                      )}
                       <TableCell className="w-[100px]"></TableCell>
                       <TableCell className="w-[100px]"></TableCell>
                     </TableRow>
@@ -1072,15 +1352,20 @@ export default function PortfolioTable() {
 
         <TabsContent value="holdings">
           <div className="overflow-x-auto">
-            <Table style={{ width: `${getTableWidth()}px` }} className="table-fixed">
+            <Table
+              style={{ width: `${getTableWidth()}px` }}
+              className="table-fixed"
+            >
               <TableHeader>{renderTableHeaders()}</TableHeader>
               <TableBody>
-                {sortedHoldings.map((item: HoldingItem, index: number) => renderTableRow(item, index))}
+                {sortedHoldings.map((item: HoldingItem, index: number) =>
+                  renderTableRow(item, index)
+                )}
               </TableBody>
             </Table>
           </div>
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

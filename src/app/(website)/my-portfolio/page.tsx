@@ -1,5 +1,9 @@
-import MyPortfolio from "@/components/Portfolio/my-portfolio"
+import MyPortfolio from "@/components/Portfolio/my-portfolio";
 
 export default function Page() {
-  return <MyPortfolio />
+  return (
+    <div className="lg:-mt-10">
+      <MyPortfolio />
+    </div>
+  );
 }

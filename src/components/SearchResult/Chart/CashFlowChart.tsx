@@ -12,6 +12,7 @@ import GaugeChart from "react-gauge-chart";
 import useAxios from "@/hooks/useAxios";
 import { useSearchParams } from "next/navigation";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface ChartConfig {
   operatingCashFlow: {
@@ -31,15 +32,15 @@ interface ChartConfig {
 const chartConfig = {
   operatingCashFlow: {
     label: "Operating Cash Flow",
-    color: "hsl(134, 61%, 41%)", // green
+    color: "hsl(134, 61%, 41%)",
   },
   investingCashFlow: {
     label: "Investing Cash Flow",
-    color: "hsl(217, 91%, 60%)", // blue
+    color: "hsl(217, 91%, 60%)",
   },
   financingCashFlow: {
     label: "Financing Cash Flow",
-    color: "hsl(0, 84%, 60%)", // red
+    color: "hsl(0, 84%, 60%)",
   },
 } satisfies ChartConfig;
 
@@ -47,6 +48,8 @@ const CashFlowChart = () => {
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
+
+  const { selectedLangCode } = useLanguage();
 
   const { data: cashFlowData = [] } = useQuery({
     queryKey: ["cashFlow-chart", query],
@@ -70,8 +73,6 @@ const CashFlowChart = () => {
       latestYear.financingCashFlow
     : 0;
 
-  // Calculate gauge value (normalized between 0-1)
-  // Positive ratio of operating cash flow to total absolute cash flows
   const gaugeValue = latestYear
     ? Math.max(
         0,
@@ -109,16 +110,6 @@ const CashFlowChart = () => {
                 fill="var(--color-operatingCashFlow)"
                 name="Operating"
               />
-              {/* <Bar
-                dataKey="investingCashFlow"
-                fill="var(--color-investingCashFlow)"
-                name="Investing"
-              />
-              <Bar
-                dataKey="financingCashFlow"
-                fill="var(--color-financingCashFlow)"
-                name="Financing"
-              /> */}
             </BarChart>
           ) : (
             <div className="h-full flex items-center justify-center">
@@ -129,7 +120,11 @@ const CashFlowChart = () => {
       </div>
 
       <div className="lg:h-[400px] lg:w-1/2 flex flex-col items-center justify-center">
-        <h3 className="text-lg font-medium mb-2">Operating Cash Flow Health</h3>
+        <h3 className="text-lg font-medium mb-2">
+          {selectedLangCode === "ar"
+            ? "الصحة التشغيلية للتدفق النقدي"
+            : "Operating Cash Flow Health"}
+        </h3>
         <GaugeChart
           id="cash-flow-gauge"
           nrOfLevels={4}
@@ -142,13 +137,18 @@ const CashFlowChart = () => {
         {latestYear && (
           <div className="text-center mt-4">
             <p className="text-sm text-muted-foreground">
-              Latest Year: {latestYear.year}
+              {selectedLangCode === "ar" ? "آخر عام" : "Latest Year"}:{" "}
+              {latestYear.year}
             </p>
             <p className="text-lg font-semibold">
-              Operating: ${(latestYear.operatingCashFlow / 1000).toFixed(2)}B
+              {selectedLangCode === "ar" ? "التشغيل" : "Operating"}: $
+              {(latestYear.operatingCashFlow / 1000).toFixed(2)}B
             </p>
             <p className="text-sm">
-              Total Cash Flow: ${(totalCashFlow / 1000).toFixed(2)}B
+              {selectedLangCode === "ar"
+                ? "إجمالي التدفق النقدي"
+                : "Total Cash Flow"}
+              : ${(totalCashFlow / 1000).toFixed(2)}B
             </p>
           </div>
         )}

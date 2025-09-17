@@ -4,7 +4,7 @@ import React from 'react'
 
 export default function page() {
     return (
-        <div className='lg:w-[100%]'>
+        <div className='lg:w-[100%] lg:-mt-4'>
             <div>
                 <PortfolioPerformance />
             </div>

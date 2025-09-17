@@ -132,6 +132,8 @@ export const enLangs = {
   // Olive details page
   strongFinancialHealth: "Strong Financial Health",
   poorFinancialHealth: "Poor Financial Health",
+  lowCompetitiveAdvantage: "Low Competitive Advantage",
+  highCompetitiveAdvantage: "High Competitive Advantage",
   oliveGreen: "Olive Green",
   limeGreen: "Lime Green",
   yellow: "Yellow",

@@ -1,35 +1,37 @@
-"use client"
-import type React from "react"
-import { useRef, useState } from "react"
-import { Upload, X } from "lucide-react"
-import Image from "next/image"
-import useAxios from "@/hooks/useAxios"
-import { useMutation } from "@tanstack/react-query"
-import { useForm, Controller } from "react-hook-form"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import dynamic from "next/dynamic"
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
-import "react-quill/dist/quill.snow.css"
-import PathTracker from "../../_components/PathTracker"
+"use client";
+import type React from "react";
+import { useRef, useState } from "react";
+import { Upload, X } from "lucide-react";
+import Image from "next/image";
+import useAxios from "@/hooks/useAxios";
+import { useMutation } from "@tanstack/react-query";
+import { useForm, Controller } from "react-hook-form";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
+import PathTracker from "../../_components/PathTracker";
 
 interface NewsFormData {
-  stockName: string
-  newsTitle: string
-  newsDescription: string
-  imageLink: string
-  isPaid: "true" | "false"
+  stockName: string;
+  newsTitle: string;
+  newsDescription: string;
+  imageLink: string;
+  isPaid: "true" | "false";
 }
 
 const Page = () => {
-  const router = useRouter()
-  const [image, setImage] = useState<{ file: File; preview: string } | null>(null)
-  const [language, setLanguage] = useState<"en" | "ar">("en")
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter();
+  const [image, setImage] = useState<{ file: File; preview: string } | null>(
+    null
+  );
+  const [language, setLanguage] = useState<"en" | "ar">("en");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const {
     register,
@@ -44,7 +46,7 @@ const Page = () => {
       imageLink: "",
       isPaid: "false",
     },
-  })
+  });
 
   const modules = {
     toolbar: [
@@ -60,7 +62,7 @@ const Page = () => {
       [{ script: "sub" }, { script: "super" }],
       ["clean"],
     ],
-  }
+  };
 
   const formats = [
     "header",
@@ -80,36 +82,36 @@ const Page = () => {
     "blockquote",
     "code-block",
     "script",
-  ]
+  ];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
+      const file = e.target.files[0];
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB")
-        return
+        toast.error("Image size should be less than 5MB");
+        return;
       }
       if (!file.type.startsWith("image/")) {
-        toast.error("Please select a valid image file")
-        return
+        toast.error("Please select a valid image file");
+        return;
       }
       const newImage = {
         file,
         preview: URL.createObjectURL(file),
-      }
-      if (image) URL.revokeObjectURL(image.preview)
-      setImage(newImage)
+      };
+      if (image) URL.revokeObjectURL(image.preview);
+      setImage(newImage);
     }
-  }
+  };
 
   const removeImage = () => {
     if (image) {
-      URL.revokeObjectURL(image.preview)
-      setImage(null)
+      URL.revokeObjectURL(image.preview);
+      setImage(null);
     }
-  }
+  };
 
-  const axiosInstance = useAxios()
+  const axiosInstance = useAxios();
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["add-news"],
     mutationFn: async (payload: FormData) => {
@@ -117,43 +119,51 @@ const Page = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      })
-      return res.data
+      });
+      return res.data;
     },
     onSuccess: () => {
-      toast.success("News created successfully!")
-      reset()
-      removeImage()
-      router.push("/dashboard/news")
+      toast.success("News created successfully!");
+      reset();
+      removeImage();
+      router.push("/dashboard/news");
     },
     onError: (error: import("axios").AxiosError) => {
-      const errorMessage = (error.response?.data as { message?: string })?.message || "Failed to create news"
-      toast.error(errorMessage)
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        "Failed to create news";
+      toast.error(errorMessage);
     },
-  })
+  });
 
   const onSubmit = async (data: NewsFormData) => {
     if (!image) {
-      toast.error(language === "ar" ? "يرجى اختيار صورة الغلاف" : "Please select a cover image")
-      return
+      toast.error(
+        language === "ar"
+          ? "يرجى اختيار صورة الغلاف"
+          : "Please select a cover image"
+      );
+      return;
     }
 
     try {
-      const formData = new FormData()
-      formData.append("symbol", data.stockName)
-      formData.append("newsTitle", data.newsTitle)
-      formData.append("newsDescription", data.newsDescription)
-      formData.append("imageLink", image.file)
-      formData.append("source", "admin")
-      formData.append("isPaid", data.isPaid) // ✅ added
-      formData.append("lang", language)
+      const formData = new FormData();
+      formData.append("symbol", data.stockName);
+      formData.append("newsTitle", data.newsTitle);
+      formData.append("newsDescription", data.newsDescription);
+      formData.append("imageLink", image.file);
+      formData.append("source", "admin");
+      formData.append("isPaid", data.isPaid); // ✅ added
+      formData.append("lang", language);
 
-      await mutateAsync(formData)
+      await mutateAsync(formData);
     } catch (error) {
-      console.error("Error creating news:", error)
-      toast.error(language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred")
+      console.error("Error creating news:", error);
+      toast.error(
+        language === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred"
+      );
     }
-  }
+  };
 
   return (
     <div>
@@ -165,20 +175,22 @@ const Page = () => {
             <button
               type="button"
               onClick={() => setLanguage("en")}
-              className={`px-3 py-3 w-[100px] border border-green-500 rounded-md text-sm font-medium transition-colors ${language === "en"
-                ? "bg-green-500 text-white font-medium shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-                }`}
+              className={`px-3 py-3 w-[100px] border border-green-500 rounded-md text-sm font-medium transition-colors ${
+                language === "en"
+                  ? "bg-green-500 text-white font-medium shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
             >
               English
             </button>
             <button
               type="button"
               onClick={() => setLanguage("ar")}
-              className={`px-3 py-3 rounded-md text-sm w-[100px] border border-green-500 font-medium transition-colors ${language === "ar"
-                ? "bg-green-500 text-white font-medium shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-                }`}
+              className={`px-3 py-3 rounded-md text-sm w-[100px] border border-green-500 font-medium transition-colors ${
+                language === "ar"
+                  ? "bg-green-500 text-white font-medium shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
             >
               العربية
             </button>
@@ -191,18 +203,22 @@ const Page = () => {
             {isPending
               ? "Saving..."
               : isPending
-                ? language === "ar"
-                  ? "جاري الحفظ..."
-                  : "Saving..."
-                : language === "ar"
-                  ? "حفظ"
-                  : "Save"}
+              ? language === "ar"
+                ? "جاري الحفظ..."
+                : "Saving..."
+              : language === "ar"
+              ? "حفظ"
+              : "Save"}
           </button>
         </div>
       </div>
 
       <div>
-        <div className={`border border-[#b0b0b0] p-4 rounded-lg ${language === "ar" ? "rtl" : "ltr"}`}>
+        <div
+          className={`border border-[#b0b0b0] p-4 rounded-lg ${
+            language === "ar" ? "rtl" : "ltr"
+          }`}
+        >
           <div>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-2">
@@ -214,59 +230,62 @@ const Page = () => {
                   className="border p-4 rounded-lg bg-inherit outline-none w-full border-[#b0b0b0]"
                   dir={language === "ar" ? "rtl" : "ltr"}
                 >
-                  <option value="false">{language === "ar" ? "مجاني" : "Free"}</option>
-                  <option value="true">{language === "ar" ? "مدفوع" : "Paid"}</option>
+                  <option value="false">
+                    {language === "ar" ? "مجاني" : "Free"}
+                  </option>
+                  <option value="true">
+                    {language === "ar" ? "مدفوع" : "Paid"}
+                  </option>
                 </select>
                 {errors.isPaid && (
                   <p className="text-red-500 text-sm">
-                    {language === "ar" ? "يرجى تحديد حالة الخبر" : "Please select news status"}
+                    {language === "ar"
+                      ? "يرجى تحديد حالة الخبر"
+                      : "Please select news status"}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="stocksName" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="stocksName"
+                  className="text-sm font-medium text-gray-700"
+                >
                   {language === "ar" ? "اسم السهم*" : "Stock's Name *"}
                 </label>
                 <input
                   id="stocksName"
-                  placeholder={language === "ar" ? "أدخل اسم السهم" : "Enter Stock's Name"}
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
+                  placeholder={
+                    language === "ar" ? "أدخل اسم السهم" : "Enter Stock's Name"
+                  }
+                  className={`border p-4 rounded-lg bg-inherit outline-none w-full border-[#b0b0b0]
                     } ${language === "ar" ? "text-right" : "text-left"}`}
                   dir={language === "ar" ? "rtl" : "ltr"}
-                  {...register("stockName", {
-                    required: language === "ar" ? "اسم السهم مطلوب" : "Stock name is required",
-                    minLength: {
-                      value: 3,
-                      message:
-                        language === "ar"
-                          ? "يجب أن يكون الاسم 3 أحرف على الأقل"
-                          : "Name must be at least 3 characters long",
-                    },
-                    maxLength: {
-                      value: 100,
-                      message:
-                        language === "ar"
-                          ? "يجب أن يكون الاسم أقل من 100 حرف"
-                          : "Name must be less than 100 characters",
-                    },
-                  })}
+                  {...register("stockName")}
                 />
-                {errors.newsTitle && <p className="text-red-500 text-sm">{errors.newsTitle.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="newsTitle" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="newsTitle"
+                  className="text-sm font-medium text-gray-700"
+                >
                   {language === "ar" ? "عنوان الخبر*" : "News Title *"}
                 </label>
                 <input
                   id="newsTitle"
-                  placeholder={language === "ar" ? "أدخل عنوان الخبر" : "Enter News Title"}
-                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
-                    } ${language === "ar" ? "text-right" : "text-left"}`}
+                  placeholder={
+                    language === "ar" ? "أدخل عنوان الخبر" : "Enter News Title"
+                  }
+                  className={`border p-4 rounded-lg bg-inherit outline-none w-full ${
+                    errors.newsTitle ? "border-red-500" : "border-[#b0b0b0]"
+                  } ${language === "ar" ? "text-right" : "text-left"}`}
                   dir={language === "ar" ? "rtl" : "ltr"}
                   {...register("newsTitle", {
-                    required: language === "ar" ? "عنوان الخبر مطلوب" : "News title is required",
+                    required:
+                      language === "ar"
+                        ? "عنوان الخبر مطلوب"
+                        : "News title is required",
                     minLength: {
                       value: 3,
                       message:
@@ -283,11 +302,18 @@ const Page = () => {
                     },
                   })}
                 />
-                {errors.newsTitle && <p className="text-red-500 text-sm">{errors.newsTitle.message}</p>}
+                {errors.newsTitle && (
+                  <p className="text-red-500 text-sm">
+                    {errors.newsTitle.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="newsDescription" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="newsDescription"
+                  className="text-sm font-medium text-gray-700"
+                >
                   {language === "ar" ? "وصف الخبر *" : "News Description *"}
                 </label>
                 <div className="mb-2 text-xs text-gray-500">
@@ -295,22 +321,32 @@ const Page = () => {
                     ? "💡 نصيحة: استخدم زر الاتجاه (⇄) في شريط الأدوات للتبديل بين اتجاه النص الإنجليزي والعربي"
                     : "💡 Tip: Use the direction button (⇄) in the toolbar to switch between English (LTR) and Arabic (RTL) text direction"}
                 </div>
-                <div className={`border rounded-lg ${errors.newsDescription ? "border-red-500" : "border-[#b0b0b0]"}`}>
+                <div
+                  className={`border rounded-lg ${
+                    errors.newsDescription
+                      ? "border-red-500"
+                      : "border-[#b0b0b0]"
+                  }`}
+                >
                   <Controller
                     name="newsDescription"
                     control={control}
                     rules={{
                       validate: (value) => {
-                        const textContent = value.replace(/<[^>]*>/g, "").trim()
+                        const textContent = value
+                          .replace(/<[^>]*>/g, "")
+                          .trim();
                         if (!textContent) {
-                          return language === "ar" ? "وصف الخبر مطلوب" : "News description is required"
+                          return language === "ar"
+                            ? "وصف الخبر مطلوب"
+                            : "News description is required";
                         }
                         if (textContent.length < 10) {
                           return language === "ar"
                             ? "يجب أن يكون الوصف 10 أحرف على الأقل"
-                            : "Description must be at least 10 characters long"
+                            : "Description must be at least 10 characters long";
                         }
-                        return true
+                        return true;
                       },
                     }}
                     render={({ field }) => (
@@ -320,16 +356,26 @@ const Page = () => {
                         onChange={field.onChange}
                         modules={modules}
                         formats={formats}
-                        placeholder={language === "ar" ? "اكتب الوصف هنا..." : "Type Description here..."}
+                        placeholder={
+                          language === "ar"
+                            ? "اكتب الوصف هنا..."
+                            : "Type Description here..."
+                        }
                         style={{
                           backgroundColor: "inherit",
                         }}
-                        className={`quill-editor arabic-support ${language === "ar" ? "rtl-mode" : "ltr-mode"}`}
+                        className={`quill-editor arabic-support ${
+                          language === "ar" ? "rtl-mode" : "ltr-mode"
+                        }`}
                       />
                     )}
                   />
                 </div>
-                {errors.newsDescription && <p className="text-red-500 text-sm">{errors.newsDescription.message}</p>}
+                {errors.newsDescription && (
+                  <p className="text-red-500 text-sm">
+                    {errors.newsDescription.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -356,19 +402,28 @@ const Page = () => {
                       </button>
                     </div>
                     <p className="text-sm text-gray-600">
-                      {image.file.name} ({(image.file.size / 1024 / 1024).toFixed(2)} MB)
+                      {image.file.name} (
+                      {(image.file.size / 1024 / 1024).toFixed(2)} MB)
                     </p>
                   </div>
                 ) : (
                   <div className="border-2 border-dashed border-gray-300 rounded-md p-12 text-center">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <div className="h-12 w-12 cursor-pointer text-gray-400">
-                        <Upload className="mx-auto h-12 w-12" onClick={triggerFileInput} />
+                        <Upload
+                          className="mx-auto h-12 w-12"
+                          onClick={triggerFileInput}
+                        />
                       </div>
                       <div className="flex text-sm text-gray-500">
-                        <label htmlFor="file-upload" className="relative cursor-pointer">
+                        <label
+                          htmlFor="file-upload"
+                          className="relative cursor-pointer"
+                        >
                           <span>
-                            {language === "ar" ? "اسحب الصورة هنا أو تصفح" : "Drop your image here, or browse"}
+                            {language === "ar"
+                              ? "اسحب الصورة هنا أو تصفح"
+                              : "Drop your image here, or browse"}
                           </span>
                           <input
                             id="file-upload"
@@ -481,7 +536,7 @@ const Page = () => {
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

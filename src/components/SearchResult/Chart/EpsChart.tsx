@@ -25,7 +25,7 @@ const EpsChart = () => {
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
-  const { dictionary } = useLanguage();
+  const { dictionary, selectedLangCode } = useLanguage();
 
   const { data, isLoading } = useQuery({
     queryKey: ["earnings-surprise", query],
@@ -160,14 +160,19 @@ const EpsChart = () => {
     };
   }, [data]);
 
-  if (isLoading) return <div className="text-center text-lg h-[400px]">Loading...</div>;
+  if (isLoading)
+    return <div className="text-center text-lg h-[400px]">Loading...</div>;
   if (!data || data.length === 0) return <p>No data available.</p>;
 
   return (
     <div>
       <div>
         <h1 className="text-xl font-medium">{dictionary.earningsHistory}</h1>
-        <p>Showing last {Math.min(data.length, MAX_POINTS)} periods</p>
+        <p>
+          {selectedLangCode === "ar"
+            ? `عرض ${Math.min(data.length, MAX_POINTS)} فترات`
+            : `Showing ${Math.min(data.length, MAX_POINTS)} periods`}
+        </p>
       </div>
       <div ref={chartRef} style={{ height: "400px", width: "100%" }} />
     </div>
