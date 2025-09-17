@@ -118,6 +118,8 @@ export interface LangTypes {
   // Olive details page
   strongFinancialHealth: string;
   poorFinancialHealth: string;
+  lowCompetitiveAdvantage: string;
+  highCompetitiveAdvantage: string;
   oliveGreen: string;
   limeGreen: string;
   yellow: string;
