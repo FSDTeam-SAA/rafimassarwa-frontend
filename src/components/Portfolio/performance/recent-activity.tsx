@@ -42,6 +42,7 @@ export default function RecentActivity() {
         gain: performaceData?.mostProfitableTrade?.gain
     }
 
+    console.log("Dddddddddd: ", mostProfitableTrade.gain)
 
     return (
         <div className='grid grid-cols-1 lg:grid-cols-3 lg:gap-5 lg:mt-20 my-5'>
@@ -64,7 +65,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>1-Month Return</p>
-                                            <span className={`text-xs ${recentActivity.oneMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${recentActivity.oneMonthReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.oneMonthReturn ? "▲" : "▼"}
                                                 {recentActivity?.oneMonthReturn == null ? "0.00" : recentActivity.oneMonthReturn.toFixed(2)}%
                                             </span>
@@ -73,7 +74,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>6-Month Return</p>
-                                            <span className={`text-xs ${recentActivity.sixMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${recentActivity.sixMonthReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.sixMonthReturn ? "▲" : "▼"}
                                                 {recentActivity?.sixMonthReturn == null ? "0.00" : recentActivity.sixMonthReturn.toFixed(2)}%
                                             </span>
@@ -82,7 +83,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>12-Month Return</p>
-                                            <span className={`text-xs ${recentActivity.twelveMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${recentActivity.twelveMonthReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.twelveMonthReturn ? "▲" : "▼"}
                                                 {recentActivity?.twelveMonthReturn?.toFixed(2)}%
                                             </span>
@@ -91,7 +92,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>YTD Return</p>
-                                            <span className={`text-xs ${recentActivity.ytdReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${recentActivity.ytdReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.ytdReturn ? "▲" : "▼"}
                                                 {recentActivity?.ytdReturn?.toFixed(2)}%
                                             </span>
@@ -100,7 +101,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>Total Return</p>
-                                            <span className={`text-xs ${recentActivity.totalReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${recentActivity.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {recentActivity.totalReturn ? "▲" : "▼"}
                                                 {recentActivity?.totalReturn?.toFixed(2)}%
                                             </span>
@@ -144,7 +145,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>12-Month Return</p>
-                                            <span className={`text-xs  ${portfolioDetails.twelveMonthReturn !== null && portfolioDetails.twelveMonthReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs  ${portfolioDetails.twelveMonthReturn !== null && portfolioDetails.twelveMonthReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {portfolioDetails.twelveMonthReturn !== null ? (
                                                     <>
                                                         {portfolioDetails.twelveMonthReturn >= 0 ? "▲" : "▼"}
@@ -157,7 +158,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>YTD Return</p>
-                                            <span className={`text-xs ${portfolioDetails.ytdReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${portfolioDetails.ytdReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {portfolioDetails.ytdReturn ? "▲" : "▼"}
                                                 {portfolioDetails.ytdReturn?.toFixed(2)}%
                                             </span>
@@ -166,7 +167,7 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>Total Return</p>
-                                            <span className={`text-xs ${portfolioDetails.totalReturn > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${portfolioDetails.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {portfolioDetails.totalReturn ? "▲" : "▼"}
                                                 {portfolioDetails.totalReturn}%
                                             </span>
@@ -220,9 +221,9 @@ export default function RecentActivity() {
                                     <li className='py-4 border-t border-[#BFBFBF] px-8'>
                                         <div className="flex justify-between otems-center text-sm">
                                             <p>Gain</p>
-                                            <span className={`text-xs ${mostProfitableTrade.gain > 0 ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
+                                            <span className={`text-xs ${mostProfitableTrade.gain >= 0 || !mostProfitableTrade.gain ? 'text-green-600' : 'text-red-600'} px-2 py-1 rounded-full`}>
                                                 {mostProfitableTrade.gain ? "▲" : "▼"}
-                                                {mostProfitableTrade.gain?.toFixed(2)}%
+                                                {mostProfitableTrade.gain?.toFixed(2) || "0.00"}%
                                             </span>
                                         </div>
                                     </li>

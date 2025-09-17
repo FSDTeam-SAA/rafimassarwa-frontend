@@ -619,7 +619,7 @@ export default function PortfolioTable() {
 
       <TableCell className="w-[120px] text-center">
         <div
-          className={`flex items-center gap-1 justify-center ${Number(item.holdingGain) > 0 ? "text-green-500" : "text-red-500"
+          className={`flex items-center gap-1 justify-center ${Number(item.holdingGain) >= 0 ? "text-green-500" : "text-red-500"
             }`}
         >
           {Number(item.holdingGain) > 0 ? <FaCaretUp /> : <FaCaretDown />}
