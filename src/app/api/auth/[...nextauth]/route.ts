@@ -68,7 +68,7 @@ const handler = NextAuth({
       authorization: {
         params: {
           scope: "name email",
-          response_mode: "form_post",
+          response_mode: "query",
         },
       },
     }),
@@ -220,6 +220,21 @@ const handler = NextAuth({
   },
 
   secret: process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: `${
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token"
+      }`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax", // or 'strict'
+        path: "/",
+        secure: process.env.NODE_ENV === "production", // ✅ only true in production
+      },
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
