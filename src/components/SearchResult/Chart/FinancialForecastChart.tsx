@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ArrowUpRight } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type ForecastData = {
   labels: string[];
@@ -47,6 +48,9 @@ export default function FinancialForecastChart({
   targetsData,
   targetData,
 }: FinancialForecastChartProps) {
+  const { selectedLangCode } = useLanguage();
+  const isRTL = selectedLangCode === "ar";
+
   function transformToChartData(data: ForecastData) {
     if (!data || !data.labels) return [];
 
@@ -101,6 +105,19 @@ export default function FinancialForecastChart({
 
   const chartData = transformToChartData(targetChartData);
 
+  // Translation dictionary
+  const translations = {
+    past12Months: isRTL ? "آخر 12 شهرًا" : "Past 12 Months",
+    forecast12Months: isRTL ? "التنبؤ لـ 12 شهرًا" : "12 Month Forecast",
+    high: isRTL ? "عالٍ" : "High",
+    average: isRTL ? "متوسط" : "Average",
+    low: isRTL ? "منخفض" : "Low",
+    highestPriceTarget: isRTL ? "أعلى سعر مستهدف:" : "Highest Price Target:",
+    averagePriceTarget: isRTL ? "متوسط السعر المستهدف:" : "Average Price Target:",
+    lowestPriceTarget: isRTL ? "أقل سعر مستهدف:" : "Lowest Price Target:",
+    price: isRTL ? "السعر" : "Price",
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-0 px-6">
@@ -111,38 +128,39 @@ export default function FinancialForecastChart({
                 {targetData?.currentPrice}
               </span>
               <span className="text-sm text-green-500 flex items-center">
-                <ArrowUpRight className="h-4 w-4 mr-1" />
+                {!isRTL && <ArrowUpRight className="h-4 w-4 mr-1" />}
                 (${targetData?.upside})
+                {isRTL && <ArrowUpRight className="h-4 w-4 mr-1" />}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex justify-between lg:px-24 pt-3 pb-2 text-sm text-gray-500 font-medium">
-          <div>Past 12 Months</div>
-          <div>12 Month Forecast</div>
+        <div className={`flex justify-between lg:px-24 pt-3 pb-2 text-sm text-gray-500 font-medium ${isRTL ? "flex-row-reverse" : ""}`}>
+          <div>{translations.past12Months}</div>
+          <div>{translations.forecast12Months}</div>
         </div>
       </CardHeader>
       <CardContent className="pr-0 pl-0 lg:pl-4 overflow-auto lg:overflow-hidden">
-        <div className="flex justify-between w-full h-[200px] lg:h-auto p-0 ">
+        <div className={`flex justify-between w-full h-[200px] lg:h-auto p-0 `}>
           <div className="flex items-center">
             {/* Chart container - takes 100% width */}
             <div className="h-[200px] lg:w-[70%]">
               <ChartContainer
                 config={{
                   price: {
-                    label: "Price",
+                    label: translations.price,
                     color: "hsl(var(--chart-1))",
                   },
                   high: {
-                    label: "High",
+                    label: translations.high,
                     color: "hsl(142, 76%, 36%)",
                   },
                   average: {
-                    label: "Average",
+                    label: translations.average,
                     color: "hsl(0, 0%, 60%)",
                   },
                   low: {
-                    label: "Low",
+                    label: translations.low,
                     color: "hsl(0, 76%, 50%)",
                   },
                 }}
@@ -158,9 +176,9 @@ export default function FinancialForecastChart({
                       dataKey="month"
                       tickLine={false}
                       axisLine={false}
-                      tickFormatter={(value) => value} // Just show the raw "Jul", "Aug", etc.
+                      tickFormatter={(value) => value}
                       tick={{ fontSize: 12 }}
-                      interval={0} // ✅ This forces showing all labels
+                      interval={0}
                     />
                     <YAxis
                       domain={[0, 550]}
@@ -203,41 +221,41 @@ export default function FinancialForecastChart({
                 <path
                   d="M1 82.6953L435.922 190"
                   stroke="#FF5733"
-                  stroke-width="2"
-                  stroke-dasharray="6 2"
+                  strokeWidth="2"
+                  strokeDasharray="6 2"
                 />
                 <path
                   d="M1 82.6953L435.922 83"
                   stroke="#828080"
-                  stroke-width="2"
-                  stroke-dasharray="6 2"
+                  strokeWidth="2"
+                  strokeDasharray="6 2"
                 />
                 <path
                   d="M1 82.6953L435.922 -17"
                   stroke="#28A745"
-                  stroke-width="2"
-                  stroke-dasharray="6 2"
+                  strokeWidth="2"
+                  strokeDasharray="6 2"
                 />
               </svg>
             </div>
           </div>
 
           {/* Price target cards - positioned as a separate column */}
-          <div className="flex flex-col justify-between gap-4 lg:py-6 lg:px-4">
-            <div className="text-right w-[50px] lg:w-auto">
-              <div className="text-gray-500 text-xs">High</div>
+          <div className={`flex flex-col justify-between gap-4 lg:py-6 lg:px-4 ${isRTL ? "text-left" : "text-right"}`}>
+            <div className="w-[50px] lg:w-auto">
+              <div className="text-gray-500 text-xs">{translations.high}</div>
               <div className="font-semibold text-green-500 text-[10px]">
                 {targetsData?.high}
               </div>
             </div>
-            <div className="text-right w-[50px] lg:w-auto">
-              <div className="text-gray-500 text-[10px]">Average</div>
+            <div className="w-[50px] lg:w-auto">
+              <div className="text-gray-500 text-[10px]">{translations.average}</div>
               <div className="font-semibold text-[10px]">
                 {targetsData?.average}
               </div>
             </div>
-            <div className="text-right w-[50px] lg:w-auto">
-              <div className="text-gray-500 text-xs">Low</div>
+            <div className="w-[50px] lg:w-auto">
+              <div className="text-gray-500 text-xs">{translations.low}</div>
               <div className="font-semibold text-red-500 text-[10px]">
                 {targetsData?.low}
               </div>
@@ -245,21 +263,21 @@ export default function FinancialForecastChart({
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-center justify-between mt-6 px-6">
+        <div className={`flex flex-col lg:flex-row items-center justify-between mt-6 px-6 ${isRTL ? "flex-row-reverse" : ""}`}>
           <div className="text-center flex items-center gap-2">
-            <div className="font-medium">Highest Price Target:</div>
+            <div className="font-medium">{translations.highestPriceTarget}</div>
             <div className="font-semibold text-green-500">
               {targetsData?.high}
             </div>
           </div>
           <div className="text-center flex items-center gap-2">
-            <div className="font-medium">Average Price Target:</div>
+            <div className="font-medium">{translations.averagePriceTarget}</div>
             <div className="font-semibold text-gray-500">
               {targetsData?.average}
             </div>
           </div>
           <div className="text-center flex items-center gap-2">
-            <div className="font-medium">Lowest Price Target:</div>
+            <div className="font-medium">{translations.lowestPriceTarget}</div>
             <div className="font-semibold text-red-500">{targetsData?.low}</div>
           </div>
         </div>
@@ -267,5 +285,3 @@ export default function FinancialForecastChart({
     </Card>
   );
 }
-
-

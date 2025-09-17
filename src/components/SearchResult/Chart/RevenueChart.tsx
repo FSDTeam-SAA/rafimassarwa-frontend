@@ -36,7 +36,7 @@ const RevenueChart = () => {
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
-  const { dictionary } = useLanguage();
+  const { dictionary, selectedLangCode } = useLanguage();
 
   const { data: revenueData, isLoading } = useQuery({
     queryKey: ["revenue-data", query],
@@ -92,7 +92,11 @@ const RevenueChart = () => {
         <CardHeader>
           <CardTitle>{dictionary.earningsHistory}</CardTitle>
           <CardDescription>
-            {isLoading ? "Loading..." : `Showing ${chartData.length} periods`}
+            {isLoading
+              ? "Loading..."
+              : selectedLangCode === "ar"
+              ? `عرض ${chartData.length} فترات`
+              : `Showing ${chartData.length} periods`}
           </CardDescription>
         </CardHeader>
         <CardContent>

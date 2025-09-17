@@ -19,6 +19,7 @@ import FinancialForecastChart from "./FinancialForecastChart";
 import useAxios from "@/hooks/useAxios";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/providers/LanguageProvider";
 const chartConfig = {
   visitors: {
     label: "Visitors",
@@ -49,6 +50,8 @@ const TargetChart = () => {
   const axiosInstance = useAxios();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
+
+  const { selectedLangCode } = useLanguage();
 
   const { data: targetData = {}, isLoading } = useQuery({
     queryKey: ["target-chart-data"],
@@ -83,7 +86,7 @@ const TargetChart = () => {
           <div className="border-2 border-[#a8a8a87a] lg:col-span-2 rounded-lg flex flex-col justify-center">
             <Card className="flex flex-col">
               <CardHeader className="items-center pb-0">
-                <CardTitle>Sell</CardTitle>
+                <CardTitle>{selectedLangCode === "ar" ? "يبيع" : "Sell"}{" "}</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 pb-0">
                 <ChartContainer
@@ -140,7 +143,7 @@ const TargetChart = () => {
                                   y={(viewBox.cy || 0) + 24}
                                   className="fill-muted-foreground"
                                 >
-                                  Total
+                                  {selectedLangCode === "ar" ? "المجموع" : "Total"}{" "}
                                 </tspan>
                               </text>
                             );
@@ -154,17 +157,27 @@ const TargetChart = () => {
               <CardFooter className="flex justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="bg-green-500 h-4 w-4"></div>
-                  <h1 className="text-green-500">{analystsData?.buy} Buy</h1>
+                  <h1 className="text-green-500">
+                    {analystsData?.buy}{" "}
+                    {selectedLangCode === "ar" ? "يشتري" : "Buy"}
+                  </h1>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <div className="bg-gray-500 h-4 w-4"></div>
-                  <h1 className="text-gray-500">{analystsData?.hold} Hold</h1>
+                  <h1 className="text-gray-500">
+                    {analystsData?.hold} {analystsData?.buy}{" "}
+                    {selectedLangCode === "ar" ? "يمسك" : "Hold"}
+                  </h1>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <div className="bg-red-500 h-4 w-4"></div>
-                  <h1 className="text-red-500">{analystsData?.sell} Sell</h1>
+                  <h1 className="text-red-500">
+                    {analystsData?.sell} {analystsData?.hold}{" "}
+                    {analystsData?.buy}{" "}
+                    {selectedLangCode === "ar" ? "يبيع" : "Sell"}{" "}
+                  </h1>
                 </div>
               </CardFooter>
             </Card>
