@@ -65,12 +65,6 @@ const handler = NextAuth({
     AppleProvider({
       clientId: process.env.APPLE_CLIENT_ID!,
       clientSecret: generateAppleClientSecret(),
-      authorization: {
-        params: {
-          scope: "name email",
-          response_mode: "query",
-        },
-      },
     }),
 
     AzureADProvider({
