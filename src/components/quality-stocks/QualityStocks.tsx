@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { formatCompactCurrency } from "../../../utils/formatCompactCurrency";
+import { useLanguage } from "@/providers/LanguageProvider"; // <-- Added import
 
 type Stock = {
   symbol: string;
@@ -43,7 +44,7 @@ type Stock = {
   lastRatingDate: string;
   sector: string;
   logo: string;
-  currentPrice?: string; // <-- Added this line
+  currentPrice?: string;
   olives?: {
     valuation?: string;
     competitiveAdvantage?: string;
@@ -74,6 +75,7 @@ export default function StockTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const router = useRouter();
   const session = useSession();
+  const { dictionary, selectedLangCode } = useLanguage(); // <-- Added language hook
 
   const userStatus = session?.status;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -159,7 +161,7 @@ export default function StockTable() {
   const columns = useMemo(
     () => [
       columnHelper.accessor("symbol", {
-        header: "Company",
+        header: dictionary.company,
         cell: (info) => (
           <div>
             <Link
@@ -184,14 +186,17 @@ export default function StockTable() {
         enableSorting: true,
       }),
       columnHelper.accessor("lastRatingDate", {
-        header: "Date",
+        header: dictionary.date,
         cell: (info) => {
           const date = new Date(info.getValue());
-          return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
+          return date.toLocaleDateString(
+            selectedLangCode === "ar" ? "ar-SA" : "en-US",
+            {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            }
+          );
         },
         enableSorting: true,
         sortingFn: (rowA, rowB) => {
@@ -201,13 +206,13 @@ export default function StockTable() {
         },
       }),
       columnHelper.accessor("sector", {
-        header: "Sector",
+        header: dictionary.sector,
         cell: (info) => info.getValue() || "N/A",
         enableSorting: true,
       }),
       columnHelper.display({
         id: "stockRating",
-        header: "Stock Rating",
+        header: dictionary.stockRating,
         cell: (info) => (
           <div className="flex justify-center items-center">
             <svg
@@ -256,7 +261,7 @@ export default function StockTable() {
         enableSorting: false,
       }),
       columnHelper.accessor("analystTarget", {
-        header: "Analyst Price Target",
+        header: dictionary.analystPriceTarget,
         cell: (info) => (
           <div className="text-center">
             <p className="text-green-500 font-medium">{info.getValue()}</p>
@@ -279,8 +284,7 @@ export default function StockTable() {
         id: "ratingTrend",
         header: () => (
           <div className="flex items-center">
-            <p>Ratings in Last</p>
-            <p className="ml-1">72 Days</p>
+            <p>{dictionary.ratingsInLast72Days || "Ratings in Last 72 Days"}</p>
           </div>
         ),
         cell: (info) => {
@@ -296,15 +300,21 @@ export default function StockTable() {
               <div className="flex flex-col text-xs">
                 <div className="flex items-center gap-1">
                   <div className="w-2 sm:w-3 h-2 sm:h-3 bg-green-500 rounded-sm"></div>
-                  <span>{buy} Buy</span>
+                  <span>
+                    {buy} {dictionary.buy}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 sm:w-3 h-2 sm:h-3 bg-yellow-400 rounded-sm"></div>
-                  <span>{hold} Hold</span>
+                  <span>
+                    {hold} {dictionary.hold}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 sm:w-3 h-2 sm:h-3 bg-red-500 rounded-sm"></div>
-                  <span>{sell} Sell</span>
+                  <span>
+                    {sell} {dictionary.sell}
+                  </span>
                 </div>
               </div>
             </div>
@@ -327,7 +337,7 @@ export default function StockTable() {
         },
       }),
       columnHelper.accessor("oneMonthReturn", {
-        header: "Month %",
+        header: dictionary.monthPercent,
         cell: (info) => (
           <span
             className={`font-medium ${
@@ -351,18 +361,18 @@ export default function StockTable() {
         },
       }),
       columnHelper.accessor("marketCap", {
-        header: "Market Cap",
+        header: dictionary.marketCap,
         cell: (info) => formatCompactCurrency(info.getValue()) || "N/A",
         enableSorting: true,
       }),
       columnHelper.accessor("currentPrice", {
-        header: "Price",
+        header: dictionary.price,
         cell: (info) => info.getValue() || "N/A",
         enableSorting: true,
       }),
       columnHelper.display({
         id: "action",
-        header: "Action",
+        header: dictionary.action,
         cell: (info) => {
           const rowData = info.row.original;
           return (
@@ -376,7 +386,7 @@ export default function StockTable() {
         },
       }),
     ],
-    []
+    [dictionary, selectedLangCode]
   );
 
   const data = useMemo(() => qualityStock?.qualityStocks || [], [qualityStock]);
@@ -402,9 +412,11 @@ export default function StockTable() {
   if (!qualityStock) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-        <h2 className="text-xl sm:text-2xl font-medium mb-4">Quality Stocks</h2>
+        <h2 className="text-xl sm:text-2xl font-medium mb-4">
+          {dictionary.qualityStocks || "Quality Stocks"}
+        </h2>
         <div className="flex items-center justify-center py-8">
-          <div className="text-gray-500">Loading stocks...</div>
+          <div className="text-gray-500">{"Loading stocks..."}</div>
         </div>
       </div>
     );
@@ -433,8 +445,13 @@ export default function StockTable() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 md:p-6 container mx-auto border mt-10">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl sm:text-2xl font-medium">{"Quality Stock"}</h2>
+      <div
+        dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+        className="flex justify-between items-center mb-4"
+      >
+        <h2 className="text-xl sm:text-2xl font-medium">
+          {dictionary.qualityStocks || "Quality Stocks"}
+        </h2>
 
         <div className="relative">
           <button
@@ -442,11 +459,15 @@ export default function StockTable() {
             className="bg-green-400 text-white font-bold py-2 px-3 rounded-lg flex gap-2 items-center"
           >
             <Copy />
-            <span>Copy To Portfolio</span>
+            <span>{"Copy To Portfolio"}</span>
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-10">
+            <div
+              className={`absolute ${
+                selectedLangCode === "ar" ? "left-0" : "right-0"
+              } mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-10`}
+            >
               {allPortfolio?.length > 0 ? (
                 allPortfolio.map((portfolio: PortfolioData) => (
                   <button
@@ -463,7 +484,7 @@ export default function StockTable() {
                 ))
               ) : (
                 <div className="px-4 py-2 text-sm text-gray-500">
-                  No portfolios found
+                  {"No portfolios found"}
                 </div>
               )}
             </div>
@@ -527,7 +548,7 @@ export default function StockTable() {
                   colSpan={columns.length}
                   className="px-4 py-8 text-center text-gray-500"
                 >
-                  No stocks available
+                  {"No stocks available"}
                 </td>
               </tr>
             )}
@@ -536,9 +557,12 @@ export default function StockTable() {
       </div>
 
       {table.getPageCount() > 1 && (
-        <div className="flex items-center justify-between p-2 sm:p-4 mt-2">
+        <div
+          dir={selectedLangCode === "ar" ? "rtl" : "ltr"}
+          className="flex items-center justify-between p-2 sm:p-4 mt-2"
+        >
           <div className="text-xs sm:text-sm text-gray-500">
-            Showing{" "}
+            {"Showing"}{" "}
             {table.getState().pagination.pageIndex *
               table.getState().pagination.pageSize +
               1}
@@ -548,7 +572,7 @@ export default function StockTable() {
                 table.getState().pagination.pageSize,
               table.getFilteredRowModel().rows.length
             )}{" "}
-            of {table.getFilteredRowModel().rows.length} stocks
+            {"of"} {table.getFilteredRowModel().rows.length} {"stocks"}
           </div>
           <div className="flex items-center space-x-1 sm:space-x-2">
             <button

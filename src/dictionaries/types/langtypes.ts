@@ -114,6 +114,7 @@ export interface LangTypes {
   clientReview: string;
   customer: string;
   goodExperience: string;
+  date: string;
 
   // Olive details page
   strongFinancialHealth: string;
