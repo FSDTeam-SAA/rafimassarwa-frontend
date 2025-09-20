@@ -117,6 +117,7 @@ export const arLangs = {
   clientReview: "آراء العملاء",
   customer: "عميل",
   goodExperience: "تجربة ممتازة",
+  date: "تاريخ",
 
   // Olive details page
   strongFinancialHealth: "صحة مالية قوية",

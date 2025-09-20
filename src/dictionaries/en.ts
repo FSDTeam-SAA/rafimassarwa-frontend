@@ -49,8 +49,8 @@ export const enLangs = {
   company: "Company",
   sector: "Sector",
   stockRating: "Stock Rating",
-  analystPriceTarget: "Analyst Price Target",
-  ratingsInLast72Days: "Ratings in Last 72 Days",
+  analystPriceTarget: "Price Target",
+  ratingsInLast72Days: "Ratings (Last 72 Days)",
   monthPercent: "Month %",
   marketCap: "Market Cap",
   action: "Action",
@@ -128,6 +128,7 @@ export const enLangs = {
   clientReview: "Our Client Reviews",
   customer: "Customer",
   goodExperience: "Good experience",
+  date: "Date",
 
   // Olive details page
   strongFinancialHealth: "Strong Financial Health",
