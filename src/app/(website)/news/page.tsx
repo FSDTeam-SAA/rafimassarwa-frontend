@@ -85,7 +85,7 @@ const NewsPage = () => {
       />
       <MoreFromTip stockNews={stockNews} />
       <StockNewsMain firstNews={firstNews} />
-      <StockMarketNews allNews={myNews} />
+      <StockMarketNews allNews={Array.isArray(myNews?.data) ? myNews.data : []} />
     </div>
   );
 };
